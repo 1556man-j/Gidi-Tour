@@ -39,7 +39,7 @@
     {
       title: 'Where to watch the sunset in Cape Town',
       tag: 'Cape Town',
-      image: 'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1000&q=80',
+      image: 'images/assets/cape-town-2.webp',
     },
     {
       title: 'Kenya beyond the safari circuit',

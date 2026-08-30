@@ -47,7 +47,7 @@
 		property="og:description"
 		content="We create meaningful travel experiences that bring you closer to the culture, people, food and stories that make a place unforgettable."
 	/>
-	<meta property="og:image" content="https://www.giditour.com/images/hero/hero.png" />
+	<meta property="og:image" content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png" />
 	<meta property="og:site_name" content="Gidi Tour" />
 
 	<!-- Twitter / X -->
@@ -57,7 +57,7 @@
 		name="twitter:description"
 		content="Discover the story behind Gidi Tour and how we create authentic travel experiences around culture, people, food and local life."
 	/>
-	<meta name="twitter:image" content="https://www.giditour.com/images/hero/hero.png" />
+	<meta name="twitter:image" content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png" />
 
 	<!-- AEO / Structured Data -->
 	<script type="application/ld+json">

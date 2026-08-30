@@ -22,7 +22,7 @@
 			n: '03',
 			name: 'History & Heritage',
 			image:
-				'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=700&q=80'
+				'images/assets/culture.jpg'
 		},
 		{
 			n: '04',
@@ -34,7 +34,7 @@
 			n: '05',
 			name: 'Local Life',
 			image:
-				'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=700&q=80'
+				'images/assets/local-life.jpg'
 		},
 		{
 			n: '06',
@@ -124,7 +124,7 @@
 			>
 				{#each experienceList as experience (experience.name)}
 					<a
-						href="/experiences"
+						href="/tours"
 						class="experience__card group relative min-w-[280px] overflow-hidden rounded-[22px] border border-white/10 bg-white/5 sm:min-w-[340px] lg:min-w-[380px] lg:flex-1"
 					>
 						<img

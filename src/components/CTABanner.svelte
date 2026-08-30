@@ -19,10 +19,10 @@
   const fallbackBanner: CtaBanner = {
     eyebrow: 'Ready when you are',
     heading: 'Your next trip starts with a single curious question.',
-    headingHighlight: 'curious question',
-    subcopy: 'Tell us where you want to go, and we\u2019ll handle the rest \u2014 flights, stays and the experiences that make it unforgettable.',
-    primaryLabel: 'Plan my trip',
-    primaryHref: '/plan',
+    headingHighlight: 'curious question.',
+    subcopy: 'Tell us where you want to go, and we\u2019ll handle the rest; flights, stays and the experiences that make it unforgettable.',
+    primaryLabel: 'Book a tour',
+    primaryHref: '/book',
     secondaryLabel: 'Talk to us',
     secondaryHref: '/contact',
     variant: 'brand',
@@ -61,7 +61,7 @@
             </span>
           {/if}
 
-          <h2 class="font-display text-[clamp(28px,4vw,44px)] leading-[1.15] tracking-[-.02em]">
+          <h2 class="font-bold text-[clamp(28px,4vw,44px)] leading-[1.15] tracking-[-.02em]">
             {#each headingParts as part, i}
               {part}{#if activeBanner.headingHighlight && i < headingParts.length - 1}<span
                   class="text-[#5C9B19]">{activeBanner.headingHighlight}</span

@@ -67,7 +67,7 @@
 			city: 'Cairo',
 			country: 'Egypt',
 			image:
-				'https://images.unsplash.com/photo-1568322445389-f64ac9c4382e?auto=format&fit=crop&w=900&q=80'
+				'images/assets/cairo.webp'
 		},
 		{
 			city: 'Marrakech',
@@ -79,7 +79,7 @@
 			city: 'Cape Town',
 			country: 'South Africa',
 			image:
-				'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=900&q=80'
+				'images/assets/cape-town-1.webp'
 		},
 		{
 			city: 'London',
@@ -124,7 +124,7 @@
 	<meta property="og:url" content="https://giditour.com/" />
 	<meta
 		property="og:image"
-		content="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1800&q=85"
+		content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png"
 	/>
 	<meta property="og:image:alt" content="Travel experience in Africa" />
 
@@ -139,7 +139,7 @@
 	/>
 	<meta
 		name="twitter:image"
-		content="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1800&q=85"
+		content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png"
 	/>
 
 	<script type="application/ld+json">
@@ -210,7 +210,7 @@
 			<div class="mb-8 flex flex-wrap items-center gap-4 max-md:justify-center">
 				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 				<a
-					href="/plan"
+					href="/book"
 					class="inline-flex items-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:scale-105"
 				>
 					Plan my trip
@@ -218,7 +218,7 @@
 				</a>
 				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 				<a
-					href="/experiences"
+					href="/tours"
 					class="text-sm font-bold border px-6 py-3 rounded-full border-black/40 text-[#17200f] transition hover:text-[#F98315]"
 				>
 					Browse experiences →
