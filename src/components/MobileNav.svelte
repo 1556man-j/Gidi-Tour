@@ -51,28 +51,30 @@
 <!-- MOBILE NAV -->
 <header
 	class:pt-3={scrolled}
-	class="fixed inset-x-0 top-0 z-[60] px-3 transition-all duration-500 ease-out md:hidden"
+	class="fixed inset-x-0 top-0 z-60 px-3 transition-all duration-500 ease-out md:hidden"
 >
 	<nav
-		class={`flex h-[64px] items-center justify-between border px-4 shadow-2xl backdrop-blur-xl transition-all duration-500 ease-out ${
+		class={`flex h-16 items-center justify-between border px-4 shadow-2xl backdrop-blur-xl transition-all duration-500 ease-out ${
 			scrolled
 				? 'rounded-2xl border-white/10 bg-black/55'
 				: 'rounded-b-2xl border-transparent bg-black/55'
 		}`}
 	>
 		<!-- LOGO -->
-		<a href="/" aria-label="Gidi Tour home" onclick={closeMenu} class="flex flex-col leading-none">
-			<span class="text-[22px] font-bold tracking-[-0.05em] text-white">
+		<a href="/" aria-label="Gidi Tour home" onclick={closeMenu} class="flex flex-col leading-none w-24">
+			<!-- <span class="text-[22px] font-bold tracking-[-0.05em] text-white">
 				GIDI<span class="text-[#f98315]">×</span>
 			</span>
 
-			<span class="text-[10px] font-bold tracking-[0.25em] text-[#f98315]"> TOUR </span>
+			<span class="text-[10px] font-bold tracking-[0.25em] text-[#f98315]"> TOUR </span> -->
+			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full">
 		</a>
 
 		<!-- RIGHT -->
 		<div class="flex items-center gap-2">
 			<!-- BOOK -->
 			<a
+				// eslint-disable-next-line svelte/no-navigation-without-resolve
 				href="/book"
 				onclick={closeMenu}
 				class="flex h-10 items-center gap-1.5 rounded-full bg-[#f98315] px-3.5 text-[11px] font-bold text-black transition active:scale-95"
@@ -149,6 +151,7 @@
 					<h3 class="mt-1 text-lg font-semibold">Destinations</h3>
 				</div>
 
+				
 				<a href="/destinations" onclick={closeMenu} class="text-xs text-[#f98315]"> View all → </a>
 			</div>
 
@@ -157,7 +160,7 @@
 					<a
 						href={destination.href}
 						onclick={closeMenu}
-						class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70 transition active:bg-[#f98315] active:text-black"
+						class="rounded-xl border border-white/10 bg-white/3 px-4 py-3 text-sm text-white/70 transition active:bg-[#f98315] active:text-black"
 					>
 						{destination.name}
 					</a>
@@ -168,6 +171,7 @@
 		<!-- CTA -->
 		<div class="px-5 pb-10">
 			<a
+				// eslint-disable-next-line svelte/no-navigation-without-resolve
 				href="/book"
 				onclick={closeMenu}
 				class="group flex w-full items-center justify-between rounded-2xl bg-[#f98315] px-5 py-4 text-black"

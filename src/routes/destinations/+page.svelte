@@ -269,7 +269,7 @@
 </script>
 
 <svelte:head>
-	<title>Destinations \u2014 Gidi Tour</title>
+	<title>Destinations - Gidi Tour</title>
 	<meta
 		name="description"
 		content="Nine places, one way of traveling. Browse Gidi Tour destinations across Africa and Europe, each built around local culture, food and people."

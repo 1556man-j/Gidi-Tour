@@ -32,8 +32,8 @@
     <div class="grid w-full grid-cols-1 gap-6 md:grid-cols-3 md:gap-9">
       <!-- Brand column -->
       <div class="col-span-2 md:col-span-1">
-        <a href="/">
-          <span class="font-display text-2xl tracking-[-.02em]">Gidi<span class="text-[#F98315]">.</span></span>
+        <a href="/" >
+          <img src="images/assets/LOGO-3.png" alt="logo" class="w-50 ">
         </a>
         <p class="mt-3.5 mb-4 max-w-[260px] text-sm text-black/70">
           Trips designed to bring you closer to the culture, people, food and stories that make each
@@ -143,7 +143,7 @@
       <div>
         <h5 class="mb-4 text-[11px] font-bold uppercase tracking-[.18em] text-[#F98315]">Explore</h5>
         <ul class="flex flex-col gap-2">
-          <li><a href="/experiences" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Experiences</a></li>
+          <li><a href="/tours" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Experiences</a></li>
           <li><a href="/stories" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Stories</a></li>
           <li><a href="/destinations" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Destinations</a></li>
           <li><a href="/about" class="text-[13px] text-black/70 transition hover:text-[#F98315]">About Us</a></li>

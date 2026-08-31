@@ -41,14 +41,15 @@
 		class="mx-auto flex h-[68px] max-w-[1440px] items-center border border-white/10 bg-black/55 px-4 shadow-2xl backdrop-blur-xl transition-all duration-500 ease-out lg:px-6"
 	>
 		<!-- LOGO -->
-		<a href="/" aria-label="Gidi Tour home" class="group mr-auto flex shrink-0 flex-col leading-none">
-			<span
+		<a href="/" aria-label="Gidi Tour home" class="group mr-auto flex shrink-0 flex-col leading-none w-24">
+			<!-- <span
 				class="text-[22px] font-bold tracking-[-0.04em] text-white transition-transform duration-300 group-hover:-translate-y-0.5 lg:text-[25px]"
 			>
 				GIDI<span class="text-[#f98315]">×</span>
 			</span>
 
-			<span class="text-[11px] font-bold tracking-[0.25em] text-[#f98315] lg:text-xs"> TOUR </span>
+			<span class="text-[11px] font-bold tracking-[0.25em] text-[#f98315] lg:text-xs"> TOUR </span> -->
+			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full">
 		</a>
 
 		<!-- NAV LINKS -->

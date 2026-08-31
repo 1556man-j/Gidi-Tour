@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import CTABanner from '../../components/CTABanner.svelte';
-
+	import { articles, categories, categoryColor } from '$lib/data/articles';
 	import {
 		Clock3,
 		ArrowUpRight,
@@ -23,139 +23,138 @@
 		CheckCircle2
 	} from 'lucide-svelte';
 
-	type Category = 'Guides' | 'Culture' | 'Food' | 'Tips' | 'Stories';
+	// type Category = 'Guides' | 'Culture' | 'Food' | 'Tips' | 'Stories';
 
-	type Article = {
-		slug: string;
-		title: string;
-		excerpt: string;
-		category: Category;
-		destination: string;
-		readTime: number;
-		date: string;
-		image: string;
-		featured?: boolean;
-	};
+	// type Article = {
+	// 	slug: string;
+	// 	title: string;
+	// 	excerpt: string;
+	// 	category: Category;
+	// 	destination: string;
+	// 	readTime: number;
+	// 	date: string;
+	// 	image: string;
+	// 	featured?: boolean;
+	// };
 
-	const articles: Article[] = [
-		{
-			slug: 'lagos-like-a-local',
-			title: 'How to experience Lagos like a local, not a tourist',
-			excerpt:
-				'Skip the landmarks list. Here\u2019s how to actually spend three days in Lagos the way people who live there do \u2014 danfo rides included.',
-			category: 'Guides',
-			destination: 'Lagos, Nigeria',
-			readTime: 7,
-			date: '2026-07-14',
-			image:
-				'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=1600&q=80',
-			featured: true
-		},
-		{
-			slug: 'ghana-beyond-accra',
-			title: 'A first-timer\u2019s guide to Ghana beyond Accra',
-			excerpt:
-				'Cape Coast, Kumasi and the towns guidebooks skip entirely \u2014 where to go once you\u2019ve done the capital.',
-			category: 'Guides',
-			destination: 'Ghana',
-			readTime: 6,
-			date: '2026-07-02',
-			image:
-				'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'tanzania-beyond-safari',
-			title: 'Why Tanzania is more than safari',
-			excerpt:
-				'Zanzibar\u2019s spice farms, the coast, and the parts of the country most itineraries never touch.',
-			category: 'Stories',
-			destination: 'Tanzania',
-			readTime: 5,
-			date: '2026-06-20',
-			image:
-				'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'accra-street-food',
-			title: 'Street food you have to try in Accra',
-			excerpt: 'Waakye stalls, kelewele carts and the corner spots locals actually queue for.',
-			category: 'Food',
-			destination: 'Accra, Ghana',
-			readTime: 4,
-			date: '2026-06-11',
-			image:
-				'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'zanzibar-weekend',
-			title: 'A weekend guide to Zanzibar',
-			excerpt:
-				'Stone Town in a day, the coast in two more \u2014 a realistic weekend itinerary that doesn\u2019t rush it.',
-			category: 'Guides',
-			destination: 'Zanzibar, Tanzania',
-			readTime: 8,
-			date: '2026-05-29',
-			image:
-				'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'lagos-art-scene',
-			title: 'Inside Lagos\u2019 art and design scene',
-			excerpt:
-				'From Yaba studios to Victoria Island galleries \u2014 where the city\u2019s creative class actually gathers.',
-			category: 'Culture',
-			destination: 'Lagos, Nigeria',
-			readTime: 6,
-			date: '2026-05-15',
-			image:
-				'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'cape-town-sunsets',
-			title: 'Where to watch the sunset in Cape Town',
-			excerpt:
-				'Signal Hill gets crowded. Here are five quieter spots with the same view, minus the tour buses.',
-			category: 'Tips',
-			destination: 'Cape Town, South Africa',
-			readTime: 3,
-			date: '2026-04-30',
-			image:
-				'images/assets/cape-town-2.webp'
-		},
-		{
-			slug: 'kenya-beyond-safari-circuit',
-			title: 'Kenya beyond the safari circuit',
-			excerpt:
-				'Nairobi\u2019s coffee culture, the highlands, and a country that\u2019s more than one national park.',
-			category: 'Stories',
-			destination: 'Kenya',
-			readTime: 7,
-			date: '2026-04-18',
-			image:
-				'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80'
-		},
-		{
-			slug: 'rwanda-slow-travel',
-			title: 'A slow travel guide to Rwanda',
-			excerpt:
-				'Why we tell people to spend fewer days doing more, and more days doing less, in Kigali and beyond.',
-			category: 'Tips',
-			destination: 'Rwanda',
-			readTime: 5,
-			date: '2026-03-27',
-			image:
-				'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1200&q=80'
-		}
-	];
+	// const articles: Article[] = [
+	// 	{
+	// 		slug: 'lagos-like-a-local',
+	// 		title: 'How to experience Lagos like a local, not a tourist',
+	// 		excerpt:
+	// 			'Skip the landmarks list. Here\u2019s how to actually spend three days in Lagos the way people who live there do \u2014 danfo rides included.',
+	// 		category: 'Guides',
+	// 		destination: 'Lagos, Nigeria',
+	// 		readTime: 7,
+	// 		date: '2026-07-14',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=1600&q=80',
+	// 		featured: true
+	// 	},
+	// 	{
+	// 		slug: 'ghana-beyond-accra',
+	// 		title: 'A first-timer\u2019s guide to Ghana beyond Accra',
+	// 		excerpt:
+	// 			'Cape Coast, Kumasi and the towns guidebooks skip entirely \u2014 where to go once you\u2019ve done the capital.',
+	// 		category: 'Guides',
+	// 		destination: 'Ghana',
+	// 		readTime: 6,
+	// 		date: '2026-07-02',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'tanzania-beyond-safari',
+	// 		title: 'Why Tanzania is more than safari',
+	// 		excerpt:
+	// 			'Zanzibar\u2019s spice farms, the coast, and the parts of the country most itineraries never touch.',
+	// 		category: 'Stories',
+	// 		destination: 'Tanzania',
+	// 		readTime: 5,
+	// 		date: '2026-06-20',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'accra-street-food',
+	// 		title: 'Street food you have to try in Accra',
+	// 		excerpt: 'Waakye stalls, kelewele carts and the corner spots locals actually queue for.',
+	// 		category: 'Food',
+	// 		destination: 'Accra, Ghana',
+	// 		readTime: 4,
+	// 		date: '2026-06-11',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'zanzibar-weekend',
+	// 		title: 'A weekend guide to Zanzibar',
+	// 		excerpt:
+	// 			'Stone Town in a day, the coast in two more \u2014 a realistic weekend itinerary that doesn\u2019t rush it.',
+	// 		category: 'Guides',
+	// 		destination: 'Zanzibar, Tanzania',
+	// 		readTime: 8,
+	// 		date: '2026-05-29',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'lagos-art-scene',
+	// 		title: 'Inside Lagos\u2019 art and design scene',
+	// 		excerpt:
+	// 			'From Yaba studios to Victoria Island galleries \u2014 where the city\u2019s creative class actually gathers.',
+	// 		category: 'Culture',
+	// 		destination: 'Lagos, Nigeria',
+	// 		readTime: 6,
+	// 		date: '2026-05-15',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'cape-town-sunsets',
+	// 		title: 'Where to watch the sunset in Cape Town',
+	// 		excerpt:
+	// 			'Signal Hill gets crowded. Here are five quieter spots with the same view, minus the tour buses.',
+	// 		category: 'Tips',
+	// 		destination: 'Cape Town, South Africa',
+	// 		readTime: 3,
+	// 		date: '2026-04-30',
+	// 		image: 'images/assets/cape-town-2.webp'
+	// 	},
+	// 	{
+	// 		slug: 'kenya-beyond-safari-circuit',
+	// 		title: 'Kenya beyond the safari circuit',
+	// 		excerpt:
+	// 			'Nairobi\u2019s coffee culture, the highlands, and a country that\u2019s more than one national park.',
+	// 		category: 'Stories',
+	// 		destination: 'Kenya',
+	// 		readTime: 7,
+	// 		date: '2026-04-18',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80'
+	// 	},
+	// 	{
+	// 		slug: 'rwanda-slow-travel',
+	// 		title: 'A slow travel guide to Rwanda',
+	// 		excerpt:
+	// 			'Why we tell people to spend fewer days doing more, and more days doing less, in Kigali and beyond.',
+	// 		category: 'Tips',
+	// 		destination: 'Rwanda',
+	// 		readTime: 5,
+	// 		date: '2026-03-27',
+	// 		image:
+	// 			'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1200&q=80'
+	// 	}
+	// ];
 
-	const categories: Category[] = ['Guides', 'Culture', 'Food', 'Tips', 'Stories'];
-	const categoryColor: Record<Category, string> = {
-		Guides: '#5C9B19',
-		Culture: '#F98315',
-		Food: '#F98315',
-		Tips: '#5C9B19',
-		Stories: '#17200f'
-	};
+	// const categories: Category[] = ['Guides', 'Culture', 'Food', 'Tips', 'Stories'];
+	// const categoryColor: Record<Category, string> = {
+	// 	Guides: '#5C9B19',
+	// 	Culture: '#F98315',
+	// 	Food: '#F98315',
+	// 	Tips: '#5C9B19',
+	// 	Stories: '#17200f'
+	// };
 
 	let activeCategory = $state<Category | 'All'>('All');
 	let query = $state('');
@@ -648,46 +647,46 @@
 <section class="bg-[#fff] px-5 rounded-4xl py-20 text-black sm:px-8 lg:px-12 lg:py-28">
 	<div class="mx-auto max-w-[1440px]">
 		<div class="grid gap-10 lg:grid-cols-12 lg:items-stretch">
-	<div class="lg:col-span-4 w-full">
-		<div class="h-[300px] sm:h-[400px] md:h-[450px] lg:h-full lg:min-h-[500px]">
-			<img
-				src="images/hero/travel-tip.jpg"
-				alt="Travel Tips"
-				class="block w-full h-full rounded-2xl object-cover object-center"
-			/>
-		</div>
-	</div>
-
-	<div class="lg:col-span-7 lg:col-start-6">
-		<div>
-			<span
-				class="inline-flex rounded-full bg-black/10 px-4 py-1.5 text-[17px] font-bold capitalize text-[#F98315]"
-			>
-				Travel Tips
-			</span>
-
-			<h2 class="mt-5 text-4xl font-bold leading-[1.05] tracking-[-.03em] sm:text-5xl">
-				Small things that<br /> save a whole trip.
-			</h2>
-
-			<p class="mt-5 max-w-sm text-black/75">
-				Nothing dramatic, just the details that separate a smooth trip from a stressful one.
-			</p>
-		</div>
-
-		<ul>
-			{#each travelTips as tip, i (tip)}
-				<li class="flex gap-4 border-b border-white/10 py-5 first:pt-0 last:border-0">
-					<CheckCircle2
-						class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#5C9B19]"
-						aria-hidden="true"
+			<div class="lg:col-span-4 w-full">
+				<div class="h-[300px] sm:h-[400px] md:h-[450px] lg:h-full lg:min-h-[500px]">
+					<img
+						src="images/hero/travel-tip.jpg"
+						alt="Travel Tips"
+						class="block w-full h-full rounded-2xl object-cover object-center"
 					/>
-					<p class="text-[15px] leading-relaxed text-black/79">{tip}</p>
-				</li>
-			{/each}
-		</ul>
-	</div>
-</div>
+				</div>
+			</div>
+
+			<div class="lg:col-span-7 lg:col-start-6">
+				<div>
+					<span
+						class="inline-flex rounded-full bg-black/10 px-4 py-1.5 text-[17px] font-bold capitalize text-[#F98315]"
+					>
+						Travel Tips
+					</span>
+
+					<h2 class="mt-5 text-4xl font-bold leading-[1.05] tracking-[-.03em] sm:text-5xl">
+						Small things that<br /> save a whole trip.
+					</h2>
+
+					<p class="mt-5 max-w-sm text-black/75">
+						Nothing dramatic, just the details that separate a smooth trip from a stressful one.
+					</p>
+				</div>
+
+				<ul>
+					{#each travelTips as tip, i (tip)}
+						<li class="flex gap-4 border-b border-white/10 py-5 first:pt-0 last:border-0">
+							<CheckCircle2
+								class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#5C9B19]"
+								aria-hidden="true"
+							/>
+							<p class="text-[15px] leading-relaxed text-black/79">{tip}</p>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		</div>
 	</div>
 </section>
 
@@ -706,8 +705,7 @@
 				Timing matters more<br />than people admit.
 			</h2>
 			<p class="mt-5 text-lg leading-relaxed text-[#17200f]/70">
-				Same destination, different month, completely different trip. Here's the honest
-				breakdown.
+				Same destination, different month, completely different trip. Here's the honest breakdown.
 			</p>
 		</div>
 
@@ -830,5 +828,4 @@
 </section> -->
 
 <!-- CTA Banner -->
-<CTABanner/>
-   
+<CTABanner />
