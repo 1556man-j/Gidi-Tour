@@ -3,131 +3,14 @@
 	import { fade } from 'svelte/transition';
 	import { ArrowUpRight, MapPin, Clock3, Wallet } from 'lucide-svelte';
 	import CTABanner from '../../components/CTABanner.svelte';
-    import { onMount } from 'svelte';
 	import TestimonialBand from '../../components/TestimonialBand.svelte';
-
-	type Region = 'West Africa' | 'East Africa' | 'North Africa' | 'Southern Africa' | 'Europe';
-
-	type Destination = {
-		city: string;
-		country: string;
-		region: Region;
-		image: string;
-		blurb: string;
-		bestTime: string;
-		duration: string;
-		priceFrom: string;
-		href?: string;
-	};
-
-	const destinations: Destination[] = [
-		{
-			city: 'Lagos',
-			country: 'Nigeria',
-			region: 'West Africa',
-			blurb:
-				'A city that never quite settles. Afrobeats in the taxi, jollof arguments at every table, and a creative scene that\u2019s impossible to fake your way through.',
-			bestTime: 'Nov \u2013 Feb',
-			duration: '5\u20137 days',
-			priceFrom: '$980',
-			image: 'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Accra',
-			country: 'Ghana',
-			region: 'West Africa',
-			blurb:
-				'Slower than Lagos, warmer for it. Coastal forts heavy with history, kitchens that don\u2019t rush, and a pace that lets you actually talk to people.',
-			bestTime: 'Aug \u2013 Oct',
-			duration: '4\u20136 days',
-			priceFrom: '$860',
-			image: 'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Nairobi',
-			country: 'Kenya',
-			region: 'East Africa',
-			blurb:
-				'A working city first, a safari gateway second. Come for the highlands and the game drives, stay because the coffee is genuinely some of the best on the continent.',
-			bestTime: 'Jun \u2013 Sep',
-			duration: '6\u20138 days',
-			priceFrom: '$1,240',
-			image: 'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Zanzibar',
-			country: 'Tanzania',
-			region: 'East Africa',
-			blurb:
-				'Stone Town alleys that smell like cloves and salt water. Beaches that photograph well, but the real draw is the spice farms and the call to prayer at dusk.',
-			bestTime: 'Jun \u2013 Oct',
-			duration: '4\u20135 days',
-			priceFrom: '$1,050',
-			image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Kigali',
-			country: 'Rwanda',
-			region: 'East Africa',
-			blurb:
-				'The cleanest capital you\u2019ll visit in Africa, and one of the most honest about its own history. Green hills, quiet mornings, gorillas if you go further out.',
-			bestTime: 'Jun \u2013 Aug',
-			duration: '5\u20137 days',
-			priceFrom: '$1,480',
-			image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Cairo',
-			country: 'Egypt',
-			region: 'North Africa',
-			blurb:
-				'Loud, ancient, and completely unbothered by your expectations. The pyramids are the easy part, the real story is in the markets and the Nile at sunset.',
-			bestTime: 'Oct \u2013 Apr',
-			duration: '5\u20136 days',
-			priceFrom: '$1,120',
-			image: 'images/assets/cairo.webp'
-		},
-		{
-			city: 'Marrakech',
-			country: 'Morocco',
-			region: 'North Africa',
-			blurb:
-				'The souks will get you lost on purpose. Ride it out, that\u2019s where the good tea, the good leather, and the good stories actually happen.',
-			bestTime: 'Mar \u2013 May',
-			duration: '4\u20136 days',
-			priceFrom: '$940',
-			image: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Cape Town',
-			country: 'South Africa',
-			region: 'Southern Africa',
-			blurb:
-				'A city that argues with its own coastline and wins. Table Mountain on one side, the winelands twenty minutes the other way. Bring layers.',
-			bestTime: 'Nov \u2013 Mar',
-			duration: '6\u20139 days',
-			priceFrom: '$1,360',
-			image: 'images/assets/cape-town-1.webp'
-		},
-		{
-			city: 'London',
-			country: 'United Kingdom',
-			region: 'Europe',
-			blurb:
-				'We built our UK route around the parts guidebooks skip; the markets, the immigrant neighborhoods, the pubs that haven\u2019t changed their menu since 1987.',
-			bestTime: 'May \u2013 Sep',
-			duration: '4\u20135 days',
-			priceFrom: '$1,020',
-			image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1400&q=80'
-		}
-	];
-
-	const regions: Region[] = ['West Africa', 'East Africa', 'North Africa', 'Southern Africa', 'Europe'];
+	import { onMount } from 'svelte';
+	import { countries, regions, type Region } from '$lib/data/destinations';
 
 	let activeRegion = $state<Region | 'All'>('All');
 
 	const filtered = $derived(
-		activeRegion === 'All' ? destinations : destinations.filter((d) => d.region === activeRegion)
+		activeRegion === 'All' ? countries : countries.filter((c) => c.region === activeRegion)
 	);
 
     type Reason = {
@@ -147,7 +30,7 @@
 		{
 			icon: 'clock',
 			title: 'Google can\u2019t book you a table',
-			copy: 'Search gives you options. We give you the reservation, the guide, the ride, and the backup plan when the first place is closed for a wedding.',
+			copy: 'Search gives you options. We give you the reservation, the guide, the rie, and the backup plan when the first place is closed for a wedding.',
 			stat: { value: 14, suffix: 'hrs', label: 'average planning time saved' }
 		},
 		{
@@ -272,7 +155,7 @@
 	<title>Destinations - Gidi Tour</title>
 	<meta
 		name="description"
-		content="Nine places, one way of traveling. Browse Gidi Tour destinations across Africa and Europe, each built around local culture, food and people."
+		content="Countries, dozens of cities. Browse Gidi Tour destinations across Africa and Europe, each built around local culture, food and people."
 	/>
 </svelte:head>
 
@@ -280,42 +163,28 @@
 <section class="bg-[#f7f3ea] px-5 pb-10 pt-16 sm:px-8 lg:px-12 lg:pt-24" use:reveal>
 	<div class="mx-auto max-w-[1440px]">
 		<div class="max-w-3xl">
-			<span
-				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[16px] font-bold uppercase  text-[#5C9B19] shadow-sm"
-			>
+			<span class="inline-flex rounded-full bg-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-[.18em] text-[#5C9B19] shadow-sm">
 				Destinations
 			</span>
 			<h1 class="font-display mt-5 text-4xl leading-[1.05] tracking-[-.03em] font-bold text-[#17200f] sm:text-5xl lg:text-6xl">
-				Places we know well<br /> <span class="text-[#f98315]">enough</span> to send you.
+				Countries we know well<br /> <span class="text-[#f98315]">enough</span> to send you.
 			</h1>
 			<p class="mt-5 max-w-xl text-lg leading-relaxed text-[#17200f]/75">
-				We don't run everywhere. We run the places we've actually spent time in, with guides who
-				live there and routes that hold up after the third visit.
+				Every country here has more than one city worth your time. Pick a country, then pick
+				where in it you want to go.
 			</p>
 		</div>
 
 		<!-- Filter bar -->
 		<div class="no-scrollbar mt-10 flex items-center gap-2 overflow-x-auto border-b border-black/10 pb-5">
-			<button
-				type="button"
-				class="filter-pill"
-				class:filter-pill--active={activeRegion === 'All'}
-				onclick={() => (activeRegion = 'All')}
-			>
+			<button type="button" class="filter-pill" class:filter-pill--active={activeRegion === 'All'} onclick={() => (activeRegion = 'All')}>
 				All
-				<span class="filter-pill__count">{destinations.length}</span>
+				<span class="filter-pill__count">{countries.length}</span>
 			</button>
 			{#each regions as region (region)}
-				<button
-					type="button"
-					class="filter-pill"
-					class:filter-pill--active={activeRegion === region}
-					onclick={() => (activeRegion = region)}
-				>
+				<button type="button" class="filter-pill" class:filter-pill--active={activeRegion === region} onclick={() => (activeRegion = region)}>
 					{region}
-					<span class="filter-pill__count">
-						{destinations.filter((d) => d.region === region).length}
-					</span>
+					<span class="filter-pill__count">{countries.filter((c) => c.region === region).length}</span>
 				</button>
 			{/each}
 		</div>
@@ -325,9 +194,9 @@
 <!-- INDEX -->
 <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-[1440px]">
-		{#each filtered as destination, i (destination.city)}
+		{#each filtered as country, i (country.slug)}
 			<a
-				href={destination.href ?? `/destinations/${destination.city.toLowerCase().replace(/\s+/g, '-')}`}
+				href={`/destinations/${country.slug}`}
 				class="dest-row group grid grid-cols-1 items-center gap-8 border-b border-black/10 py-10 first:pt-0 lg:grid-cols-12 lg:gap-6 lg:py-14"
 				class:lg:direction-reverse={i % 2 === 1}
 				in:fade={{ duration: 200 }}
@@ -344,37 +213,39 @@
 					</div>
 
 					<p class="mb-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#F98315]">
-						{destination.region}
+						{country.region} \u00b7 {country.cities.length} cities
 					</p>
 
 					<h2 class="font-display text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">
-						{destination.city}
-						<span class="text-[#17200f]/35">, {destination.country}</span>
+						{country.name}
 					</h2>
 
 					<p class="mt-4 max-w-md text-[15px] leading-relaxed text-[#17200f]/60">
-						{destination.blurb}
+						{country.intro}
 					</p>
 
-					<div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-[#17200f]/50">
-						<span class="flex items-center gap-1.5">
-							<MapPin class="h-3.5 w-3.5" aria-hidden="true" />
-							Best {destination.bestTime}
-						</span>
-						<span class="flex items-center gap-1.5">
-							<Clock3 class="h-3.5 w-3.5" aria-hidden="true" />
-							{destination.duration}
-						</span>
-						<span class="flex items-center gap-1.5">
-							<Wallet class="h-3.5 w-3.5" aria-hidden="true" />
-							From {destination.priceFrom}
-						</span>
+					<!-- City chips -->
+					<div class="mt-5 flex flex-wrap gap-1.5">
+						{#each country.cities.slice(0, 4) as city (city.name)}
+							<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/60">
+								{city.name}
+							</span>
+						{/each}
+						{#if country.cities.length > 4}
+							<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/40">
+								+{country.cities.length - 4} more
+							</span>
+						{/if}
 					</div>
 
-					<span
-						class="dest-row__cta mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-[#5C9B19] transition group-hover:text-[#F98315]"
-					>
-						View the route
+					<div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-[#17200f]/50">
+						<span class="flex items-center gap-1.5"><MapPin class="h-3.5 w-3.5" aria-hidden="true" />Best {country.bestTime}</span>
+						<span class="flex items-center gap-1.5"><Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{country.duration}</span>
+						<span class="flex items-center gap-1.5"><Wallet class="h-3.5 w-3.5" aria-hidden="true" />From {country.priceFrom}</span>
+					</div>
+
+					<span class="dest-row__cta mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-[#5C9B19] transition group-hover:text-[#F98315]">
+						Explore {country.name}
 						<ArrowUpRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
 					</span>
 				</div>
@@ -382,21 +253,14 @@
 				<!-- Image -->
 				<div class="lg:col-span-5" class:lg:order-3={i % 2 === 1}>
 					<div class="dest-row__frame relative aspect-[4/3] overflow-hidden rounded-[20px]">
-						<img
-							src={destination.image}
-							alt={`${destination.city}, ${destination.country}`}
-							class="dest-row__img absolute inset-0 h-full w-full object-cover"
-							loading="lazy"
-						/>
+						<img src={country.heroImage} alt={country.name} class="dest-row__img absolute inset-0 h-full w-full object-cover" loading="lazy" />
 					</div>
 				</div>
 			</a>
 		{/each}
 
 		{#if filtered.length === 0}
-			<p class="py-16 text-center text-sm text-[#17200f]/50">
-				Nothing in this region yet \u2014 check back soon.
-			</p>
+			<p class="py-16 text-center text-sm text-[#17200f]/50">Nothing in this region yet — check back soon.</p>
 		{/if}
 	</div>
 </section>
