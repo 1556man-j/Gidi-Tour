@@ -4,8 +4,9 @@
 	import { getArticleBySlug, getRelatedArticles, categoryColor } from '$lib/data/articles';
 	import { ArrowLeft, Clock3, ArrowUpRight } from 'lucide-svelte';
 
-	const slug = $derived(page.params.slug);
-	const article = $derived(getArticleBySlug(slug));
+	const slug = page.params.slug;
+
+	const article = getArticleBySlug(slug);
 
 	if (!article) {
 		throw error(404, 'Article not found');
