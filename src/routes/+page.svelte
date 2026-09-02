@@ -7,96 +7,24 @@
 	import DownloadApp from '../components/DownloadApp.svelte';
 	import type { PageData } from './$types';
 	import TestimonialBand from '../components/TestimonialBand.svelte';
+	import { countries } from '$lib/data/destinations';
 
-	type Destination = {
-		city: string;
-		country: string;
-		image: string;
-		blurb?: string;
-		href?: string;
-	};
-
-	// single $props() call for everything this page destructures
+	// single $props() call for everything this page
 	let {
-		destinations,
 		heroHeadline = 'Travel that feels like',
 		heroHeadlineAccent = 'coming home.',
 		heroSubcopy = 'Go beyond the guidebook. We plan trips around the culture, food and people that make a place unforgettable.',
 		heroSocialProof = '12,000+ travelers explored with Gidi'
 	}: {
-		destinations?: Destination[];
 		heroHeadline?: string;
 		heroHeadlineAccent?: string;
 		heroSubcopy?: string;
 		heroSocialProof?: string;
 	} = $props();
 
-	const fallbackDestinations: Destination[] = [
-		{
-			city: 'Lagos',
-			country: 'Nigeria',
-			blurb: 'Fast, loud, unforgettable.',
-			image:
-				'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=1400&q=80'
-		},
-		{
-			city: 'Accra',
-			country: 'Ghana',
-			image:
-				'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=900&q=80'
-		},
-		{
-			city: 'Nairobi',
-			country: 'Kenya',
-			image:
-				'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=900&q=80'
-		},
-		{
-			city: 'Zanzibar',
-			country: 'Tanzania',
-			image:
-				'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=900&q=80'
-		},
-		{
-			city: 'Kigali',
-			country: 'Rwanda',
-			image:
-				'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=900&q=80'
-		},
-		{
-			city: 'Cairo',
-			country: 'Egypt',
-			image:
-				'images/assets/cairo.webp'
-		},
-		{
-			city: 'Marrakech',
-			country: 'Morocco',
-			image:
-				'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=900&q=80'
-		},
-		{
-			city: 'Cape Town',
-			country: 'South Africa',
-			image:
-				'images/assets/cape-town-1.webp'
-		},
-		{
-			city: 'London',
-			country: 'United Kingdom',
-			image:
-				'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80'
-		}
-	];
+	const featuredCountries = $derived(countries.slice(0, 5));
 
-	const destinationList = $derived(destinations && destinations.length ? destinations : fallbackDestinations);
-
-	// split into a 5-up top row and whatever remains on the bottom row
-	const topRow = $derived(destinationList.slice(0, 5));
-	const bottomRow = $derived(destinationList.slice(5));
-
-	let activeTop = $state(0);
-	let activeBottom = $state(0);
+	let activeCountry = $state(0);
 </script>
 
 <svelte:head>
@@ -191,7 +119,7 @@
 			</span>
 
 			<h1
-				class="font-display mb-3 text-5xl leading-[.95] tracking-[-.03em] font-bold text-[#17200f] sm:text-6xl"
+				class="font-bold mb-3 text-5xl leading-[.95] tracking-[-.03em] font-bold text-[#17200f] sm:text-6xl"
 			>
 				<span class="block">{heroHeadline}</span>
 				<span class="block text-[#F98315]">{heroHeadlineAccent}</span>
@@ -366,7 +294,7 @@
 	<div class="mx-auto max-w-[1100px]">
 		<div class="reveal text-center">
 			<p class="text-[17px] font-bold capitalize text-[#5C9B19]">Gidi Tour by numbers</p>
-			<h2 class="font-display mt-3 text-4xl tracking-[-.03em] sm:text-5xl">
+			<h2 class="font-bold mt-3 text-4xl tracking-[-.03em] sm:text-5xl">
 				Small details. Big memories.
 			</h2>
 		</div>
@@ -375,27 +303,27 @@
 			class="reveal mt-12 bg-white shadow-md grid grid-cols-2 divide-x divide-y divide-black/10 sm:grid-cols-4 sm:divide-y-0"
 		>
 			<div class="p-6 text-center">
-				<p class="font-display text-4xl lg:text-6xl text-[#5C9B19]">09+</p>
+				<p class="font-bold text-4xl lg:text-6xl text-[#5C9B19]">09+</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
 					Countries where you can discover new places, cultures, flavours, and stories.
 				</p>
 			</div>
 			<div class="p-6 text-center">
-				<p class="font-display text-4xl lg:text-6xl text-[#5C9B19]">100+</p>
+				<p class="font-bold text-4xl lg:text-6xl text-[#5C9B19]">100+</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
 					Curated experiences designed to help you see each destination beyond the usual tourist
 					spots.
 				</p>
 			</div>
 			<div class="p-6 text-center">
-				<p class="font-display text-4xl lg:text-6xl text-[#5C9B19]">100%</p>
+				<p class="font-bold text-4xl lg:text-6xl text-[#5C9B19]">100%</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
 					Local experiences built around the people, culture, food, history, and everyday life of
 					each destination.
 				</p>
 			</div>
 			<div class="p-6 text-center">
-				<p class="font-display text-4xl lg:text-6xl text-[#F98315]">∞</p>
+				<p class="font-bold text-4xl lg:text-6xl text-[#F98315]">∞</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
 					Stories, connections, and memories waiting to become part of your journey.
 				</p>
@@ -516,151 +444,113 @@
 <GidiExperience />
 
 <!-- DESTINATIONS -->
-<section id="destinations" class="bg-[#f7f3ea] px-5 py-20 text-[#17200f] sm:px-8 lg:px-12 lg:py-28" use:reveal>
+<section
+	id="destinations"
+	class="bg-[#f7f3ea] px-5 py-20 text-[#17200f] sm:px-8 lg:px-12 lg:py-28"
+	use:reveal
+>
 	<div class="mx-auto max-w-[1440px]">
 		<div class="reveal mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
 			<div class="max-w-xl">
 				<p class="text-lg font-bold capitalize text-[#5C9B19]">Where will you go?</p>
-				<h2 class="font-display mt-3 text-5xl leading-[.9] tracking-[-.04em] sm:text-6xl">
+				<h2 class="font-bold mt-3 text-5xl leading-[.9] tracking-[-.04em] sm:text-6xl">
 					Explore our<br />destinations.
 				</h2>
 				<p class="mt-5 max-w-md text-sm leading-6 text-black/55">
-					From busy city streets to wide-open landscapes, find a place that gives you a story to
-					take home.
+					Five countries to start with — each one holds far more than a single city. See the full
+					list, or dive into one below.
 				</p>
 			</div>
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a href="/destinations" class="text-xs font-bold text-[#F98315]">View all destinations →</a>
 		</div>
 
-		<!-- Desktop: two rows of expanding panels -->
-		<div class="reveal hidden flex-col gap-3 lg:flex">
-			<!-- Row 1 -->
-			<div class="flex gap-2 lg:h-[300px]">
-				{#each topRow as destination, i (destination.city)}
-					<a
-						href={destination.href ?? '/destinations'}
-						class="dest-panel group relative overflow-hidden rounded-[22px]"
-						class:dest-panel--active={activeTop === i}
-						style="flex-grow: {activeTop === i ? 3 : 1};"
-						onmouseenter={() => (activeTop = i)}
-						onfocusin={() => (activeTop = i)}
+		<!-- Desktop: single row of taller expanding panels -->
+		<div class="reveal hidden gap-3 lg:flex lg:h-[620px]">
+			{#each featuredCountries as country, i (country.slug)}
+				<a
+					href={`/destinations/${country.slug}`}
+					class="dest-panel group relative overflow-hidden rounded-[26px]"
+					class:dest-panel--active={activeCountry === i}
+					style="flex-grow: {activeCountry === i ? 3 : 1};"
+					onmouseenter={() => (activeCountry = i)}
+					onfocusin={() => (activeCountry = i)}
+				>
+					<img
+						src={country.heroImage}
+						alt={country.name}
+						class="dest-panel__img absolute inset-0 h-full w-full object-cover"
+						loading="lazy"
+					/>
+					<div
+						class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"
+					></div>
+
+					<!-- Collapsed label -->
+					<div
+						class="dest-panel__collapsed absolute inset-x-0 bottom-8 flex items-center justify-center"
+						class:opacity-0={activeCountry === i}
 					>
-						<img
-							src={destination.image}
-							alt={`${destination.city}, ${destination.country}`}
-							class="dest-panel__img absolute inset-0 h-full w-full object-cover"
-							loading="lazy"
-						/>
-						<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/0"></div>
-
-						<div
-							class="dest-panel__collapsed absolute inset-x-0 bottom-6 flex items-center justify-center"
-							class:opacity-0={activeTop === i}
+						<span
+							class="rotate-180 text-sm font-bold tracking-[.12em] text-white [writing-mode:vertical-rl]"
 						>
-							<span class="rotate-180 text-xs font-bold tracking-[.1em] text-white [writing-mode:vertical-rl]">
-								{destination.city}
-							</span>
-						</div>
+							{country.name}
+						</span>
+					</div>
 
-						<div
-							class="dest-panel__expanded absolute inset-x-0 bottom-0 p-6"
-							class:opacity-0={activeTop !== i}
-							class:translate-y-3={activeTop !== i}
-						>
-							<p class="mb-1 text-[10px] font-bold uppercase tracking-[.18em] text-[#F98315]">
-								{destination.country}
-							</p>
-							<h3 class="font-display text-3xl text-white">{destination.city}</h3>
-							{#if destination.blurb}
-								<p class="mt-2 max-w-[220px] text-sm leading-relaxed text-white/70">
-									{destination.blurb}
-								</p>
-							{/if}
-							<span
-								class="mt-4 grid h-9 w-9 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
-							>
-								↗
-							</span>
-						</div>
-					</a>
-				{/each}
-			</div>
-
-			<!-- Row 2 -->
-			<div class="flex gap-2 lg:h-[300px]">
-				{#each bottomRow as destination, i (destination.city)}
-					<a
-						href={destination.href ?? '/destinations'}
-						class="dest-panel group relative overflow-hidden rounded-[22px]"
-						class:dest-panel--active={activeBottom === i}
-						style="flex-grow: {activeBottom === i ? 3 : 1};"
-						onmouseenter={() => (activeBottom = i)}
-						onfocusin={() => (activeBottom = i)}
+					<!-- Expanded content -->
+					<div
+						class="dest-panel__expanded absolute inset-x-0 bottom-0 p-8"
+						class:opacity-0={activeCountry !== i}
+						class:translate-y-3={activeCountry !== i}
 					>
-						<img
-							src={destination.image}
-							alt={`${destination.city}, ${destination.country}`}
-							class="dest-panel__img absolute inset-0 h-full w-full object-cover"
-							loading="lazy"
-						/>
-						<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/0"></div>
-
-						<div
-							class="dest-panel__collapsed absolute inset-x-0 bottom-6 flex items-center justify-center"
-							class:opacity-0={activeBottom === i}
-						>
-							<span class="rotate-180 text-xs font-bold tracking-[.1em] text-white [writing-mode:vertical-rl]">
-								{destination.city}
-							</span>
+						<p class="mb-2 text-[14px] font-bold capitalize tracking-[.1em] text-[#F98315]">
+							{country.region} - {country.cities.length} cities
+						</p>
+						<h3 class="font-bold text-4xl text-white">{country.name}</h3>
+						<p class="mt-3 max-w-[280px] text-lg leading-relaxed text-white/90">
+							{country.intro}
+						</p>
+						<div class="mt-4 flex items-center gap-4 text-sm text-white/85">
+							<span>Best {country.bestTime}</span>
+							<span class="h-1 w-1 rounded-full bg-white/80"></span>
+							<span>From {country.priceFrom}</span>
 						</div>
-
-						<div
-							class="dest-panel__expanded absolute inset-x-0 bottom-0 p-6"
-							class:opacity-0={activeBottom !== i}
-							class:translate-y-3={activeBottom !== i}
+						<span
+							class="mt-5 grid h-10 w-10 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
 						>
-							<p class="mb-1 text-[10px] font-bold uppercase tracking-[.18em] text-[#F98315]">
-								{destination.country}
-							</p>
-							<h3 class="font-display text-3xl text-white">{destination.city}</h3>
-							{#if destination.blurb}
-								<p class="mt-2 max-w-[220px] text-sm leading-relaxed text-white/70">
-									{destination.blurb}
-								</p>
-							{/if}
-							<span
-								class="mt-4 grid h-9 w-9 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
-							>
-								↗
-							</span>
-						</div>
-					</a>
-				{/each}
-			</div>
+							↗
+						</span>
+					</div>
+				</a>
+			{/each}
 		</div>
 
 		<!-- Mobile / tablet: snap-scroll cards -->
 		<div class="dest-track flex gap-3 overflow-x-auto pb-4 lg:hidden">
-			{#each destinationList as destination (destination.city)}
+			{#each featuredCountries as country (country.slug)}
 				<a
-					href={destination.href ?? '/destinations'}
-					class="group relative min-h-[320px] min-w-[240px] flex-shrink-0 overflow-hidden rounded-[22px] sm:min-w-[280px]"
+					href={`/destinations/${country.slug}`}
+					class="group relative min-h-[380px] min-w-[280px] flex-shrink-0 overflow-hidden rounded-[22px] sm:min-w-[320px]"
 				>
 					<img
-						src={destination.image}
-						alt={`${destination.city}, ${destination.country}`}
+						src={country.heroImage}
+						alt={country.name}
 						class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
 						loading="lazy"
 					/>
-					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/0"></div>
-					<div class="absolute inset-x-0 bottom-0 p-5 text-white">
-						<div class="flex items-end justify-between">
-							<div>
-								<h3 class="font-display text-2xl">{destination.city}</h3>
-								<p class="text-[10px] uppercase tracking-[.16em] text-white/65">{destination.country}</p>
-							</div>
-							<span class="grid h-9 w-9 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]">
+					<div
+						class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"
+					></div>
+					<div class="absolute inset-x-0 bottom-0 p-6 text-white">
+						<p class="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-white/60">
+							{country.cities.length} cities
+						</p>
+						<div class="flex items-end justify-between gap-3">
+							<h3 class="font-bold text-2xl">{country.name}</h3>
+							<span
+								class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
+							>
 								↗
 							</span>
 						</div>
@@ -671,7 +561,6 @@
 	</div>
 </section>
 
-
 <!-- STORIES -->
 <Article />
 
@@ -680,15 +569,15 @@
 
 <style>
 	.dest-panel {
-		min-width: 42px;
-		transition: flex-grow 550ms cubic-bezier(0.16, 1, 0.3, 1);
+		min-width: 60px;
+		transition: flex-grow 600ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
 	.dest-panel__img {
-		transition: transform 700ms ease;
+		transition: transform 800ms ease;
 	}
 	.dest-panel--active .dest-panel__img {
-		transform: scale(1.04);
+		transform: scale(1.05);
 	}
 
 	.dest-panel__collapsed {
@@ -697,8 +586,8 @@
 
 	.dest-panel__expanded {
 		transition:
-			opacity 350ms ease,
-			transform 350ms ease;
+			opacity 400ms ease,
+			transform 400ms ease;
 	}
 
 	.dest-track {
@@ -707,7 +596,7 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	.dest-track::-webkit-scrollbar {
-		display: none;
+		bold: none;
 	}
 	.dest-track > a {
 		scroll-snap-align: start;
