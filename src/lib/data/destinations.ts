@@ -1,7 +1,13 @@
 export type Region = 'West Africa' | 'East Africa' | 'North Africa' | 'Southern Africa' | 'Europe';
 
 export type City = { name: string; blurb: string; image: string; gallery: string[] };
-export type Experience = { title: string; blurb: string; image: string; href?: string };
+export type Experience = {
+	title: string;
+	blurb: string;
+	image: string;
+	href?: string;
+	tourSlug?: string;
+};
 
 export type Country = {
 	slug: string;
@@ -91,22 +97,22 @@ export const countries: Country[] = [
 				blurb: 'Cool highland air and a totally different landscape.',
 				image:
 					'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Ibadan',
 				blurb: 'One of West Africa\u2019s oldest, largest indigenous cities.',
 				image:
 					'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -123,14 +129,14 @@ export const countries: Country[] = [
 					'Three days built around the mainland, the food, and the music \u2014 not the landmarks list.',
 				image:
 					'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'lagos-like-a-local'
 			},
 			{
 				title: 'Northern Nigeria Heritage',
 				blurb: 'Kano\u2019s old city, the dye pits, and centuries of trade history.',
 				image:
 					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				href: '/tours'
 			}
 		],
 		food: [
@@ -170,33 +176,33 @@ export const countries: Country[] = [
 				blurb: 'The capital \u2014 markets, nightlife, a growing creative scene.',
 				image:
 					'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Cape Coast',
 				blurb: 'Coastal forts carrying the weight of history.',
 				image:
 					'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Kumasi',
 				blurb: 'The Ashanti heartland \u2014 royal history, deep markets.',
 				image:
 					'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -211,7 +217,7 @@ export const countries: Country[] = [
 				blurb: 'Cape Coast, Kumasi, and the towns most guidebooks skip.',
 				image:
 					'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'ghana-beyond-accra'
 			}
 		],
 		food: [
@@ -251,33 +257,33 @@ export const countries: Country[] = [
 				blurb: 'Coffee culture and the highlands, before the safari.',
 				image:
 					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Maasai Mara',
 				blurb: 'The Great Migration and the driest, easiest game viewing.',
 				image:
 					'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Mombasa',
 				blurb: 'The coast \u2014 a different Kenya entirely.',
 				image:
 					'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -291,7 +297,7 @@ export const countries: Country[] = [
 				blurb: 'Nairobi\u2019s highlands and coffee culture, not just one national park.',
 				image:
 					'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'kenya-safari-highlands'
 			}
 		],
 		food: [
@@ -328,33 +334,33 @@ export const countries: Country[] = [
 				blurb: 'Alleys that smell like cloves and salt water.',
 				image:
 					'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Arusha',
 				blurb: 'Gateway to the northern safari circuit.',
 				image:
 					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Serengeti',
 				blurb: 'Peak wildlife viewing in the dry season.',
 				image:
 					'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -368,7 +374,7 @@ export const countries: Country[] = [
 				blurb: 'Wildlife on one side, spice-scented coastline on the other.',
 				image:
 					'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'zanzibar-weekend'
 			}
 		],
 		food: [
@@ -403,22 +409,22 @@ export const countries: Country[] = [
 				blurb: 'Green hills, quiet mornings, honest history.',
 				image:
 					'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Volcanoes National Park',
 				blurb: 'Gorilla trekking, if you go further out.',
 				image:
 					'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -432,7 +438,7 @@ export const countries: Country[] = [
 				blurb: 'Fewer stops, more time at each \u2014 the whole philosophy here.',
 				image:
 					'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'rwanda-slow-travel'
 			}
 		],
 		food: [
@@ -459,33 +465,33 @@ export const countries: Country[] = [
 				name: 'Cairo',
 				blurb: 'The pyramids, the markets, the Nile at sunset.',
 				image: 'images/assets/cairo.webp',
-                gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Luxor',
 				blurb: 'The Valley of the Kings and ancient temple complexes.',
 				image:
 					'https://images.unsplash.com/photo-1568322445389-f64ac9c4382e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Aswan',
 				blurb: 'A quieter Nile city, Nubian culture and river life.',
 				image:
 					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -499,7 +505,7 @@ export const countries: Country[] = [
 				title: 'Cairo & the Nile',
 				blurb: 'Pyramids, markets, and river life beyond the postcard shots.',
 				image: 'images/assets/cairo.webp',
-				href: '/book'
+				tourSlug: 'cairo-nile'
 			}
 		],
 		food: [
@@ -531,33 +537,33 @@ export const countries: Country[] = [
 				blurb: 'Souks, riads and the gateway to the Sahara.',
 				image:
 					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Fez',
 				blurb: 'The oldest medina, tanneries and centuries of craft.',
 				image:
 					'https://images.unsplash.com/photo-1568322445389-f64ac9c4382e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Chefchaouen',
 				blurb: 'The blue city in the Rif mountains.',
 				image:
 					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -573,7 +579,7 @@ export const countries: Country[] = [
 					'Spring and autumn \u2014 warm days, cool desert nights, before the summer heat hits.',
 				image:
 					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'marrakech-sahara'
 			}
 		],
 		food: [
@@ -603,33 +609,33 @@ export const countries: Country[] = [
 				name: 'Cape Town',
 				blurb: 'Table Mountain, the coastline, and the winelands nearby.',
 				image: 'images/assets/cape-town-1.webp',
-                gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Johannesburg',
 				blurb: 'History, culture and the gateway to safari country.',
 				image:
 					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Kruger',
 				blurb: 'World-class safari, self-drive or guided.',
 				image:
 					'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -643,7 +649,7 @@ export const countries: Country[] = [
 				title: 'Cape Town Sunsets',
 				blurb: 'Signal Hill gets crowded \u2014 we know five quieter spots with the same view.',
 				image: 'images/assets/cape-town-2.webp',
-				href: '/book'
+				tourSlug: 'cape-town-winelands'
 			}
 		],
 		food: [
@@ -675,33 +681,33 @@ export const countries: Country[] = [
 				blurb: 'Stories that go far beyond the landmarks.',
 				image:
 					'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Manchester',
 				blurb: 'Music history and a proudly different pace from the capital.',
 				image:
 					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			},
 			{
 				name: 'Edinburgh',
 				blurb: 'A city built on hills, history and a famous festival.',
 				image:
 					'https://images.unsplash.com/photo-1568322445389-f64ac9c4382e?auto=format&fit=crop&w=900&q=80',
-                    gallery: [
-			'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
-			'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
-		]
+				gallery: [
+					'https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1580060839134-75a50c8ca050?auto=format&fit=crop&w=1200&q=80',
+					'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80'
+				]
 			}
 		],
 		thingsToDo: [
@@ -716,7 +722,7 @@ export const countries: Country[] = [
 				blurb: 'The markets, the neighborhoods, the pubs everyone skips.',
 				image:
 					'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80',
-				href: '/book'
+				tourSlug: 'london-beyond-landmarks'
 			}
 		],
 		food: [

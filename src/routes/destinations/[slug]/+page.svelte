@@ -1,26 +1,69 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { error } from '@sveltejs/kit';
 	import { getCountryBySlug } from '$lib/data/destinations';
+	import { getTourBySlug } from '$lib/data/tours';
 	import { articles } from '$lib/data/articles';
+	import { tourStore, type TourListItem } from '$lib/stores/tourStore.svelte';
 	import CityGallery from '../../../components/CityGallery.svelte';
+	import CTABanner from '../../../components/CTABanner.svelte';
 	import {
 		ArrowLeft,
-		ArrowRight,
 		ArrowUpRight,
 		MapPin,
 		Clock3,
 		Wallet,
 		Utensils,
-		Lightbulb
+		Lightbulb,
+		Check
 	} from 'lucide-svelte';
-	import CTABanner from '../../../components/CTABanner.svelte';
 
 	const slug = page.params.slug;
 	const country = getCountryBySlug(slug);
 
 	if (!country) {
 		throw error(404, 'Destination not found');
+	}
+
+	function resolveTour(exp: (typeof country.experiences)[number]) {
+		return exp.tourSlug ? getTourBySlug(exp.tourSlug) : undefined;
+	}
+
+	function handleAddExperience(exp: (typeof country.experiences)[number]): void {
+		const tour = resolveTour(exp);
+		if (!tour) return;
+		const item: TourListItem = {
+			id: tour.slug,
+			slug: tour.slug,
+			title: tour.title,
+			image: tour.image,
+			price: tour.price,
+			deposit: tour.deposit,
+			travelers: 1,
+			duration: tour.duration,
+			country: tour.country
+		};
+		tourStore.toggle(item);
+	}
+
+	function handleBookExperience(exp: (typeof country.experiences)[number]): void {
+		const tour = resolveTour(exp);
+		if (!tour) return;
+		if (!tourStore.has(tour.slug)) {
+			tourStore.add({
+				id: tour.slug,
+				slug: tour.slug,
+				title: tour.title,
+				image: tour.image,
+				price: tour.price,
+				deposit: tour.deposit,
+				travelers: 1,
+				duration: tour.duration,
+				country: tour.country
+			});
+		}
+		goto('/book');
 	}
 
 	const relatedArticles = $derived(
@@ -117,13 +160,13 @@
 					<button
 						type="button"
 						onclick={() => (openCity = i)}
-						class="group relative overflow-hidden rounded-[22px] text-left "
+						class="group relative overflow-hidden rounded-[22px] text-left"
 					>
 						<div class="relative aspect-4/3 overflow-hidden rounded-3xl">
 							<img
 								src={city.image}
 								alt={city.name}
-								class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 "
+								class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
 								loading="lazy"
 							/>
 							<div
@@ -168,35 +211,83 @@
 				<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl md:text-5xl">
 					Featured Gidi Tour experiences
 				</h2>
-
 				<div class="mt-8 grid gap-6 sm:grid-cols-2">
 					{#each country.experiences as exp (exp.title)}
-						<a href={exp.href ?? '/book'} class="group relative overflow-hidden rounded-[26px]">
-							<div class="relative aspect-[16/10] overflow-hidden">
-								<img
-									src={exp.image}
-									alt={exp.title}
-									class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-									loading="lazy"
-								/>
-								<div
-									class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"
-								></div>
-							</div>
-							<div class="absolute inset-x-0 bottom-0 p-6 text-white">
-								<h3 class="font-bold text-2xl">{exp.title}</h3>
-								<p class="mt-2 max-w-sm text-sm leading-relaxed text-white/70">{exp.blurb}</p>
-								<span
-									class="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#F98315]"
-								>
-									Book this route
-									<ArrowUpRight
-										class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-										aria-hidden="true"
+						{@const tour = resolveTour(exp)}
+						{@const isAdded = tour ? tourStore.has(tour.slug) : false}
+
+						<div class="group relative overflow-hidden rounded-[26px] bg-white shadow-sm">
+							<!-- IMAGE + VIEW LINK -->
+							<a href={tour ? `/tours/${tour.slug}` : (exp.href ?? '/tours')} class="block">
+								<div class="relative aspect-[16/10] overflow-hidden">
+									<img
+										src={exp.image}
+										alt={exp.title}
+										class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+										loading="lazy"
 									/>
-								</span>
-							</div>
-						</a>
+									<div
+										class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"
+									></div>
+									<div class="absolute inset-x-0 bottom-0 p-6 text-white">
+										<h3 class="font-bold text-2xl">{exp.title}</h3>
+										<p class="mt-2 max-w-sm text-sm leading-relaxed text-white/70">{exp.blurb}</p>
+										{#if tour}
+											<p class="mt-2 text-sm font-bold text-[#F98315]">
+												From £{tour.price}/person
+											</p>
+										{/if}
+									</div>
+								</div>
+							</a>
+
+							{#if tour}
+								<!-- ACTION ROW -->
+								<div class="flex items-center gap-2 p-4">
+									<a
+										href={`/tours/${tour.slug}`}
+										class="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold text-[#17200f] transition hover:border-black/20"
+									>
+										View tour
+										<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+									</a>
+									<button
+										type="button"
+										aria-label={isAdded
+											? `Remove ${tour.title} from tour list`
+											: `Add ${tour.title} to tour list`}
+										onclick={() => handleAddExperience(exp)}
+										class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition {isAdded
+											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#5C9B19]'
+											: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
+									>
+										{#if isAdded}
+											<Check class="h-4.5 w-4.5" aria-hidden="true" />
+										{:else}
+											<span class="text-lg leading-none">+</span>
+										{/if}
+									</button>
+									<button
+										type="button"
+										onclick={() => handleBookExperience(exp)}
+										class="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C9B19] px-4 py-2.5 text-sm font-bold text-white transition hover:scale-[1.02]"
+									>
+										Book
+										<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+									</button>
+								</div>
+							{:else}
+								<div class="p-4">
+									<a
+										href={exp.href ?? '/tours'}
+										class="flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold text-[#17200f]"
+									>
+										Learn more
+										<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+									</a>
+								</div>
+							{/if}
+						</div>
 					{/each}
 				</div>
 			</div>

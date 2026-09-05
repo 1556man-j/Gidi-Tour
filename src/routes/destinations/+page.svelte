@@ -193,7 +193,7 @@
 
 <!-- INDEX -->
 <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
-	<div class="mx-auto max-w-[1440px]">
+	<div class="mx-auto max-w-360">
 		{#each filtered as country, i (country.slug)}
 			<a
 				href={`/destinations/${country.slug}`}
@@ -212,8 +212,8 @@
 						<span class="font-display text-lg text-[#17200f]/30">{String(i + 1).padStart(2, '0')}</span>
 					</div>
 
-					<p class="mb-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#F98315]">
-						{country.region} \u00b7 {country.cities.length} cities
+					<p class="mb-2 text-[14px] font-bold uppercase tracking-widest text-[#F98315]">
+						{country.region} - {country.cities.length} cities
 					</p>
 
 					<h2 class="font-display text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">

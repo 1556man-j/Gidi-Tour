@@ -75,11 +75,11 @@
 <!-- HERO -->
 <section class="relative overflow-hidden px-5 pb-16 pt-24 text-black sm:px-8 lg:px-12 lg:pt-32">
 	<div
-		class="pointer-events-none absolute inset-x-0 -top-[10%] h-[60%] bg-[radial-gradient(55%_60%_at_25%_0%,rgba(92,155,25,0.18),transparent_70%)]"
+		class="pointer-events-none absolute inset-x-0 top-[-10%] h-[60%] bg-[radial-gradient(55%_60%_at_25%_0%,rgba(92,155,25,0.18),transparent_70%)]"
 		aria-hidden="true"
 	></div>
 
-	<div class="relative mx-auto max-w-[1440px]">
+	<div class="relative mx-auto max-w-360">
 		<div class="grid gap-10 lg:grid-cols-12 lg:items-end">
 			<div class="lg:col-span-7">
 				<span class="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[17px] font-bold uppercase text-[#F98315]">
@@ -96,18 +96,18 @@
 
 			<!-- Live stats -->
 			<div class="grid grid-cols-3 gap-4 lg:col-span-5 lg:col-start-8">
-				<div class="rounded-2xl bg-black/[0.06] p-4">
+				<div class="rounded-2xl bg-black/6 p-4">
 					<p class="font-bold text-2xl text-black sm:text-3xl">£{avgPrice}</p>
 					<p class="mt-1 text-[14px] text-black/75">avg. price / person</p>
 				</div>
-				<div class="rounded-2xl bg-black/[0.06] p-4">
+				<div class="rounded-2xl bg-black/6 p-4">
 					<p class="flex items-center gap-1 font-bold text-2xl text-black sm:text-3xl">
 						{avgRating}
 						<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
 					</p>
 					<p class="mt-1 text-[14px] text-black/75">average rating</p>
 				</div>
-				<div class="rounded-2xl bg-black/[0.06] p-4">
+				<div class="rounded-2xl bg-black/6 p-4">
 					<p class="font-bold text-2xl text-black sm:text-3xl">9</p>
 					<p class="mt-1 text-[14px] text-black/75">countries covered</p>
 				</div>
@@ -115,7 +115,7 @@
 		</div>
 
 		<!-- Search + filter bar -->
-		<div class="mt-10 rounded-[24px] bg-white p-4 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.4)] sm:p-5">
+		<div class="mt-10 rounded-3xl bg-white p-4 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.4)] sm:p-5">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 				<label class="relative flex flex-1 items-center">
 					<Search class="pointer-events-none absolute left-4 h-4 w-4 text-[#17200f]/35" aria-hidden="true" />

@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { tourStore } from '$lib/stores/tourStore.svelte';
 
 	let open = $state(false);
 	let scrolled = $state(false);
@@ -61,17 +62,57 @@
 		}`}
 	>
 		<!-- LOGO -->
-		<a href="/" aria-label="Gidi Tour home" onclick={closeMenu} class="flex flex-col leading-none w-24">
+		<a
+			href="/"
+			aria-label="Gidi Tour home"
+			onclick={closeMenu}
+			class="flex flex-col leading-none w-24"
+		>
 			<!-- <span class="text-[22px] font-bold tracking-[-0.05em] text-white">
 				GIDI<span class="text-[#f98315]">×</span>
 			</span>
 
 			<span class="text-[10px] font-bold tracking-[0.25em] text-[#f98315]"> TOUR </span> -->
-			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full">
+			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full" />
 		</a>
 
 		<!-- RIGHT -->
 		<div class="flex items-center gap-2">
+
+			<!-- Tour list button -->
+			<button
+				type="button"
+				onclick={() => tourStore.toggleSidebar()}
+				aria-label="Your tour list"
+				class="group relative flex h-14 w-14 items-center justify-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white lg:hidden"
+			>
+				<svg
+					class="h-6 w-6"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.7"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+					<path d="M16 11V7a4 4 0 0 0-8 0v4" />
+				</svg>
+
+				{#if tourStore.count > 0}
+					<span
+						class="absolute top-2 right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#f98315] px-1 text-[10px] font-bold text-black"
+					>
+						{tourStore.count}
+					</span>
+				{/if}
+
+				<span
+					class="pointer-events-none absolute right-0 top-full mt-2 translate-y-1 whitespace-nowrap rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] text-white opacity-0 shadow-2xl transition-all duration-200 group-active:translate-y-0 group-active:opacity-100"
+				>
+					{tourStore.count > 0 ? `${tourStore.count} in your tour` : 'Your tour list is empty'}
+				</span>
+			</button>
 			<!-- BOOK -->
 			<a
 				// eslint-disable-next-line svelte/no-navigation-without-resolve
@@ -96,11 +137,21 @@
 			>
 				{#if !open}
 					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
-						<path d="M4 8H20M4 16H20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+						<path
+							d="M4 8H20M4 16H20"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+						/>
 					</svg>
 				{:else}
 					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
-						<path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+						<path
+							d="M6 6L18 18M18 6L6 18"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+						/>
 					</svg>
 				{/if}
 			</button>
@@ -135,7 +186,9 @@
 						<span class="text-2xl font-semibold">{link.label}</span>
 					</div>
 
-					<span class="text-white/30 transition group-hover:translate-x-1 group-hover:text-[#f98315]">
+					<span
+						class="text-white/30 transition group-hover:translate-x-1 group-hover:text-[#f98315]"
+					>
 						→
 					</span>
 				</a>
@@ -151,7 +204,6 @@
 					<h3 class="mt-1 text-lg font-semibold">Destinations</h3>
 				</div>
 
-				
 				<a href="/destinations" onclick={closeMenu} class="text-xs text-[#f98315]"> View all → </a>
 			</div>
 

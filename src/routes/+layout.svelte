@@ -5,6 +5,7 @@
 	import MobileNav from '../components/MobileNav.svelte';
 	import Navbar from '../components/Navbar.svelte';
 	import Footer from '../components/Footer.svelte';
+	import TourSidebar from '../components/TourSidebar.svelte';
 
 	let { children } = $props();
 
@@ -30,4 +31,5 @@
 </svelte:head>
 
 {@render children()}
+<TourSidebar/>
 <Footer/>
