@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import CTABanner from '../../components/CTABanner.svelte';
-	import { articles, categories, categoryColor } from '$lib/data/articles';
+	import { urlFor } from '$lib/sanity/client';
+	import SeoHead from '../../components/SeoHead.svelte';
+	import type { PageData } from './$types';
 	import {
 		Clock3,
 		ArrowUpRight,
@@ -23,144 +25,38 @@
 		CheckCircle2
 	} from 'lucide-svelte';
 
-	// type Category = 'Guides' | 'Culture' | 'Food' | 'Tips' | 'Stories';
+	interface Props {
+		data: PageData;
+	}
 
-	// type Article = {
-	// 	slug: string;
-	// 	title: string;
-	// 	excerpt: string;
-	// 	category: Category;
-	// 	destination: string;
-	// 	readTime: number;
-	// 	date: string;
-	// 	image: string;
-	// 	featured?: boolean;
-	// };
+	let { data }: Props = $props();
 
-	// const articles: Article[] = [
-	// 	{
-	// 		slug: 'lagos-like-a-local',
-	// 		title: 'How to experience Lagos like a local, not a tourist',
-	// 		excerpt:
-	// 			'Skip the landmarks list. Here\u2019s how to actually spend three days in Lagos the way people who live there do \u2014 danfo rides included.',
-	// 		category: 'Guides',
-	// 		destination: 'Lagos, Nigeria',
-	// 		readTime: 7,
-	// 		date: '2026-07-14',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1618828665011-0abd973f7bb8?auto=format&fit=crop&w=1600&q=80',
-	// 		featured: true
-	// 	},
-	// 	{
-	// 		slug: 'ghana-beyond-accra',
-	// 		title: 'A first-timer\u2019s guide to Ghana beyond Accra',
-	// 		excerpt:
-	// 			'Cape Coast, Kumasi and the towns guidebooks skip entirely \u2014 where to go once you\u2019ve done the capital.',
-	// 		category: 'Guides',
-	// 		destination: 'Ghana',
-	// 		readTime: 6,
-	// 		date: '2026-07-02',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'tanzania-beyond-safari',
-	// 		title: 'Why Tanzania is more than safari',
-	// 		excerpt:
-	// 			'Zanzibar\u2019s spice farms, the coast, and the parts of the country most itineraries never touch.',
-	// 		category: 'Stories',
-	// 		destination: 'Tanzania',
-	// 		readTime: 5,
-	// 		date: '2026-06-20',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'accra-street-food',
-	// 		title: 'Street food you have to try in Accra',
-	// 		excerpt: 'Waakye stalls, kelewele carts and the corner spots locals actually queue for.',
-	// 		category: 'Food',
-	// 		destination: 'Accra, Ghana',
-	// 		readTime: 4,
-	// 		date: '2026-06-11',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'zanzibar-weekend',
-	// 		title: 'A weekend guide to Zanzibar',
-	// 		excerpt:
-	// 			'Stone Town in a day, the coast in two more \u2014 a realistic weekend itinerary that doesn\u2019t rush it.',
-	// 		category: 'Guides',
-	// 		destination: 'Zanzibar, Tanzania',
-	// 		readTime: 8,
-	// 		date: '2026-05-29',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'lagos-art-scene',
-	// 		title: 'Inside Lagos\u2019 art and design scene',
-	// 		excerpt:
-	// 			'From Yaba studios to Victoria Island galleries \u2014 where the city\u2019s creative class actually gathers.',
-	// 		category: 'Culture',
-	// 		destination: 'Lagos, Nigeria',
-	// 		readTime: 6,
-	// 		date: '2026-05-15',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'cape-town-sunsets',
-	// 		title: 'Where to watch the sunset in Cape Town',
-	// 		excerpt:
-	// 			'Signal Hill gets crowded. Here are five quieter spots with the same view, minus the tour buses.',
-	// 		category: 'Tips',
-	// 		destination: 'Cape Town, South Africa',
-	// 		readTime: 3,
-	// 		date: '2026-04-30',
-	// 		image: 'images/assets/cape-town-2.webp'
-	// 	},
-	// 	{
-	// 		slug: 'kenya-beyond-safari-circuit',
-	// 		title: 'Kenya beyond the safari circuit',
-	// 		excerpt:
-	// 			'Nairobi\u2019s coffee culture, the highlands, and a country that\u2019s more than one national park.',
-	// 		category: 'Stories',
-	// 		destination: 'Kenya',
-	// 		readTime: 7,
-	// 		date: '2026-04-18',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80'
-	// 	},
-	// 	{
-	// 		slug: 'rwanda-slow-travel',
-	// 		title: 'A slow travel guide to Rwanda',
-	// 		excerpt:
-	// 			'Why we tell people to spend fewer days doing more, and more days doing less, in Kigali and beyond.',
-	// 		category: 'Tips',
-	// 		destination: 'Rwanda',
-	// 		readTime: 5,
-	// 		date: '2026-03-27',
-	// 		image:
-	// 			'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1200&q=80'
-	// 	}
-	// ];
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
-	// const categories: Category[] = ['Guides', 'Culture', 'Food', 'Tips', 'Stories'];
-	// const categoryColor: Record<Category, string> = {
-	// 	Guides: '#5C9B19',
-	// 	Culture: '#F98315',
-	// 	Food: '#F98315',
-	// 	Tips: '#5C9B19',
-	// 	Stories: '#17200f'
-	// };
+	const categories = ['Guide', 'Food', 'Culture', 'Tips', 'Story'] as const;
+	type Category = (typeof categories)[number];
+	const categoryColor: Record<string, string> = {
+		Guide: '#5C9B19',
+		Food: '#F98315',
+		Culture: '#17200f',
+		Tips: '#3B82F6',
+		Story: '#A855F7'
+	};
 
 	let activeCategory = $state<Category | 'All'>('All');
 	let query = $state('');
 
-	const featured = articles.find((a) => a.featured) ?? articles[0];
-	const rest = articles.filter((a) => a.slug !== featured.slug);
+	const articles = $derived(data.sanityArticles ?? []);
+	const featured = $derived(articles.find((a) => a.featured) ?? articles[0]);
+	const rest = $derived(
+		featured ? articles.filter((a) => a.slug.current !== featured.slug.current) : []
+	);
 
 	const filtered = $derived(
 		rest.filter((a) => {
@@ -168,7 +64,7 @@
 			const matchesQuery =
 				query.trim() === '' ||
 				a.title.toLowerCase().includes(query.toLowerCase()) ||
-				a.destination.toLowerCase().includes(query.toLowerCase());
+				(a.destination ?? '').toLowerCase().includes(query.toLowerCase());
 			return matchesCategory && matchesQuery;
 		})
 	);
@@ -212,7 +108,7 @@
 		};
 	});
 
-	const jsonLd = {
+	const jsonLd = $derived({
 		'@context': 'https://schema.org',
 		'@type': 'Blog',
 		name: 'Gidi Tour Travel Journal',
@@ -223,12 +119,12 @@
 			'@type': 'BlogPosting',
 			headline: a.title,
 			description: a.excerpt,
-			url: `https://www.giditour.com/stories/${a.slug}`,
-			image: a.image,
+			url: `https://www.giditour.com/stories/${a.slug.current}`,
+			image: a.image ? urlFor(a.image).width(1200).url() : undefined,
 			datePublished: a.date,
 			about: a.destination
 		}))
-	};
+	});
 
 	// ---------- BEFORE YOU GO ----------
 	type BeforeYouGoItem = { icon: any; title: string; body: string };
@@ -375,47 +271,23 @@
 	];
 </script>
 
-<svelte:head>
-	<title>Travel Journal — Guides, Stories & Tips | Gidi Tour</title>
-	<meta
-		name="description"
-		content="Travel guides, destination stories, food guides and practical tips from Gidi Tour — covering Lagos, Accra, Zanzibar, Cape Town, Nairobi, Kigali and more."
-	/>
-	<link rel="canonical" href="https://www.giditour.com/stories" />
-	<meta name="robots" content="index, follow, max-image-preview:large" />
-
-	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="Gidi Tour" />
-	<meta property="og:title" content="Travel Journal — Guides, Stories & Tips | Gidi Tour" />
-	<meta
-		property="og:description"
-		content="Real guides and stories from the destinations we actually travel to, not scraped listicles."
-	/>
-	<meta property="og:url" content="https://www.giditour.com/stories" />
-	<meta property="og:image" content={featured.image} />
-
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Travel Journal — Guides, Stories & Tips | Gidi Tour" />
-	<meta
-		name="twitter:description"
-		content="Real guides and stories from the destinations we actually travel to."
-	/>
-	<meta name="twitter:image" content={featured.image} />
-
-	{@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`}
-</svelte:head>
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/stories"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- INTRO -->
 <section class="relative overflow-hidden bg-[#f7f3ea] px-5 pb-10 pt-20 sm:px-8 lg:px-12 lg:pt-24">
 	<div
-		class="pointer-events-none absolute inset-x-0 -top-[10%] h-[50%] bg-[radial-gradient(55%_60%_at_25%_0%,rgba(92,155,25,0.1),transparent_70%)]"
+		class="pointer-events-none absolute inset-x-0 top-[-10%] h-[50%] bg-[radial-gradient(55%_60%_at_25%_0%,rgba(92,155,25,0.1),transparent_70%)]"
 		aria-hidden="true"
 	></div>
 
-	<div class="relative mx-auto max-w-[1440px]">
-		<div
-			class="max-w-3xl translate-y-0 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)_forwards] opacity-0 [animation-delay:0ms]"
-		>
+	<div class="relative mx-auto max-w-360">
+		<div class="max-w-3xl translate-y-0 animate-fade-up opacity-0 [animation-delay:0ms]">
 			<span
 				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm"
 			>
@@ -428,20 +300,20 @@
 			</h1>
 			<p class="mt-5 max-w-xl text-lg leading-relaxed text-[#17200f]/60">
 				Guides, stories, food finds and honest tips from the places we actually send travelers to.
-				Written by people who\u2019ve been, for people who are about to go.
+				Written by people who have been, for people who are about to go.
 			</p>
 		</div>
 
 		<!-- Search + filters -->
 		<div
-			class="mt-10 flex translate-y-0 flex-col gap-4 opacity-0 [animation-delay:120ms] animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)_forwards] sm:flex-row sm:items-center sm:justify-between"
+			class="mt-10 flex translate-y-0 flex-col gap-4 opacity-0 [animation-delay:120ms] animate-fade-up sm:flex-row sm:items-center sm:justify-between"
 		>
 			<div
-				class="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+				class="flex items-center gap-2 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
 			>
 				<button
 					type="button"
-					class="flex-shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition-all duration-200 {activeCategory ===
+					class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition-all duration-200 {activeCategory ===
 					'All'
 						? 'border-[#17200f] bg-[#17200f] text-white'
 						: 'border-black/10 bg-white text-[#17200f]/55 hover:border-[#5C9B19]/40 hover:text-[#17200f]'}"
@@ -452,7 +324,7 @@
 				{#each categories as category (category)}
 					<button
 						type="button"
-						class="flex-shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition-all duration-200 {activeCategory ===
+						class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition-all duration-200 {activeCategory ===
 						category
 							? 'border-[#17200f] bg-[#17200f] text-white'
 							: 'border-black/10 bg-white text-[#17200f]/55 hover:border-[#5C9B19]/40 hover:text-[#17200f]'}"
@@ -480,75 +352,85 @@
 </section>
 
 <!-- FEATURED -->
-<section
-	class="translate-y-0 bg-[#f7f3ea] px-5 pb-16 opacity-0 [animation-delay:220ms] animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)_forwards] sm:px-8 lg:px-12"
->
-	<div class="mx-auto max-w-[1440px]">
-		<a
-			href={`/stories/${featured.slug}`}
-			class="group grid gap-0 overflow-hidden rounded-[28px] shadow-[0_30px_60px_-25px_rgba(23,32,15,0.35)] lg:grid-cols-2"
-		>
-			<div class="relative aspect-[16/10] overflow-hidden lg:aspect-auto">
-				<img
-					src={featured.image}
-					alt={featured.title}
-					class="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
-					loading="eager"
-				/>
-			</div>
-			<div class="flex flex-col justify-center bg-[#17200f] p-8 text-white sm:p-12">
-				<span
-					class="mb-4 inline-flex w-fit items-center rounded-full bg-white/10 px-3 py-1 text-[14px] font-bold capitalize text-[#F98315]"
-				>
-					Featured {featured.category}
-				</span>
-				<h2 class="font-display text-3xl leading-tight tracking-[-.02em] sm:text-4xl">
-					{featured.title}
-				</h2>
-				<p class="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">{featured.excerpt}</p>
-				<div class="mt-6 flex items-center gap-4 text-xs text-white/40">
-					<span>{featured.destination}</span>
-					<span class="h-1 w-1 rounded-full bg-white/30"></span>
-					<span class="flex items-center gap-1"
-						><Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{featured.readTime} min read</span
-					>
+{#if featured}
+	<section
+		class="translate-y-0 bg-[#f7f3ea] px-5 pb-16 opacity-0 [animation-delay:220ms] animate-fade-up sm:px-8 lg:px-12"
+	>
+		<div class="mx-auto max-w-360">
+			<a
+				href={`/stories/${featured.slug.current}`}
+				class="group grid gap-0 overflow-hidden rounded-[28px] shadow-[0_30px_60px_-25px_rgba(23,32,15,0.35)] lg:grid-cols-2"
+			>
+				<div class="relative aspect-16/10 overflow-hidden lg:aspect-auto">
+					{#if featured.image}
+						<img
+							src={urlFor(featured.image).width(1200).height(800).url()}
+							alt={featured.title}
+							class="absolute inset-0 h-full w-full object-cover transition-transform duration-900 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+							loading="eager"
+						/>
+					{/if}
 				</div>
-				<span class="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-[#F98315]">
-					Read the story
-					<ArrowUpRight
-						class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-						aria-hidden="true"
-					/>
-				</span>
-			</div>
-		</a>
-	</div>
-</section>
+				<div class="flex flex-col justify-center bg-[#17200f] p-8 text-white sm:p-12">
+					<span
+						class="mb-4 inline-flex w-fit items-center rounded-full bg-white/10 px-3 py-1 text-[14px] font-bold capitalize text-[#F98315]"
+					>
+						Featured {featured.category}
+					</span>
+					<h2 class="font-display text-3xl leading-tight tracking-[-.02em] sm:text-4xl">
+						{featured.title}
+					</h2>
+					<p class="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">{featured.excerpt}</p>
+					<div class="mt-6 flex items-center gap-4 text-xs text-white/40">
+						{#if featured.destination}
+							<span>{featured.destination}</span>
+							<span class="h-1 w-1 rounded-full bg-white/30"></span>
+						{/if}
+						{#if featured.readTime}
+							<span class="flex items-center gap-1">
+								<Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{featured.readTime} min read
+							</span>
+						{/if}
+					</div>
+					<span class="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-[#F98315]">
+						Read the story
+						<ArrowUpRight
+							class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+							aria-hidden="true"
+						/>
+					</span>
+				</div>
+			</a>
+		</div>
+	</section>
+{/if}
 
 <!-- GRID -->
 <section class="bg-[#f7f3ea] px-5 pb-10 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-[1440px]">
 		<div class="journal-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as article (article.slug)}
+			{#each filtered as article (article.slug.current)}
 				<a
-					href={`/stories/${article.slug}`}
-					data-slug={article.slug}
+					href={`/stories/${article.slug.current}`}
+					data-slug={article.slug.current}
 					class="journal-card group relative translate-y-7 overflow-hidden rounded-[22px] bg-white opacity-0 shadow-sm transition-all duration-700 hover:shadow-[0_24px_48px_-24px_rgba(23,32,15,0.25)] {visibleCards.has(
-						article.slug
+						article.slug.current
 					)
-						? '!translate-y-0 !opacity-100'
+						? 'translate-y-0! opacity-100!'
 						: ''}"
 				>
-					<div class="relative aspect-[4/3] overflow-hidden">
-						<img
-							src={article.image}
-							alt={article.title}
-							class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
-							loading="lazy"
-						/>
+					<div class="relative aspect-4/3 overflow-hidden">
+						{#if article.image}
+							<img
+								src={urlFor(article.image).width(1200).height(800).url()}
+								alt={article.title}
+								class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
+								loading="lazy"
+							/>
+						{/if}
 						<span
 							class="absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow"
-							style="background-color: {categoryColor[article.category]};"
+							style="background-color: {categoryColor[article.category] ?? '#5C9B19'};"
 						>
 							{article.category}
 						</span>
@@ -578,7 +460,7 @@
 
 		{#if filtered.length === 0}
 			<p class="py-16 text-center text-sm text-[#17200f]/50">
-				Nothing matches "{query}" yet \u2014 try another destination or category.
+				Nothing matches "{query}" yet, try another destination or category.
 			</p>
 		{/if}
 	</div>

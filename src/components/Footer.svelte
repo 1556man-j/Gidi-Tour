@@ -18,10 +18,10 @@
   const currentYear = new Date().getFullYear();
 
   const fallbackSocials: SocialLinks = {
-    instagram: 'https://instagram.com',
-    twitter: 'https://twitter.com',
-    tiktok: 'https://tiktok.com',
-    youtube: 'https://youtube.com',
+    instagram: 'https://www.instagram.com/gidi_tour?stkn=dHpkbGhoMDB1eWpi',
+    twitter: 'https://x.com/gidi_tour?s=11',
+    tiktok: 'https://www.tiktok.com/@gidi_tour?_r=1&_t=ZS-99dwaBlufVV',
+    youtube: 'https://youtube.com/@gidi_tour?si=CSeBJcpEIIVmEHb3',
   };
 
   const socialLinks = $derived(siteSettings?.socialLinks ?? fallbackSocials);
@@ -148,6 +148,7 @@
           <li><a href="/destinations" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Destinations</a></li>
           <li><a href="/about" class="text-[13px] text-black/70 transition hover:text-[#F98315]">About Us</a></li>
           <li><a href="/contact" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Contact</a></li>
+          <li><a href="/career" class="text-[13px] text-black/70 transition hover:text-[#F98315]">Careers</a></li>
         </ul>
       </div>
 

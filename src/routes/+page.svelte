@@ -8,26 +8,40 @@
 	import type { PageData } from './$types';
 	import TestimonialBand from '../components/TestimonialBand.svelte';
 	import { countries } from '$lib/data/destinations';
+	import SeoHead from '../components/SeoHead.svelte';
 
-	// single $props() call for everything this page
-	let {
-		heroHeadline = 'Travel that feels like',
-		heroHeadlineAccent = 'coming home.',
-		heroSubcopy = 'Go beyond the guidebook. We plan trips around the culture, food and people that make a place unforgettable.',
-		heroSocialProof = '12,000+ travelers explored with Gidi'
-	}: {
+	interface Props {
+		data: PageData;
 		heroHeadline?: string;
 		heroHeadlineAccent?: string;
 		heroSubcopy?: string;
 		heroSocialProof?: string;
-	} = $props();
+	}
+
+	let {
+		data,
+		heroHeadline = 'Travel that feels like',
+		heroHeadlineAccent = 'coming home.',
+		heroSubcopy = 'Go beyond the guidebook. We plan trips around the culture, food and people that make a place unforgettable.',
+		heroSocialProof = '12,000+ travelers explored with Gidi'
+	}: Props = $props();
+
+	// Falls back to the site-wide default (from +layout.server.ts / siteSettings)
+	// if this specific page has no Page SEO document yet.
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
 	const featuredCountries = $derived(countries.slice(0, 5));
 
 	let activeCountry = $state(0);
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
 	<title>Gidi Tour - Authentic Travel Experiences Across Africa & Beyond</title>
 	<meta
 		name="description"
@@ -93,7 +107,15 @@
 			]
 		})}
 	</script>
-</svelte:head>
+</svelte:head> -->
+
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- Hero -->
 <section

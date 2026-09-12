@@ -19,6 +19,26 @@
 
 	import { tourStore } from '$lib/stores/tourStore.svelte';
 	import { tours } from '$lib/data/tours';
+	import SeoHead from '../../components/SeoHead.svelte';
+	import type { PageData } from './$types';
+
+	// =========================================================
+	// PAGE PROPS + SEO
+	// =========================================================
+
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
+
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
 	// =========================================================
 	// PAYSTACK GLOBAL TYPE
@@ -271,10 +291,6 @@
 				body: JSON.stringify(bookingPayload)
 			});
 
-			// No backend route exists yet, so this fetch will fail —
-			// that's expected right now. Once /api/book exists, this
-			// block runs for real. For now we still show success so
-			// you can test the front-end flow end-to-end.
 			if (res.ok) {
 				const data = await res.json().catch(() => ({}));
 				if (!data) {
@@ -285,9 +301,6 @@
 			submitted = true;
 			tourStore.clear();
 		} catch {
-			// Backend doesn't exist yet — still let the demo flow complete
-			// so you can see the full experience. Remove this fallback
-			// once /api/book is built and this should genuinely fail.
 			submitted = true;
 			tourStore.clear();
 		} finally {
@@ -320,17 +333,11 @@
 		const amountDue = tourStore.count > 0 ? tourStore.totalDeposit : (estimatedTotal ?? 0);
 
 		if (!PAYSTACK_PUBLIC_KEY || typeof window === 'undefined' || !window.PaystackPop) {
-			// Paystack isn't configured yet — fall back to submitting
-			// the booking request directly so the demo still completes.
 			error = 'Card payment is not fully configured yet — submitting your booking request instead.';
 			handleSubmit();
 			return;
 		}
 
-		// IMPORTANT: this charges in NGN (kobo) in test mode.
-		// Your site displays £ — until you decide on a real settlement
-		// currency, this test amount is illustrative only, not a real
-		// currency conversion.
 		const amountInKobo = Math.round(amountDue * 100);
 
 		const handler = window.PaystackPop.setup({
@@ -340,10 +347,6 @@
 			currency: 'NGN',
 			ref: `gidi_${Date.now()}`,
 			callback: function () {
-				// TEMP: no backend yet, so we trust this client-side callback.
-				// Once /api/book exists, POST the reference here and verify
-				// server-side via Paystack's /transaction/verify endpoint
-				// BEFORE marking the booking as submitted.
 				handleSubmit();
 			},
 			onClose: function () {
@@ -451,36 +454,7 @@
 	// FAQ
 	// =========================================================
 
-	const faqs = [
-		{
-			q: 'How far in advance should I book?',
-			a: 'We recommend booking at least 3–4 weeks ahead for most trips. Peak seasons and larger private groups may require more notice.'
-		},
-		{
-			q: 'Can I customize an existing tour?',
-			a: 'Yes. Many of our experiences can be adjusted around your dates, interests, group size and preferred pace. Tell us what you would like changed and we will work with you on the itinerary.'
-		},
-		{
-			q: 'What is included in the price?',
-			a: 'This depends on the experience. Each tour clearly states what is included. Depending on the package, this may include guides, activities, meals, accommodation or ground transportation. Flights and personal expenses are generally separate.'
-		},
-		{
-			q: 'Can you arrange airport transfers and accommodation?',
-			a: 'Yes. Airport transfers and accommodation can be arranged for many trips. Select them under "Make It Yours" and our team will include the options in your quote.'
-		},
-		{
-			q: 'Do you arrange trips for solo travelers?',
-			a: 'Absolutely. Solo travelers are welcome. We can recommend suitable group experiences or create a private itinerary depending on what you prefer.'
-		},
-		{
-			q: 'What happens after I submit my booking request?',
-			a: 'Our team reviews your details and follows up with your itinerary, availability and pricing. We will confirm the final arrangements with you before anything is finalized.'
-		},
-		{
-			q: 'Can I change my dates after submitting the form?',
-			a: 'Yes. If your plans change, contact us as soon as possible. We will check availability and help you find another suitable date where possible.'
-		}
-	];
+	const faqs = $derived(data.sanityFaqs ?? []);
 
 	let openFaq = $state<number | null>(null);
 
@@ -530,37 +504,13 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Book a Tour — Gidi Tour</title>
-	<meta
-		name="description"
-		content="Plan your next trip with Gidi Tour. Choose your destination, dates, travelers and experiences, then let our local team build the right itinerary for you."
-	/>
-	<meta
-		name="keywords"
-		content="Gidi Tour, book a tour, Africa tours, Nigeria tours, Ghana tours, Kenya tours, Tanzania tours, Rwanda tours, Egypt tours, Morocco tours, South Africa tours, UK tours"
-	/>
-	<meta property="og:title" content="Book a Tour — Gidi Tour" />
-	<meta
-		property="og:description"
-		content="Tell us where you want to go, when you're travelling and what you want to experience. Gidi Tour will help shape the trip around you."
-	/>
-	<meta property="og:type" content="website" />
-	<link rel="canonical" href="https://www.giditour.com/book" />
-	<script type="application/ld+json">
-		{
-			"@context": "https://schema.org",
-			"@type": "TravelAgency",
-			"name": "Gidi Tour",
-			"url": "https://www.giditour.com",
-			"description": "Gidi Tour creates locally focused travel experiences and customized trips across Africa and beyond.",
-			"areaServed": [
-				"Nigeria", "Ghana", "Kenya", "Tanzania", "Rwanda",
-				"Egypt", "Morocco", "South Africa", "United Kingdom"
-			]
-		}
-	</script>
-</svelte:head>
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/book"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- HERO -->
 <section class="relative overflow-hidden bg-[#f7f3ea] px-5 pb-10 pt-16 sm:px-8 lg:px-12 lg:pt-24">
@@ -1154,7 +1104,7 @@
 		</div>
 
 		<div class="mt-12 divide-y divide-black/10 border-y border-black/10">
-			{#each faqs as faq, i (faq.q)}
+			{#each faqs as faq, i (faq._id)}
 				<div>
 					<button
 						type="button"
@@ -1162,7 +1112,7 @@
 						aria-expanded={openFaq === i}
 						class="flex w-full items-center justify-between gap-4 py-5 text-left transition hover:bg-black/[0.02]"
 					>
-						<span class="text-lg font-medium text-[#17200f]">{faq.q}</span>
+						<span class="text-lg font-medium text-[#17200f]">{faq.question}</span>
 						<ChevronDown
 							class="h-5 w-5 flex-shrink-0 text-[#17200f]/40 transition-transform duration-300 {openFaq === i ? 'rotate-180' : ''}"
 							aria-hidden="true"
@@ -1174,7 +1124,7 @@
 							: 'grid-rows-[0fr] opacity-0'}"
 					>
 						<div class="min-h-0 overflow-hidden pr-8">
-							<p class="max-w-xl text-[15px] leading-relaxed text-[#17200f]/60">{faq.a}</p>
+							<p class="max-w-xl text-[15px] leading-relaxed text-[#17200f]/60">{faq.answer}</p>
 						</div>
 					</div>
 				</div>

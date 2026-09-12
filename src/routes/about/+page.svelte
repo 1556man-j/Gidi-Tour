@@ -1,6 +1,22 @@
 <script lang="ts">
 	import { reveal } from '$lib/utils/reveal';
-    import { Download, BookOpen, Users, TrendingUp } from 'lucide-svelte';
+	import { Download, BookOpen, Users, TrendingUp } from 'lucide-svelte';
+	import SeoHead from '../../components/SeoHead.svelte';
+	import type { PageData } from './$types';
+
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
+
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
 	const identity: {
 		number: string;
@@ -22,65 +38,13 @@
 	];
 </script>
 
-<svelte:head>
-	<title>About Gidi Tour - Travel Beyond the Ordinary</title>
-
-	<meta
-		name="description"
-		content="Learn about Gidi Tour, a travel company creating authentic experiences that connect travelers with local culture, food, people, history and everyday life across Africa and beyond."
-	/>
-
-	<meta
-		name="keywords"
-		content="Gidi Tour, African travel experiences, cultural tours, authentic travel, Nigeria tours, Ghana tours, Kenya tours, Tanzania tours, Rwanda tours, travel experiences"
-	/>
-
-	<meta name="robots" content="index, follow" />
-
-	<link rel="canonical" href="https://www.giditour.com/about" />
-
-	<!-- Open Graph -->
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://www.giditour.com/about" />
-	<meta property="og:title" content="About Gidi Tour - Travel Beyond the Ordinary" />
-	<meta
-		property="og:description"
-		content="We create meaningful travel experiences that bring you closer to the culture, people, food and stories that make a place unforgettable."
-	/>
-	<meta property="og:image" content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png" />
-	<meta property="og:site_name" content="Gidi Tour" />
-
-	<!-- Twitter / X -->
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="About Gidi Tour - Travel Beyond the Ordinary" />
-	<meta
-		name="twitter:description"
-		content="Discover the story behind Gidi Tour and how we create authentic travel experiences around culture, people, food and local life."
-	/>
-	<meta name="twitter:image" content="https://res.cloudinary.com/du8ocxxu1/image/upload/v1787983116/tour_acdwyc.png" />
-
-	<!-- AEO / Structured Data -->
-	<script type="application/ld+json">
-		{
-			"@context": "https://schema.org",
-			"@type": "AboutPage",
-			"name": "About Gidi Tour",
-			"url": "https://www.giditour.com/about",
-			"description": "Learn about Gidi Tour and our approach to creating authentic travel experiences built around culture, people, food, history and local life.",
-			"mainEntity": {
-				"@type": "TravelAgency",
-				"name": "Gidi Tour",
-				"url": "https://www.giditour.com",
-				"description": "Gidi Tour creates authentic travel experiences that connect travelers with local culture, people, food, history and everyday life.",
-				"sameAs": [
-					"https://www.instagram.com/",
-					"https://www.youtube.com/",
-					"https://www.tiktok.com/"
-				]
-			}
-		}
-	</script>
-</svelte:head>
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/about"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- Who We Are -->
 <section id="who-we-are" class="mx-auto max-w-7xl px-6 py-20 md:py-20" use:reveal>

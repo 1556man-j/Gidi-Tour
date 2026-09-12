@@ -5,7 +5,31 @@
 	import CTABanner from '../../components/CTABanner.svelte';
 	import TestimonialBand from '../../components/TestimonialBand.svelte';
 	import { onMount } from 'svelte';
-	import { countries, regions, type Region } from '$lib/data/destinations';
+	import SeoHead from '../../components/SeoHead.svelte';
+	import { urlFor } from '$lib/sanity/client';
+	import type { PageData } from './$types';
+
+	// Region filter labels — just UI, kept local rather than derived
+	// from Sanity so the filter bar works even before every region
+	// has a destination in it.
+	const regions = ['West Africa', 'East Africa', 'North Africa', 'Southern Africa', 'Europe'] as const;
+	type Region = (typeof regions)[number];
+
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
+
+	const countries = $derived(data.sanityDestinations ?? []);
+
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
 	let activeRegion = $state<Region | 'All'>('All');
 
@@ -13,7 +37,7 @@
 		activeRegion === 'All' ? countries : countries.filter((c) => c.region === activeRegion)
 	);
 
-    type Reason = {
+	type Reason = {
 		icon: 'map' | 'clock' | 'shield' | 'heart';
 		title: string;
 		copy: string;
@@ -64,7 +88,7 @@
 		requestAnimationFrame(tick);
 	}
 
-    type Beat = {
+	type Beat = {
 		city: string;
 		line: string;
 		image: string;
@@ -142,7 +166,6 @@
 		);
 		document.querySelectorAll('.story-beat').forEach((el) => beatObserver.observe(el));
 
-		// single cleanup, disconnects all three
 		return () => {
 			cardObserver.disconnect();
 			strikeObserver.disconnect();
@@ -151,13 +174,13 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Destinations - Gidi Tour</title>
-	<meta
-		name="description"
-		content="Countries, dozens of cities. Browse Gidi Tour destinations across Africa and Europe, each built around local culture, food and people."
-	/>
-</svelte:head>
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/destinations"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- INTRO -->
 <section class="bg-[#f7f3ea] px-5 pb-10 pt-16 sm:px-8 lg:px-12 lg:pt-24" use:reveal>
@@ -194,9 +217,9 @@
 <!-- INDEX -->
 <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-360">
-		{#each filtered as country, i (country.slug)}
+		{#each filtered as country, i (country.slug.current)}
 			<a
-				href={`/destinations/${country.slug}`}
+				href={`/destinations/${country.slug.current}`}
 				class="dest-row group grid grid-cols-1 items-center gap-8 border-b border-black/10 py-10 first:pt-0 lg:grid-cols-12 lg:gap-6 lg:py-14"
 				class:lg:direction-reverse={i % 2 === 1}
 				in:fade={{ duration: 200 }}
@@ -213,7 +236,7 @@
 					</div>
 
 					<p class="mb-2 text-[14px] font-bold uppercase tracking-widest text-[#F98315]">
-						{country.region} - {country.cities.length} cities
+						{country.region} - {country.cities?.length ?? 0} cities
 					</p>
 
 					<h2 class="font-display text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">
@@ -225,18 +248,20 @@
 					</p>
 
 					<!-- City chips -->
-					<div class="mt-5 flex flex-wrap gap-1.5">
-						{#each country.cities.slice(0, 4) as city (city.name)}
-							<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/60">
-								{city.name}
-							</span>
-						{/each}
-						{#if country.cities.length > 4}
-							<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/40">
-								+{country.cities.length - 4} more
-							</span>
-						{/if}
-					</div>
+					{#if country.cities?.length}
+						<div class="mt-5 flex flex-wrap gap-1.5">
+							{#each country.cities.slice(0, 4) as city (city.name)}
+								<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/60">
+									{city.name}
+								</span>
+							{/each}
+							{#if country.cities.length > 4}
+								<span class="rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-[#17200f]/40">
+									+{country.cities.length - 4} more
+								</span>
+							{/if}
+						</div>
+					{/if}
 
 					<div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-[#17200f]/50">
 						<span class="flex items-center gap-1.5"><MapPin class="h-3.5 w-3.5" aria-hidden="true" />Best {country.bestTime}</span>
@@ -253,7 +278,14 @@
 				<!-- Image -->
 				<div class="lg:col-span-5" class:lg:order-3={i % 2 === 1}>
 					<div class="dest-row__frame relative aspect-[4/3] overflow-hidden rounded-[20px]">
-						<img src={country.heroImage} alt={country.name} class="dest-row__img absolute inset-0 h-full w-full object-cover" loading="lazy" />
+						{#if country.heroImage}
+							<img
+								src={urlFor(country.heroImage).width(700).height(525).url()}
+								alt={country.name}
+								class="dest-row__img absolute inset-0 h-full w-full object-cover"
+								loading="lazy"
+							/>
+						{/if}
 					</div>
 				</div>
 			</a>
@@ -493,10 +525,6 @@
 		border-color: rgba(249, 131, 21, 0.3);
 	}
 
-	/* Icon "draw-on" using stroke-dasharray/offset — starts as an
-	   invisible outline and traces itself in once the card scrolls
-	   into view, rather than just fading/scaling like everything
-	   else on this site. */
 	.icon-draw {
 		stroke-dasharray: 90;
 		stroke-dashoffset: 90;
@@ -507,8 +535,6 @@
 		transition-delay: 150ms;
 	}
 
-	/* Strikethrough that draws itself across "Google it yourself"
-	   once the heading scrolls into view. */
 	.strike-svg line {
 		stroke-dasharray: 140;
 		stroke-dashoffset: 140;

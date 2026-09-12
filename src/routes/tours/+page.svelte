@@ -4,17 +4,44 @@
 		Search, SlidersHorizontal, Star, Clock3, Users, ShieldCheck,
 		CreditCard, ArrowRight, MapPin, TrendingUp
 	} from 'lucide-svelte';
-	import { tours, tourCategories, type TourCategory } from '$lib/data/tours';
 	import CTABanner from '../../components/CTABanner.svelte';
 	import TestimonialBand from '../../components/TestimonialBand.svelte';
 	import Article from '../../components/Article.svelte';
+	import SeoHead from '../../components/SeoHead.svelte';
+	import { urlFor } from '$lib/sanity/client';
+	import type { PageData } from './$types';
+
+	// Filter category labels are just UI labels, not content —
+	// kept local rather than pulled from Sanity for now.
+	const tourCategories = ['City Break', 'Safari', 'Cultural', 'Coastal', 'Adventure', 'Art'] as const;
+	type TourCategory = (typeof tourCategories)[number];
+
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
+
+	const tours = $derived(data.sanityTours ?? []);
+
+	const seoTitle = $derived(
+		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
+	);
+	const seoDescription = $derived(
+		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+	);
+	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
 	let query = $state('');
 	let activeCategory = $state<TourCategory | 'All'>('All');
 	let sortBy = $state<'popular' | 'price-low' | 'price-high' | 'rating'>('popular');
 	let maxPrice = $state(2000);
 
-	const priceRange = { min: Math.min(...tours.map((t) => t.price)), max: Math.max(...tours.map((t) => t.price)) };
+	const priceRange = $derived(
+		tours.length > 0
+			? { min: Math.min(...tours.map((t) => t.price)), max: Math.max(...tours.map((t) => t.price)) }
+			: { min: 0, max: 2000 }
+	);
 
 	const filtered = $derived(
 		tours
@@ -29,13 +56,20 @@
 			.sort((a, b) => {
 				if (sortBy === 'price-low') return a.price - b.price;
 				if (sortBy === 'price-high') return b.price - a.price;
-				if (sortBy === 'rating') return b.rating - a.rating;
+				if (sortBy === 'rating') return (b.rating ?? 0) - (a.rating ?? 0);
 				return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
 			})
 	);
 
-	const avgPrice = Math.round(tours.reduce((sum, t) => sum + t.price, 0) / tours.length);
-	const avgRating = (tours.reduce((sum, t) => sum + t.rating, 0) / tours.length).toFixed(1);
+	const avgPrice = $derived(
+		tours.length > 0 ? Math.round(tours.reduce((sum, t) => sum + t.price, 0) / tours.length) : 0
+	);
+	const avgRating = $derived(
+		tours.length > 0
+			? (tours.reduce((sum, t) => sum + (t.rating ?? 0), 0) / tours.length).toFixed(1)
+			: '0.0'
+	);
+	const countryCount = $derived(new Set(tours.map((t) => t.countrySlug)).size);
 
 	let visibleCards = $state<Set<string>>(new Set());
 
@@ -64,13 +98,13 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Tours & Packages — Gidi Tour</title>
-	<meta
-		name="description"
-		content="Browse priced, ready-to-book tours across Nigeria, Ghana, Kenya, Tanzania, Rwanda, Egypt, Morocco, South Africa and the UK."
-	/>
-</svelte:head>
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/tours"
+	siteName={data.siteSettings?.siteName}
+/>
 
 <!-- HERO -->
 <section class="relative overflow-hidden px-5 pb-16 pt-24 text-black sm:px-8 lg:px-12 lg:pt-32">
@@ -108,7 +142,7 @@
 					<p class="mt-1 text-[14px] text-black/75">average rating</p>
 				</div>
 				<div class="rounded-2xl bg-black/6 p-4">
-					<p class="font-bold text-2xl text-black sm:text-3xl">9</p>
+					<p class="font-bold text-2xl text-black sm:text-3xl">{countryCount}</p>
 					<p class="mt-1 text-[14px] text-black/75">countries covered</p>
 				</div>
 			</div>
@@ -194,23 +228,25 @@
 		</div>
 
 		<div class="tour-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as tour (tour.slug)}
+			{#each filtered as tour (tour.slug.current)}
 				<a
-					href={`/tours/${tour.slug}`}
-					data-slug={tour.slug}
+					href={`/tours/${tour.slug.current}`}
+					data-slug={tour.slug.current}
 					class="tour-card group relative translate-y-7 overflow-hidden rounded-[24px] bg-white opacity-0 shadow-sm transition-all duration-700 hover:shadow-[0_24px_48px_-24px_rgba(23,32,15,0.25)] {visibleCards.has(
-						tour.slug
+						tour.slug.current
 					)
 						? '!translate-y-0 !opacity-100'
 						: ''}"
 				>
 					<div class="relative aspect-[4/3] overflow-hidden">
-						<img
-							src={tour.image}
-							alt={tour.title}
-							class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.07]"
-							loading="lazy"
-						/>
+						{#if tour.image}
+							<img
+								src={urlFor(tour.image).width(600).height(450).url()}
+								alt={tour.title}
+								class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.07]"
+								loading="lazy"
+							/>
+						{/if}
 						{#if tour.popular}
 							<span class="absolute left-4 top-4 rounded-full bg-[#F98315] px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-white shadow">
 								Popular
@@ -259,7 +295,6 @@
 </section>
 
 <TestimonialBand />
-
 
 <Article />
 
