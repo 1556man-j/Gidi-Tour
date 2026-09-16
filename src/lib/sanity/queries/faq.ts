@@ -10,7 +10,7 @@ export interface SanityFaq {
 
 export async function getFaqsForPage(page: string): Promise<SanityFaq[]> {
 	return sanityClient.fetch(
-		`*[_type == "faq" && page == $page] | order(order asc)`,
+		`*[_type == "faq" && (page == $page || page == "general")] | order(order asc)`,
 		{ page }
 	);
 }

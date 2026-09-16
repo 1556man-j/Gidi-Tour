@@ -296,6 +296,6 @@
 
 <TestimonialBand />
 
-<Article />
+<Article articles={data.sanityArticles ?? []} />
 
 <CTABanner />

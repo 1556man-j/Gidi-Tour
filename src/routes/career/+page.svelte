@@ -1,152 +1,47 @@
 <script lang="ts">
 	import { reveal } from '$lib/utils/reveal';
-	import {
-		ArrowUpRight,
-		MapPin,
-		Clock,
-		Plus,
-		Minus,
-		Quote,
-		Send
-	} from 'lucide-svelte';
+	import { ArrowUpRight, MapPin, Clock, Plus, Minus, Quote, Send } from 'lucide-svelte';
+	import { urlFor } from '$lib/sanity/client';
+	import ApplyModal from '../../components/ApplyModal.svelte';
 	import type { PageData } from './$types';
-
-	interface Position {
-		title: string;
-		team: string;
-		location: string;
-		commitment: string;
-		summary: string;
-		slug: string;
-	}
-
-	interface Postcard {
-		image: string;
-		place: string;
-		caption: string;
-	}
-
-	interface TeamQuote {
-		quote: string;
-		name: string;
-		role: string;
-		photo: string;
-	}
+	import SeoHead from '../../components/SeoHead.svelte';
 
 	interface Props {
-		data?: PageData;
-		positions?: Position[];
-		postcards?: Postcard[];
-		quotes?: TeamQuote[];
+		data: PageData;
 	}
 
-	let {
-		data,
-		positions = [
-			{
-				title: 'Trip Design Lead',
-				team: 'Operations',
-				location: 'Lagos · Hybrid',
-				commitment: 'Full-time',
-				summary:
-					'You will turn a country brief into a working itinerary — routes, timings, local partners — and keep improving it after real travelers have used it.',
-				slug: 'trip-design-lead'
-			},
-			{
-				title: 'Local Experience Curator',
-				team: 'Partnerships',
-				location: 'Remote · West Africa',
-				commitment: 'Full-time',
-				summary:
-					'You will find the guides, cooks, and small operators who make a place feel lived-in, and build the relationships that keep them working with us for years.',
-				slug: 'local-experience-curator'
-			},
-			{
-				title: 'Content & Storytelling Producer',
-				team: 'Marketing',
-				location: 'Lagos',
-				commitment: 'Full-time',
-				summary:
-					'You will travel with small groups, shoot and edit what actually happens, and turn it into the stories that make someone else book a trip.',
-				slug: 'content-storytelling-producer'
-			},
-			{
-				title: 'Customer Care Specialist',
-				team: 'Support',
-				location: 'Remote',
-				commitment: 'Full-time',
-				summary:
-					'You will be the voice someone hears at 11pm when their flight is delayed and their tour starts in the morning. Calm, fast, and clear.',
-				slug: 'customer-care-specialist'
-			},
-			{
-				title: 'Growth & Community Manager',
-				team: 'Marketing',
-				location: 'Lagos · Hybrid',
-				commitment: 'Full-time',
-				summary:
-					'You will run the channels where past travelers talk to future ones, and turn that conversation into the next trip on the calendar.',
-				slug: 'growth-community-manager'
-			}
-		],
-		postcards = [
-			{
-				image: '/images/careers/postcard-zanzibar.jpg',
-				place: 'Zanzibar, Tanzania',
-				caption: 'Mapping next year’s spice-route days over breakfast'
-			},
-			{
-				image: '/images/careers/postcard-marrakech.jpg',
-				place: 'Marrakech, Morocco',
-				caption: 'A supplier visit that turned into a four-hour tea'
-			},
-			{
-				image: '/images/careers/postcard-kigali.jpg',
-				place: 'Kigali, Rwanda',
-				caption: 'Scouting a new guide’s first group, quietly, from the back'
-			},
-			{
-				image: '/images/careers/postcard-lagos.jpg',
-				place: 'Lagos, Nigeria',
-				caption: 'Where most of us are, most Tuesdays'
-			},
-			{
-				image: '/images/careers/postcard-cairo.jpg',
-				place: 'Cairo, Egypt',
-				caption: 'The itinerary that got rebuilt three times before it worked'
-			}
-		],
-		quotes = [
-			{
-				quote:
-					'I was hired to write about places. Six months in, I was also the person who noticed our Ghana route had too much driving and not enough Accra. Nobody told me to fix that — I just could.',
-				name: 'Amaka O.',
-				role: 'Content & Storytelling',
-				photo: '/images/people/avatar-2.JPG'
-			},
-			{
-				quote:
-					'The interview was one call. The trial task was three days of real work, paid, on a real itinerary. I knew what the job was before I said yes.',
-				name: 'Tunde F.',
-				role: 'Trip Design',
-				photo: '/images/people/avatar-4.JPG'
-			}
-		]
-	}: Props = $props();
+	let { data }: Props = $props();
+
+	const positions = $derived(data.positions ?? []);
+	const postcards = $derived(data.postcards ?? []);
+	const quotes = $derived(data.quotes ?? []);
 
 	let openRole: number | null = $state(0);
-
 	function toggleRole(i: number) {
 		openRole = openRole === i ? null : i;
 	}
+
+	let applyModalRole = $state<string | null>(null);
+
+
+	const seoTitle = $derived(
+	data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Careers — Gidi Tour'
+);
+const seoDescription = $derived(
+	data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
+);
+const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 </script>
 
+<SeoHead
+	title={seoTitle}
+	description={seoDescription}
+	image={seoImage}
+	url="https://giditour.com/careers"
+	siteName={data.siteSettings?.siteName}
+/>
+
 <svelte:head>
-	<title>Careers — Gidi Tour</title>
-	<meta
-		name="description"
-		content="Open roles at Gidi Tour. See what the work actually is, meet the team, and apply."
-	/>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link
@@ -156,7 +51,9 @@
 </svelte:head>
 
 <!-- ============ HERO ============ -->
-<section class="hero relative isolate flex min-h-[100px] w-full items-end overflow-hidden bg-[#101809]">
+<section
+	class="hero relative isolate flex min-h-25 w-full items-end overflow-hidden bg-[#101809]"
+>
 	<img
 		src="/images/assets/cape-town-2.webp"
 		alt="A Gidi Tour team member briefing a small group at sunrise"
@@ -169,20 +66,21 @@
 	></div>
 
 	<div class="relative mx-auto w-full max-w-[1180px] px-6 pb-16 pt-20 sm:px-10 sm:pb-20 lg:px-14">
-		<p class="hero-line hero-line--1 mb-6 text-sm font-medium text-white/70">Careers at Gidi Tour</p>
+		<p class="hero-line hero-line--1 mb-6 text-sm font-medium text-white/70">
+			Careers at Gidi Tour
+		</p>
 
 		<h1
-			class="hero-line hero-line--2 max-w-[15ch] text-[clamp(2.4rem,5.4vw,4.4rem)] font-medium leading-[1.05] text-white"
+			class="hero-line hero-line--2 max-w-[17ch] text-[clamp(2.4rem,5.4vw,4.4rem)] font-medium leading-[1.05] text-white"
 			style="font-family: 'Fraunces', serif;"
 		>
 			We hire people who’ve already fallen for a place they didn’t grow up in.
 		</h1>
 
 		<p class="hero-line hero-line--3 mt-7 max-w-[46ch] text-[17px] leading-relaxed text-white/75">
-			Gidi Tour is small on purpose. Every person here has designed a route, argued
-			with a supplier, or answered a 2am message from someone stuck at a border.
-			The roles below are open because we're genuinely short-handed for the trips
-			ahead of us.
+			Gidi Tour is small on purpose. Every person here has designed a route, argued with a supplier,
+			or answered a 2am message from someone stuck at a border. The roles below are open because
+			we're genuinely short-handed for the trips ahead of us.
 		</p>
 
 		<div class="hero-line hero-line--4 mt-10 flex flex-wrap items-center gap-5">
@@ -234,30 +132,31 @@
 <!-- ============ WHAT THE WORK IS ============ -->
 <section class="bg-[#f7f3ea] px-6 py-20 sm:px-10 sm:py-28 lg:px-14" use:reveal>
 	<div class="reveal mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-		<p class="text-[15px] leading-relaxed text-[#17200f]/60">
-			What working here is actually like
-		</p>
+		<p class="text-[15px] leading-relaxed text-[#17200f]/60">What working here is actually like</p>
 		<div>
 			<p
 				class="max-w-[38ch] text-[26px] font-medium leading-[1.4] text-[#17200f] sm:text-[30px]"
 				style="font-family: 'Fraunces', serif; font-style: italic;"
 			>
-				There is no separate "content team" that has never been to the places we
-				write about, and no "ops team" that has never spoken to a traveler.
+				There is no separate "content team" that has never been to the places we write about, and no
+				"ops team" that has never spoken to a traveler.
 			</p>
 			<p class="mt-6 max-w-[54ch] text-[16px] leading-relaxed text-[#17200f]/70">
-				Most weeks, you'll do work outside the title on your CV — a curator sitting
-				in on a support call, a marketer rebuilding a day of an itinerary that
-				wasn't landing. If that sounds like more responsibility than structure,
-				it is. We pay for it accordingly, and we tell you that up front rather than
-				discovering it three months in.
+				Most weeks, you'll do work outside the title on your CV — a curator sitting in on a support
+				call, a marketer rebuilding a day of an itinerary that wasn't landing. If that sounds like
+				more responsibility than structure, it is. We pay for it accordingly, and we tell you that
+				up front rather than discovering it three months in.
 			</p>
 		</div>
 	</div>
 </section>
 
 <!-- ============ OPEN ROLES ============ -->
-<section id="roles" class="bg-[#101809] px-6 py-20 text-white sm:px-10 sm:py-28 lg:px-14" use:reveal>
+<section
+	id="roles"
+	class="bg-[#101809] px-6 py-20 rounded-4xl text-white sm:px-10 sm:py-28 lg:px-14"
+	use:reveal
+>
 	<div class="reveal mx-auto max-w-[880px]">
 		<div class="mb-14 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 			<h2
@@ -270,7 +169,7 @@
 		</div>
 
 		<ul class="divide-y divide-white/10 border-y border-white/10">
-			{#each positions as role, i}
+			{#each positions as role, i (role._id)}
 				<li>
 					<button
 						type="button"
@@ -292,7 +191,9 @@
 								<span>{role.team}</span>
 							</span>
 						</span>
-						<span class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full border border-white/20">
+						<span
+							class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full border border-white/20"
+						>
 							{#if openRole === i}
 								<Minus class="h-3.5 w-3.5" aria-hidden="true" />
 							{:else}
@@ -307,13 +208,14 @@
 								{role.summary}
 							</p>
 							<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-							<a
-								href={`/careers/${role.slug}`}
+							<button
+								type="button"
+								onclick={() => (applyModalRole = role.title)}
 								class="inline-flex w-fit items-center gap-2 rounded-full bg-[#5C9B19] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#F98315]"
 							>
 								Apply for this role
 								<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
-							</a>
+							</button>
 						</div>
 					{/if}
 				</li>
@@ -322,8 +224,8 @@
 
 		<p class="mt-8 text-sm text-white/45">
 			Don't see your fit? Write to
-			<a href="mailto:careers@giditour.com" class="underline decoration-white/30 underline-offset-4"
-				>careers@giditour.com</a
+			<a href="mailto:support@giditour.com" class="underline decoration-white/30 underline-offset-4"
+				>support@giditour.com</a
 			>
 			and tell us what you'd want to work on.
 		</p>
@@ -332,19 +234,27 @@
 
 <!-- ============ LIFE AT GIDI — SCATTERED POSTCARDS ============ -->
 <section class="bg-[#f7f3ea] py-20 sm:py-28" use:reveal>
-	<div class="reveal mx-auto max-w-[1180px] px-6 sm:px-10 lg:px-14">
-		<p class="max-w-[40ch] text-[26px] font-medium leading-[1.35] text-[#17200f] sm:text-[30px]" style="font-family: 'Fraunces', serif;">
+	<div class="reveal mx-auto max-w-295 px-6 sm:px-10 lg:px-14">
+		<p
+			class="max-w-[40ch] text-[26px] font-medium leading-[1.35] text-[#17200f] sm:text-[30px]"
+			style="font-family: 'Fraunces', serif;"
+		>
 			The team writes postcards to itself. Literally — this is a running thread.
 		</p>
 	</div>
 
 	<div class="postcard-track mt-14 flex gap-6 overflow-x-auto px-6 pb-8 sm:px-10 lg:px-14">
-		{#each postcards as card, i}
+		{#each postcards as card, i (card._id)}
 			<figure
-				class="postcard relative flex-shrink-0 overflow-hidden bg-white shadow-[0_18px_40px_-16px_rgba(16,24,9,0.35)]"
+				class="postcard relative shrink-0 overflow-hidden bg-white shadow-[0_18px_40px_-16px_rgba(16,24,9,0.35)]"
 				style="--tilt: {i % 2 === 0 ? '-1.5deg' : '1.5deg'};"
 			>
-				<img src={card.image} alt={card.place} class="h-[260px] w-[340px] object-cover" loading="lazy" />
+				<img
+					src={urlFor(card.image).width(680).height(520).url()}
+					alt={card.place}
+					class="h-65 w-85 object-cover"
+					loading="lazy"
+				/>
 				<figcaption class="border-t border-black/5 p-4">
 					<p class="text-[13px] font-semibold text-[#17200f]">{card.place}</p>
 					<p class="mt-1 text-[13px] leading-snug text-[#17200f]/60">{card.caption}</p>
@@ -356,7 +266,7 @@
 
 <!-- ============ HOW HIRING WORKS (real sequence) ============ -->
 <section class="bg-white px-6 py-20 sm:px-10 sm:py-28 lg:px-14" use:reveal>
-	<div class="reveal mx-auto grid max-w-[1180px] gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+	<div class="reveal mx-auto grid max-w-295 gap-14 lg:grid-cols-[0.8fr_1.2fr]">
 		<h2
 			class="max-w-[16ch] text-[clamp(1.9rem,3.2vw,2.5rem)] font-medium leading-[1.15] text-[#17200f]"
 			style="font-family: 'Fraunces', serif;"
@@ -370,8 +280,8 @@
 				<div>
 					<p class="text-base font-semibold text-[#17200f]">Send us something real</p>
 					<p class="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-[#17200f]/65">
-						A note about a place that changed how you see things, alongside your CV. We
-						read these before the CV.
+						A note about a place that changed how you see things, alongside your CV. We read these
+						before the CV.
 					</p>
 				</div>
 			</li>
@@ -380,8 +290,8 @@
 				<div>
 					<p class="text-base font-semibold text-[#17200f]">A conversation, not an interview</p>
 					<p class="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-[#17200f]/65">
-						Thirty minutes with someone who'd actually be your teammate. No trick
-						questions, no case study on the spot.
+						Thirty minutes with someone who'd actually be your teammate. No trick questions, no case
+						study on the spot.
 					</p>
 				</div>
 			</li>
@@ -390,8 +300,8 @@
 				<div>
 					<p class="text-base font-semibold text-[#17200f]">A small, paid trial</p>
 					<p class="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-[#17200f]/65">
-						A real piece of work, scoped to a few days, done on your own time and
-						compensated whether or not it leads anywhere.
+						A real piece of work, scoped to a few days, done on your own time and compensated
+						whether or not it leads anywhere.
 					</p>
 				</div>
 			</li>
@@ -400,8 +310,8 @@
 				<div>
 					<p class="text-base font-semibold text-[#17200f]">An offer in plain terms</p>
 					<p class="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-[#17200f]/65">
-						Clear scope, clear pay, clear start date — sent as a document you can
-						actually read in one sitting.
+						Clear scope, clear pay, clear start date — sent as a document you can actually read in
+						one sitting.
 					</p>
 				</div>
 			</li>
@@ -411,8 +321,8 @@
 
 <!-- ============ TEAM QUOTES ============ -->
 <section class="bg-[#17200f] px-6 py-20 text-white sm:px-10 sm:py-28 lg:px-14" use:reveal>
-	<div class="reveal mx-auto grid max-w-[1180px] gap-12 lg:grid-cols-2 lg:gap-16">
-		{#each quotes as q}
+	<div class="reveal mx-auto grid max-w-295 gap-12 lg:grid-cols-2 lg:gap-16">
+		{#each quotes as q (q._id)}
 			<figure class="flex flex-col">
 				<Quote class="mb-5 h-6 w-6 text-[#F98315]" aria-hidden="true" />
 				<blockquote
@@ -422,7 +332,13 @@
 					{q.quote}
 				</blockquote>
 				<figcaption class="mt-6 flex items-center gap-3">
-					<img src={q.photo} alt="" class="h-10 w-10 rounded-full object-cover" />
+					{#if q.photo}
+						<img
+							src={urlFor(q.photo).width(80).height(80).url()}
+							alt=""
+							class="h-10 w-10 rounded-full object-cover"
+						/>
+					{/if}
 					<span class="text-sm">
 						<span class="font-semibold">{q.name}</span>
 						<span class="text-white/50"> — {q.role}</span>
@@ -434,13 +350,13 @@
 </section>
 
 <!-- ============ FINAL CTA ============ -->
-<section class="relative overflow-hidden bg-[#5C9B19] px-6 py-24 text-white sm:px-10 lg:px-14">
+<section class="relative overflow-hidden  px-6 py-24 text-black sm:px-10 lg:px-14">
 	<div
 		class="pointer-events-none absolute inset-0"
 		style="background: radial-gradient(70% 90% at 85% 20%, rgba(249,131,21,0.25), transparent 65%);"
 		aria-hidden="true"
 	></div>
-	<div class="relative mx-auto flex max-w-[900px] flex-col items-start gap-8">
+	<div class="relative mx-auto flex max-w-225 flex-col items-start gap-8">
 		<h2
 			class="max-w-[18ch] text-[clamp(2rem,4vw,2.9rem)] font-medium leading-[1.1]"
 			style="font-family: 'Fraunces', serif;"
@@ -448,14 +364,19 @@
 			The next trip on our calendar needs someone we haven't hired yet.
 		</h2>
 		<a
-			href="#roles"
-			class="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-[#17200f] transition hover:bg-[#101809] hover:text-white"
+			href="mailto:support@giditour.com?subject=Application: [Your Name]"
+			class="inline-flex items-center gap-2 rounded-full bg-[#F98315] px-7 py-3.5 text-sm font-semibold text-[#17200f] transition hover:bg-[#101809] hover:text-white"
 		>
 			Send us your note
 			<Send class="h-4 w-4" aria-hidden="true" />
 		</a>
 	</div>
 </section>
+
+<!-- apply modal -->
+{#if applyModalRole}
+	<ApplyModal roleTitle={applyModalRole} onClose={() => (applyModalRole = null)} />
+{/if}
 
 <style>
 	/* ---- One orchestrated hero entrance (not repeated elsewhere) ---- */

@@ -11,9 +11,16 @@
 	import PtImage from '../../../components/portable-text/PtImage.svelte';
 
 	const ptComponents = {
-		block: { h2: PtH2, h3: PtH3, blockquote: PtQuote, normal: PtParagraph, h1: PtH2, h4: PtH3,
-		h5: PtH3,
-		h6: PtH3, },
+		block: {
+			h2: PtH2,
+			h3: PtH3,
+			blockquote: PtQuote,
+			normal: PtParagraph,
+			h1: PtH2,
+			h4: PtH3,
+			h5: PtH3,
+			h6: PtH3
+		},
 		types: { image: PtImage }
 	};
 
@@ -135,7 +142,7 @@
 </section>
 
 <!-- BODY -->
-<section class="bg-[#f7f3ea] px-5 py-16 sm:px-8 lg:px-0 ">
+<section class="bg-[#f7f3ea] px-5 py-16 sm:px-8 lg:px-0">
 	<div class="mx-auto max-w-3xl">
 		<div class="rounded-[28px] bg-white p-6 shadow-sm sm:p-10 lg:p-14">
 			<p class="text-lg leading-relaxed text-[#17200f]/70">{article.excerpt}</p>
@@ -163,7 +170,7 @@
 <!-- RELATED -->
 {#if related.length > 0}
 	<section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
-		<div class="mx-auto max-w-[1440px]">
+		<div class="mx-auto max-w-360">
 			<h2 class="font-display text-2xl tracking-[-.02em] text-[#17200f] sm:text-3xl">
 				More like this
 			</h2>
@@ -174,7 +181,7 @@
 						href={`/stories/${item.slug.current}`}
 						class="group relative overflow-hidden rounded-[22px] bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_48px_-24px_rgba(23,32,15,0.25)]"
 					>
-						<div class="relative aspect-[4/3] overflow-hidden">
+						<div class="relative aspect-4/3 overflow-hidden">
 							{#if item.image}
 								<img
 									src={urlFor(item.image).width(500).height(375).url()}

@@ -18,7 +18,8 @@ export default defineType({
 					{ title: 'Book a Tour', value: 'book' },
 					{ title: 'Contact', value: 'contact' },
 					{ title: 'Travel Journal (listing)', value: 'stories' },
-					{ title: 'About Us', value: 'about' }
+					{ title: 'About Us', value: 'about' },
+					{ title: 'Careers', value: 'careers' }
 				]
 			},
 			validation: (r) => r.required()

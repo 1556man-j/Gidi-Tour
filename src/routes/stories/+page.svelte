@@ -238,37 +238,6 @@
 	];
 
 	let activeSeason = $state(0);
-
-	// ---------- BUDGET & MONEY ----------
-	type BudgetTier = { tier: string; range: string; covers: string };
-
-	const budgetTiers: BudgetTier[] = [
-		{
-			tier: 'Backpacker',
-			range: '$40\u2013$70 / day',
-			covers:
-				'Hostel or budget guesthouse, local street food and market meals, shared or public transport, free/low-cost sights.'
-		},
-		{
-			tier: 'Mid-range',
-			range: '$100\u2013$180 / day',
-			covers:
-				'Comfortable 3\u2013star hotels, a mix of local and sit-down restaurants, private transfers for longer legs, paid tours and activities.'
-		},
-		{
-			tier: 'Comfort',
-			range: '$220+ / day',
-			covers:
-				'Boutique or 4\u2013star stays, private guides, domestic flights over long road transfers, curated experiences with smaller groups.'
-		}
-	];
-
-	const moneyTips = [
-		'Card payments are common in city hotels and malls, but markets, taxis and smaller towns are cash-first almost everywhere on our routes.',
-		'Notify your bank before you travel \u2014 a surprising number of card declines abroad are just fraud flags, not actual problems.',
-		'Budget 10\u201315% above your estimate for the trip you didn\u2019t plan for \u2014 the detour, the extra night, the thing you didn\u2019t know you\u2019d want.',
-		'Tipping norms vary by country; we include a quick tipping guide in every pre-trip pack so you\u2019re not guessing at the table.'
-	];
 </script>
 
 <SeoHead
@@ -407,7 +376,7 @@
 
 <!-- GRID -->
 <section class="bg-[#f7f3ea] px-5 pb-10 sm:px-8 lg:px-12">
-	<div class="mx-auto max-w-[1440px]">
+	<div class="mx-auto max-w-360">
 		<div class="journal-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each filtered as article (article.slug.current)}
 				<a
@@ -437,7 +406,7 @@
 					</div>
 					<div class="p-5">
 						<p class="mb-2 text-[10px] font-bold uppercase tracking-[.16em] text-[#17200f]/40">
-							{article.destination} \u00b7 {formatDate(article.date)}
+							{article.destination} · {formatDate(article.date)}
 						</p>
 						<h3 class="font-display text-xl leading-snug text-[#17200f]">{article.title}</h3>
 						<p class="mt-2 text-sm leading-relaxed text-[#17200f]/55">{article.excerpt}</p>
@@ -468,7 +437,7 @@
 
 <!-- BEFORE YOU GO -->
 <section class="bg-[#f7f3ea] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-	<div class="mx-auto max-w-[1440px]">
+	<div class="mx-auto max-w-360">
 		<div class="max-w-2xl">
 			<span
 				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm"
@@ -485,7 +454,7 @@
 			</p>
 		</div>
 
-		<div class="mt-12 max-w-[740px] divide-y divide-black/10 border-y border-black/10">
+		<div class="mt-12 max-w-185 divide-y divide-black/10 border-y border-black/10">
 			{#each beforeYouGo as item, i (item.title)}
 				{@const Icon = item.icon}
 				<div>
@@ -493,16 +462,16 @@
 						type="button"
 						onclick={() => toggle(i)}
 						aria-expanded={openIndex === i}
-						class="flex w-full items-center gap-4 py-5 text-left transition hover:bg-black/[0.02] sm:gap-5 sm:py-6"
+						class="flex w-full items-center gap-4 py-5 text-left transition hover:bg-black/2 sm:gap-5 sm:py-6"
 					>
 						<span
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#5C9B19]/10 sm:h-12 sm:w-12"
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#5C9B19]/10 sm:h-12 sm:w-12"
 						>
 							<Icon class="h-5 w-5 text-[#5C9B19]" aria-hidden="true" />
 						</span>
 						<span class="flex-1 font-medium text-lg text-[#17200f] sm:text-xl">{item.title}</span>
 						<ChevronDown
-							class="h-5 w-5 flex-shrink-0 text-[#17200f]/70 transition-transform duration-300 {openIndex ===
+							class="h-5 w-5 shrink-0 text-[#17200f]/70 transition-transform duration-300 {openIndex ===
 							i
 								? 'rotate-180'
 								: ''}"
@@ -515,7 +484,7 @@
 							? 'grid-rows-[1fr] pb-6 opacity-100'
 							: 'grid-rows-[0fr] opacity-0'}"
 					>
-						<div class="min-h-0 overflow-hidden pl-14 pr-4 sm:pl-[68px] sm:pr-10">
+						<div class="min-h-0 overflow-hidden pl-14 pr-4 sm:pl-17 sm:pr-10">
 							<p class="max-w-xl text-[15px] leading-relaxed text-[#17200f]/76">{item.body}</p>
 						</div>
 					</div>
@@ -526,11 +495,11 @@
 </section>
 
 <!-- TRAVEL TIPS -->
-<section class="bg-[#fff] px-5 rounded-4xl py-20 text-black sm:px-8 lg:px-12 lg:py-28">
-	<div class="mx-auto max-w-[1440px]">
+<section class="bg-white px-5 rounded-4xl py-20 text-black sm:px-8 lg:px-12 lg:py-28">
+	<div class="mx-auto max-w-360">
 		<div class="grid gap-10 lg:grid-cols-12 lg:items-stretch">
 			<div class="lg:col-span-4 w-full">
-				<div class="h-[300px] sm:h-[400px] md:h-[450px] lg:h-full lg:min-h-[500px]">
+				<div class="h-75 sm:h-100 md:h-112.5 lg:h-full lg:min-h-125">
 					<img
 						src="images/hero/travel-tip.jpg"
 						alt="Travel Tips"
@@ -560,7 +529,7 @@
 					{#each travelTips as tip, i (tip)}
 						<li class="flex gap-4 border-b border-white/10 py-5 first:pt-0 last:border-0">
 							<CheckCircle2
-								class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#5C9B19]"
+								class="mt-0.5 h-5 w-5 shrink-0 text-[#5C9B19]"
 								aria-hidden="true"
 							/>
 							<p class="text-[15px] leading-relaxed text-black/79">{tip}</p>
@@ -574,7 +543,7 @@
 
 <!-- WHEN TO GO -->
 <section class="bg-[#f7f3ea] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-	<div class="mx-auto max-w-[1440px]">
+	<div class="mx-auto max-w-360">
 		<div class="max-w-2xl">
 			<span
 				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm"
@@ -597,14 +566,14 @@
 				<button
 					type="button"
 					onclick={() => (activeSeason = i)}
-					class="relative flex-shrink-0 px-4 py-3 text-sm font-bold transition-colors {activeSeason ===
+					class="relative shrink-0 px-4 py-3 text-sm font-bold transition-colors {activeSeason ===
 					i
 						? 'text-[#17200f]'
 						: 'text-[#17200f]/40 hover:text-[#17200f]/70'}"
 				>
 					{guide.destination}
 					{#if activeSeason === i}
-						<span class="absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-[#F98315]"></span>
+						<span class="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-[#F98315]"></span>
 					{/if}
 				</button>
 			{/each}
@@ -623,7 +592,7 @@
 				</div>
 				<div class="flex flex-col justify-center gap-4 lg:col-span-5 lg:col-start-8">
 					<div class="flex items-center gap-3 rounded-2xl bg-[#5C9B19]/10 p-4">
-						<Sun class="h-5 w-5 flex-shrink-0 text-[#5C9B19]" aria-hidden="true" />
+						<Sun class="h-5 w-5 shrink-0 text-[#5C9B19]" aria-hidden="true" />
 						<div>
 							<p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#5C9B19]">
 								Best months
@@ -634,7 +603,7 @@
 						</div>
 					</div>
 					<div class="flex items-center gap-3 rounded-2xl bg-[#F98315]/10 p-4">
-						<CloudRain class="h-5 w-5 flex-shrink-0 text-[#F98315]" aria-hidden="true" />
+						<CloudRain class="h-5 w-5 shrink-0 text-[#F98315]" aria-hidden="true" />
 						<div>
 							<p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#F98315]">
 								Best avoided
@@ -649,65 +618,6 @@
 		{/key}
 	</div>
 </section>
-
-<!-- BUDGET & MONEY -->
-<!-- <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
-	<div class="mx-auto max-w-[1440px]">
-		<div class="max-w-2xl">
-			<span
-				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-[.18em] text-[#5C9B19] shadow-sm"
-			>
-				Budget & Money
-			</span>
-			<h2
-				class="font-display mt-5 text-4xl leading-[1.05] tracking-[-.03em] text-[#17200f] sm:text-5xl"
-			>
-				What a trip<br />actually costs.
-			</h2>
-			<p class="mt-5 text-lg leading-relaxed text-[#17200f]/60">
-				Rough daily ranges, not a quote \u2014 real costs depend on route, season and how you like
-				to travel.
-			</p>
-		</div>
-
-		<div class="mt-12 grid gap-5 lg:grid-cols-3">
-			{#each budgetTiers as tier, i (tier.tier)}
-				<div
-					class="rounded-[24px] border p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {i ===
-					1
-						? 'border-[#5C9B19] bg-[#17200f] text-white shadow-lg'
-						: 'border-black/10 bg-white text-[#17200f]'}"
-				>
-					{#if i === 1}
-						<span
-							class="mb-4 inline-flex rounded-full bg-[#5C9B19] px-3 py-1 text-[10px] font-bold uppercase tracking-[.14em] text-white"
-						>
-							Most common
-						</span>
-					{/if}
-					<p class="font-display text-2xl {i === 1 ? 'text-white' : 'text-[#17200f]'}">
-						{tier.tier}
-					</p>
-					<p class="mt-1 text-2xl font-bold {i === 1 ? 'text-[#F98315]' : 'text-[#5C9B19]'}">
-						{tier.range}
-					</p>
-					<p class="mt-4 text-sm leading-relaxed {i === 1 ? 'text-white/60' : 'text-[#17200f]/55'}">
-						{tier.covers}
-					</p>
-				</div>
-			{/each}
-		</div>
-
-		<div class="mt-14 grid gap-6 border-t border-black/10 pt-12 sm:grid-cols-2">
-			{#each moneyTips as tip (tip)}
-				<div class="flex gap-3">
-					<Coins class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#F98315]" aria-hidden="true" />
-					<p class="text-sm leading-relaxed text-[#17200f]/65">{tip}</p>
-				</div>
-			{/each}
-		</div>
-	</div>
-</section> -->
 
 <!-- CTA Banner -->
 <CTABanner />

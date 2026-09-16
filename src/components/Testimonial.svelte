@@ -28,7 +28,7 @@
 			location: 'London, UK',
 			initials: 'AJ',
 			color: '#5c9b19',
-			avatar: '/images/people/avatar-1.JPG',
+			avatar: '/images/people/avatar-7.webp',
 			rating: 5,
 			quote:
 				'Gidi gave me a completely different way to experience Lagos. It felt less like a tour and more like being shown around by someone who genuinely knows the city.'
@@ -38,7 +38,7 @@
 			location: 'Manchester, UK',
 			initials: 'DW',
 			color: '#f98315',
-			avatar: '/images/people/avatar-2.JPG',
+			avatar: '/images/people/avatar-2.webp',
 			rating: 5,
 			quote:
 				'Everything was thoughtfully planned, but it never felt rushed. The food, people and stories made the whole experience unforgettable.'
@@ -48,7 +48,7 @@
 			location: 'Paris, France',
 			initials: 'SM',
 			color: '#17200f',
-			avatar: '/images/people/avatar-3.JPG',
+			avatar: '/images/people/avatar-4.webp',
 			rating: 5,
 			quote:
 				'I wanted something beyond the usual tourist experience and Gidi delivered. I left with great memories and a much deeper connection to the place.'
@@ -58,7 +58,7 @@
 			location: 'New York, USA',
 			initials: 'MB',
 			color: '#8abf52',
-			avatar: '/images/people/avatar-4.JPG',
+			avatar: '/images/people/avatar-1.webp',
 			rating: 5,
 			quote:
 				'The experience felt personal from start to finish. Our guide was brilliant and every stop had a story behind it.'
@@ -68,7 +68,7 @@
 			location: 'Toronto, Canada',
 			initials: 'GT',
 			color: '#d86f19',
-			avatar: '/images/people/avatar-5.JPG',
+			avatar: '/images/people/avatar-3.webp',
 			rating: 5,
 			quote:
 				'Gidi made travelling feel easy. Great people, great food and an experience I would happily do all over again.'

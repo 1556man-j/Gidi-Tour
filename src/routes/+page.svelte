@@ -7,8 +7,10 @@
 	import DownloadApp from '../components/DownloadApp.svelte';
 	import type { PageData } from './$types';
 	import TestimonialBand from '../components/TestimonialBand.svelte';
-	import { countries } from '$lib/data/destinations';
+	// import { countries } from '$lib/data/destinations';
 	import SeoHead from '../components/SeoHead.svelte';
+	import { urlFor } from '$lib/sanity/client';
+	import FaqSection from '../components/FaqSection.svelte';
 
 	interface Props {
 		data: PageData;
@@ -36,7 +38,7 @@
 	);
 	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
 
-	const featuredCountries = $derived(countries.slice(0, 5));
+	const featuredCountries = $derived((data.sanityDestinations ?? []).slice(0, 5));
 
 	let activeCountry = $state(0);
 </script>
@@ -183,27 +185,27 @@
 						<div
 							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white first:ml-0"
 						>
-							<img src="/images/people/avatar-1.JPG" alt="" class="h-full w-full object-cover" />
+							<img src="/images/people/avatar-1.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
 							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
-							<img src="/images/people/avatar-2.JPG" alt="" class="h-full w-full object-cover" />
+							<img src="/images/people/avatar-2.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
 							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
-							<img src="/images/people/avatar-3.JPG" alt="" class="h-full w-full object-cover" />
+							<img src="/images/people/avatar-3.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
 							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
-							<img src="/images/people/avatar-4.JPG" alt="" class="h-full w-full object-cover" />
+							<img src="/images/people/avatar-4.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
 							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
-							<img src="/images/people/avatar-5.JPG" alt="" class="h-full w-full object-cover" />
+							<img src="/images/people/avatar-5.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 					</div>
 					<p class="m-0 max-w-[180px] text-start text-[13px] leading-[1.3] text-[#17200f]/80">
@@ -255,7 +257,7 @@
 					class="absolute left-[24.85%] top-[15.96%] h-[68.08%] w-[56.9%] overflow-hidden rounded-full shadow-[0_30px_60px_-20px_rgba(23,32,15,0.35)]"
 				>
 					<img
-						src="/images/hero/hero.png"
+						src="/images/hero/hero.webp"
 						alt="Traveler exploring with Gidi"
 						loading="eager"
 						class="h-full w-full object-cover"
@@ -488,103 +490,100 @@
 		</div>
 
 		<!-- Desktop: single row of taller expanding panels -->
-		<div class="reveal hidden gap-3 lg:flex lg:h-[620px]">
-			{#each featuredCountries as country, i (country.slug)}
-				<a
-					href={`/destinations/${country.slug}`}
-					class="dest-panel group relative overflow-hidden rounded-[26px]"
-					class:dest-panel--active={activeCountry === i}
-					style="flex-grow: {activeCountry === i ? 3 : 1};"
-					onmouseenter={() => (activeCountry = i)}
-					onfocusin={() => (activeCountry = i)}
-				>
-					<img
-						src={country.heroImage}
-						alt={country.name}
-						class="dest-panel__img absolute inset-0 h-full w-full object-cover"
-						loading="lazy"
-					/>
-					<div
-						class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"
-					></div>
+		
+<div class="reveal hidden gap-3 lg:flex lg:h-[620px]">
+	{#each featuredCountries as country, i (country.slug.current)}
+		<a
+			href={`/destinations/${country.slug.current}`}
+			class="dest-panel group relative overflow-hidden rounded-[26px]"
+			class:dest-panel--active={activeCountry === i}
+			style="flex-grow: {activeCountry === i ? 3 : 1};"
+			onmouseenter={() => (activeCountry = i)}
+			onfocusin={() => (activeCountry = i)}
+		>
+			{#if country.heroImage}
+				<img
+					src={urlFor(country.heroImage).width(900).height(700).url()}
+					alt={country.name}
+					class="dest-panel__img absolute inset-0 h-full w-full object-cover"
+					loading="lazy"
+				/>
+			{/if}
+			<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"></div>
 
-					<!-- Collapsed label -->
-					<div
-						class="dest-panel__collapsed absolute inset-x-0 bottom-8 flex items-center justify-center"
-						class:opacity-0={activeCountry === i}
-					>
-						<span
-							class="rotate-180 text-sm font-bold tracking-[.12em] text-white [writing-mode:vertical-rl]"
-						>
-							{country.name}
-						</span>
-					</div>
+			<div
+				class="dest-panel__collapsed absolute inset-x-0 bottom-8 flex items-center justify-center"
+				class:opacity-0={activeCountry === i}
+			>
+				<span class="rotate-180 text-sm font-bold tracking-[.12em] text-white [writing-mode:vertical-rl]">
+					{country.name}
+				</span>
+			</div>
 
-					<!-- Expanded content -->
-					<div
-						class="dest-panel__expanded absolute inset-x-0 bottom-0 p-8"
-						class:opacity-0={activeCountry !== i}
-						class:translate-y-3={activeCountry !== i}
-					>
-						<p class="mb-2 text-[14px] font-bold capitalize tracking-[.1em] text-[#F98315]">
-							{country.region} - {country.cities.length} cities
-						</p>
-						<h3 class="font-bold text-4xl text-white">{country.name}</h3>
-						<p class="mt-3 max-w-[280px] text-lg leading-relaxed text-white/90">
-							{country.intro}
-						</p>
-						<div class="mt-4 flex items-center gap-4 text-sm text-white/85">
-							<span>Best {country.bestTime}</span>
-							<span class="h-1 w-1 rounded-full bg-white/80"></span>
-							<span>From {country.priceFrom}</span>
-						</div>
-						<span
-							class="mt-5 grid h-10 w-10 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
-						>
-							↗
-						</span>
-					</div>
-				</a>
-			{/each}
-		</div>
+			<div
+				class="dest-panel__expanded absolute inset-x-0 bottom-0 p-8"
+				class:opacity-0={activeCountry !== i}
+				class:translate-y-3={activeCountry !== i}
+			>
+				<p class="mb-2 text-[14px] font-bold capitalize tracking-[.1em] text-[#F98315]">
+					{country.region} - {country.cities?.length ?? 0} cities
+				</p>
+				<h3 class="font-bold text-4xl text-white">{country.name}</h3>
+				<p class="mt-3 max-w-[280px] text-lg leading-relaxed text-white/90">
+					{country.intro}
+				</p>
+				<div class="mt-4 flex items-center gap-4 text-sm text-white/85">
+					<span>Best {country.bestTime}</span>
+					<span class="h-1 w-1 rounded-full bg-white/80"></span>
+					<span>From {country.priceFrom}</span>
+				</div>
+				<span class="mt-5 grid h-10 w-10 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]">
+					↗
+				</span>
+			</div>
+		</a>
+	{/each}
+</div>
 
-		<!-- Mobile / tablet: snap-scroll cards -->
-		<div class="dest-track flex gap-3 overflow-x-auto pb-4 lg:hidden">
-			{#each featuredCountries as country (country.slug)}
-				<a
-					href={`/destinations/${country.slug}`}
-					class="group relative min-h-[380px] min-w-[280px] flex-shrink-0 overflow-hidden rounded-[22px] sm:min-w-[320px]"
-				>
-					<img
-						src={country.heroImage}
-						alt={country.name}
-						class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
-						loading="lazy"
-					/>
-					<div
-						class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"
-					></div>
-					<div class="absolute inset-x-0 bottom-0 p-6 text-white">
-						<p class="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-white/60">
-							{country.cities.length} cities
-						</p>
-						<div class="flex items-end justify-between gap-3">
-							<h3 class="font-bold text-2xl">{country.name}</h3>
-							<span
-								class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
-							>
-								↗
-							</span>
-						</div>
-					</div>
-				</a>
-			{/each}
-		</div>
+<!-- Mobile row -->
+<div class="dest-track flex gap-3 overflow-x-auto pb-4 lg:hidden">
+	{#each featuredCountries as country (country.slug.current)}
+		<a
+			href={`/destinations/${country.slug.current}`}
+			class="group relative min-h-[380px] min-w-[280px] flex-shrink-0 overflow-hidden rounded-[22px] sm:min-w-[320px]"
+		>
+			{#if country.heroImage}
+				<img
+					src={urlFor(country.heroImage).width(700).height(600).url()}
+					alt={country.name}
+					class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+					loading="lazy"
+				/>
+			{/if}
+			<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/0"></div>
+			<div class="absolute inset-x-0 bottom-0 p-6 text-white">
+				<p class="mb-1 text-[10px] font-bold uppercase tracking-[.16em] text-white/60">
+					{country.cities?.length ?? 0} cities
+				</p>
+				<div class="flex items-end justify-between gap-3">
+					<h3 class="font-bold text-2xl">{country.name}</h3>
+					<span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]">
+						↗
+					</span>
+				</div>
+			</div>
+		</a>
+	{/each}
+</div>
 	</div>
 </section>
 
 <!-- STORIES -->
-<Article />
+<Article articles={data.sanityArticles ?? []} />
+
+<!-- FAQs -->
+<FaqSection faqs={data.sanityFaqs ?? []} eyebrow="Questions?" heading="Everything you're wondering about." />
+
 
 <!-- FINAL CTA -->
 <CTABanner />
