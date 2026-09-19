@@ -10,6 +10,7 @@
 	import SeoHead from '../../components/SeoHead.svelte';
 	import { urlFor } from '$lib/sanity/client';
 	import type { PageData } from './$types';
+	import Price from '../../components/Price.svelte';
 
 	// Filter category labels are just UI labels, not content —
 	// kept local rather than pulled from Sanity for now.
@@ -131,7 +132,7 @@
 			<!-- Live stats -->
 			<div class="grid grid-cols-3 gap-4 lg:col-span-5 lg:col-start-8">
 				<div class="rounded-2xl bg-black/6 p-4">
-					<p class="font-bold text-2xl text-black sm:text-3xl">£{avgPrice}</p>
+					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} />
 					<p class="mt-1 text-[14px] text-black/75">avg. price / person</p>
 				</div>
 				<div class="rounded-2xl bg-black/6 p-4">
@@ -177,7 +178,7 @@
 				<button
 					type="button"
 					onclick={() => (activeCategory = 'All')}
-					class="flex-shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === 'All'
+					class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === 'All'
 						? 'border-[#17200f] bg-[#17200f] text-white'
 						: 'border-black/10 text-[#17200f]/55 hover:border-black/20'}"
 				>
@@ -187,7 +188,7 @@
 					<button
 						type="button"
 						onclick={() => (activeCategory = cat)}
-						class="flex-shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === cat
+						class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === cat
 							? 'border-[#17200f] bg-[#17200f] text-white'
 							: 'border-black/10 text-[#17200f]/55 hover:border-black/20'}"
 					>
@@ -198,7 +199,7 @@
 
 			<!-- Price slider -->
 			<div class="mt-4 flex items-center gap-4 border-t border-black/5 pt-4">
-				<SlidersHorizontal class="h-5 w-5 flex-shrink-0 text-[#17200f]/80" aria-hidden="true" />
+				<SlidersHorizontal class="h-5 w-5 shrink-0 text-[#17200f]/80" aria-hidden="true" />
 				<span class="whitespace-nowrap text-sm font-semibold text-[#17200f]/60">Up to £{maxPrice}</span>
 				<input
 					type="range"
@@ -222,7 +223,7 @@
 
 <!-- TOUR GRID -->
 <section class="bg-[#f7f3ea] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-	<div class="mx-auto max-w-[1440px]">
+	<div class="mx-auto max-w-360">
 		<div class="mb-8 flex items-center justify-between">
 			<p class="text-lg text-[#17200f]/75">{filtered.length} tour{filtered.length === 1 ? '' : 's'} found</p>
 		</div>
@@ -232,7 +233,7 @@
 				<a
 					href={`/tours/${tour.slug.current}`}
 					data-slug={tour.slug.current}
-					class="tour-card group relative translate-y-7 overflow-hidden rounded-[24px] bg-white opacity-0 shadow-sm transition-all duration-700 hover:shadow-[0_24px_48px_-24px_rgba(23,32,15,0.25)] {visibleCards.has(
+					class="tour-card group relative translate-y-7 overflow-hidden rounded-3xl bg-white opacity-0 shadow-sm transition-all duration-700 hover:shadow-[0_24px_48px_-24px_rgba(23,32,15,0.25)] {visibleCards.has(
 						tour.slug.current
 					)
 						? '!translate-y-0 !opacity-100'
@@ -273,8 +274,8 @@
 
 						<div class="mt-4 flex items-end justify-between border-t border-black/5 pt-4">
 							<div>
-								<p class="text-[14px] uppercase tracking-[.1em] text-[#17200f]/65">From</p>
-								<p class="font-bold text-2xl text-[#17200f]">£{tour.price}<span class="text-lg font-normal text-[#17200f]/65"> /person</span></p>
+								<p class="text-[14px] uppercase tracking-widest text-[#17200f]/65">From</p>
+								<Price amountGBP={tour.price} currency={data.currency} rate={data.rate} suffix=" /person" size="md" />
 							</div>
 							<span class="flex items-center gap-1 text-base font-bold text-[#5C9B19] transition group-hover:text-[#F98315]">
 								View & book
@@ -299,3 +300,5 @@
 <Article articles={data.sanityArticles ?? []} />
 
 <CTABanner />
+
+<pre>{JSON.stringify({ currency: data.currency, rate: data.rate }, null, 2)}</pre>

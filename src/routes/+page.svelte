@@ -208,7 +208,7 @@
 							<img src="/images/people/avatar-5.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 					</div>
-					<p class="m-0 max-w-[180px] text-start text-[13px] leading-[1.3] text-[#17200f]/80">
+					<p class="m-0 max-w-45 text-start text-[13px] leading-[1.3] text-[#17200f]/80">
 						{heroSocialProof}
 					</p>
 				</div>
@@ -220,7 +220,7 @@
 		<!-- RIGHT: visual frame -->
 		<div class="flex items-start justify-end max-md:justify-center">
 			<div
-				class="relative aspect-[845/1015] w-[min(600px,90vw)] max-md:mx-auto max-md:w-[min(430px,92vw)]"
+				class="relative aspect-845/1015 w-[min(600px,90vw)] max-md:mx-auto max-md:w-[min(430px,92vw)]"
 			>
 				<!-- Concentric ring outlines -->
 				<svg
@@ -462,7 +462,7 @@
 </section>
 
 <!-- testimonials -->
-<TestimonialBand />
+<TestimonialBand trustpilotReviews={data.trustpilotReviews} />
 
 <!-- EXPERIENCE -->
 <GidiExperience />
