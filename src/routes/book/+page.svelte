@@ -22,6 +22,7 @@
 	import SeoHead from '../../components/SeoHead.svelte';
 	import type { PageData } from './$types';
 	import FaqSection from '../../components/FaqSection.svelte';
+	import Price from '../../components/Price.svelte';
 
 	// =========================================================
 	// PAGE PROPS + SEO
@@ -32,6 +33,9 @@
 	}
 
 	let { data }: Props = $props();
+
+	const currency = $derived(data.currency);
+	const rate = $derived(data.rate);
 
 	const seoTitle = $derived(
 		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
@@ -196,7 +200,9 @@
 			return true;
 		}
 		if (currentStepName === 'Your Details') {
-			return Boolean(name.trim() && email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()));
+			return Boolean(
+				name.trim() && email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+			);
 		}
 		return false;
 	});
@@ -496,7 +502,9 @@
 			{ threshold: 0.25 }
 		);
 
-		document.querySelectorAll('.process-step').forEach((element) => processObserver.observe(element));
+		document
+			.querySelectorAll('.process-step')
+			.forEach((element) => processObserver.observe(element));
 
 		return () => {
 			statsObserver.disconnect();
@@ -521,10 +529,14 @@
 	></div>
 
 	<div class="relative mx-auto max-w-360 text-center">
-		<span class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm">
+		<span
+			class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm"
+		>
 			Book a Tour
 		</span>
-		<h1 class="mx-auto mt-5 max-w-2xl text-4xl font-bold leading-[1.05] tracking-[-.03em] text-[#17200f] sm:text-5xl lg:text-6xl">
+		<h1
+			class="mx-auto mt-5 max-w-2xl text-4xl font-bold leading-[1.05] tracking-[-.03em] text-[#17200f] sm:text-5xl lg:text-6xl"
+		>
 			Tell us where. We'll<br />handle the rest.
 		</h1>
 		<p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-[#17200f]/60">
@@ -540,7 +552,9 @@
 		{#if submitted}
 			<!-- SUCCESS -->
 			<div class="rounded-[28px] border border-black/10 bg-white p-10 text-center shadow-sm">
-				<div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#5C9B19]/10">
+				<div
+					class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#5C9B19]/10"
+				>
 					<Check class="h-7 w-7 text-[#5C9B19]" aria-hidden="true" />
 				</div>
 				<p class="text-3xl font-medium tracking-[-.02em] text-[#17200f]">Request sent!</p>
@@ -587,7 +601,9 @@
 
 			<!-- LIVE TRIP SUMMARY BAR -->
 			{#if destination || tourStore.count > 0}
-				<div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/70 px-5 py-4 text-sm">
+				<div
+					class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/70 px-5 py-4 text-sm"
+				>
 					<div class="flex flex-wrap items-center gap-x-6 gap-y-1">
 						{#if tourStore.count === 0}
 							<span class="text-[#17200f]/60">
@@ -614,7 +630,7 @@
 							<p class="text-xs uppercase tracking-wide text-[#17200f]/40">
 								{tourStore.count > 0 ? 'Estimated total' : 'Estimated from'}
 							</p>
-							<p class="text-lg font-bold text-[#5C9B19]">£{estimatedTotal}</p>
+							<p class="text-lg font-bold text-[#5C9B19]"><Price amountGBP={estimatedTotal} {currency} {rate} size="sm" /></p>
 						{:else}
 							<p class="text-xs text-[#17200f]/40">We'll quote you once you pick a destination</p>
 						{/if}
@@ -629,16 +645,23 @@
 						<p class="text-sm font-bold text-[#17200f]">
 							{tourStore.count} selected tour{tourStore.count > 1 ? 's' : ''}
 						</p>
-						<span class="text-sm font-bold text-[#5C9B19]">£{tourStore.totalPrice}</span>
+						<span class="text-sm font-bold text-[#5C9B19]"
+							><Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" /></span
+						>
 					</div>
 					<div class="flex flex-col gap-3">
 						{#each selectedTours as item (item.id)}
 							<div class="flex items-center gap-3 rounded-2xl bg-white p-3">
-								<img src={item.image} alt={item.title} class="h-14 w-14 shrink-0 rounded-xl object-cover" />
+								<img
+									src={item.image}
+									alt={item.title}
+									class="h-14 w-14 shrink-0 rounded-xl object-cover"
+								/>
 								<div class="min-w-0 flex-1">
 									<p class="truncate text-sm font-semibold text-[#17200f]">{item.title}</p>
 									<p class="text-xs text-[#17200f]/50">
-										{item.travelers} traveler{item.travelers > 1 ? 's' : ''} · £{item.price * item.travelers}
+										{item.travelers} traveler{item.travelers > 1 ? 's' : ''} ·
+										<Price amountGBP={item.price * item.travelers} {currency} {rate} size="sm" />
 									</p>
 								</div>
 								<button
@@ -656,7 +679,9 @@
 			{/if}
 
 			<!-- FORM CARD -->
-			<div class="overflow-hidden rounded-[28px] border border-black/10 bg-white p-6 shadow-sm sm:p-10">
+			<div
+				class="overflow-hidden rounded-[28px] border border-black/10 bg-white p-6 shadow-sm sm:p-10"
+			>
 				{#key currentStep}
 					<div class="animate-[step-in_450ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
 						<!-- STEP: YOUR TRIP -->
@@ -671,7 +696,8 @@
 									<button
 										type="button"
 										onclick={() => (destination = country)}
-										class="rounded-2xl border px-4 py-3 text-left text-sm font-medium transition {destination === country
+										class="rounded-2xl border px-4 py-3 text-left text-sm font-medium transition {destination ===
+										country
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
 											: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
 									>
@@ -690,12 +716,15 @@
 									<button
 										type="button"
 										onclick={() => (tripType = type.id)}
-										class="flex flex-col items-center gap-2 rounded-2xl border p-5 transition {tripType === type.id
+										class="flex flex-col items-center gap-2 rounded-2xl border p-5 transition {tripType ===
+										type.id
 											? 'border-[#5C9B19] bg-[#5C9B19]/10'
 											: 'border-black/10 hover:border-black/20'}"
 									>
 										<Icon
-											class="h-5 w-5 {tripType === type.id ? 'text-[#5C9B19]' : 'text-[#17200f]/40'}"
+											class="h-5 w-5 {tripType === type.id
+												? 'text-[#5C9B19]'
+												: 'text-[#17200f]/40'}"
 											aria-hidden="true"
 										/>
 										<span class="text-sm font-semibold text-[#17200f]">{type.label}</span>
@@ -703,16 +732,19 @@
 								{/each}
 							</div>
 
-						<!-- STEP: DATES -->
+							<!-- STEP: DATES -->
 						{:else if currentStepName === 'Dates & Travelers'}
-							<h2 class="text-2xl font-medium text-[#17200f] sm:text-3xl">When are you travelling?</h2>
+							<h2 class="text-2xl font-medium text-[#17200f] sm:text-3xl">
+								When are you travelling?
+							</h2>
 							<p class="mt-2 text-sm text-[#17200f]/55">
 								Rough dates are fine. We can refine the details with you.
 							</p>
 
 							<div class="mt-6 grid gap-4 sm:grid-cols-2">
 								<div class="flex flex-col gap-1.5">
-									<label for="start" class="text-xs font-medium text-[#17200f]/60">Start date</label>
+									<label for="start" class="text-xs font-medium text-[#17200f]/60">Start date</label
+									>
 									<div class="relative">
 										<Calendar
 											class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#17200f]/35"
@@ -755,7 +787,8 @@
 									<button
 										type="button"
 										onclick={() => (flexibleDates = 'yes')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {flexibleDates === 'yes'
+										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {flexibleDates ===
+										'yes'
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
 											: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
 									>
@@ -764,7 +797,8 @@
 									<button
 										type="button"
 										onclick={() => (flexibleDates = 'no')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {flexibleDates === 'no'
+										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {flexibleDates ===
+										'no'
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
 											: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
 									>
@@ -774,8 +808,12 @@
 							</div>
 
 							<div class="mt-7 flex flex-col gap-1.5">
-								<span class="text-xs font-medium text-[#17200f]/60">How many people are travelling?</span>
-								<div class="flex w-fit items-center gap-4 rounded-2xl border border-black/10 px-4 py-2">
+								<span class="text-xs font-medium text-[#17200f]/60"
+									>How many people are travelling?</span
+								>
+								<div
+									class="flex w-fit items-center gap-4 rounded-2xl border border-black/10 px-4 py-2"
+								>
 									<button
 										type="button"
 										onclick={() => (travelers = Math.max(1, travelers - 1))}
@@ -796,7 +834,7 @@
 								</div>
 							</div>
 
-						<!-- STEP: MAKE IT YOURS -->
+							<!-- STEP: MAKE IT YOURS -->
 						{:else if currentStepName === 'Make It Yours'}
 							<h2 class="text-2xl font-medium text-[#17200f] sm:text-3xl">Make the trip yours.</h2>
 							<p class="mt-2 text-sm text-[#17200f]/55">
@@ -808,12 +846,16 @@
 									<button
 										type="button"
 										onclick={() => toggleAddOn(option.id)}
-										class="flex items-start gap-3 rounded-2xl border p-4 text-left transition {addOns.includes(option.id)
+										class="flex items-start gap-3 rounded-2xl border p-4 text-left transition {addOns.includes(
+											option.id
+										)
 											? 'border-[#5C9B19] bg-[#5C9B19]/10'
 											: 'border-black/10 hover:border-black/20'}"
 									>
 										<span
-											class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border {addOns.includes(option.id)
+											class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border {addOns.includes(
+												option.id
+											)
 												? 'border-[#5C9B19] bg-[#5C9B19]'
 												: 'border-black/20'}"
 										>
@@ -829,7 +871,7 @@
 								{/each}
 							</div>
 
-						<!-- STEP: DETAILS -->
+							<!-- STEP: DETAILS -->
 						{:else if currentStepName === 'Your Details'}
 							<h2 class="text-2xl font-medium text-[#17200f] sm:text-3xl">Almost there.</h2>
 							<p class="mt-2 text-sm text-[#17200f]/55">
@@ -838,7 +880,9 @@
 
 							<div class="mt-6 grid gap-4 sm:grid-cols-2">
 								<div class="flex flex-col gap-1.5">
-									<label for="book-name" class="text-xs font-medium text-[#17200f]/60">Full name</label>
+									<label for="book-name" class="text-xs font-medium text-[#17200f]/60"
+										>Full name</label
+									>
 									<input
 										id="book-name"
 										type="text"
@@ -849,7 +893,9 @@
 									/>
 								</div>
 								<div class="flex flex-col gap-1.5">
-									<label for="book-email" class="text-xs font-medium text-[#17200f]/60">Email address</label>
+									<label for="book-email" class="text-xs font-medium text-[#17200f]/60"
+										>Email address</label
+									>
 									<input
 										id="book-email"
 										type="email"
@@ -904,15 +950,17 @@
 
 							<!-- SUMMARY -->
 							<div class="mt-6 rounded-2xl bg-[#f7f3ea] p-5">
-								<p class="mb-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#5C9B19]">Trip summary</p>
+								<p class="mb-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#5C9B19]">
+									Trip summary
+								</p>
 								{#if tourStore.count > 0}
 									<dl class="grid grid-cols-2 gap-y-2 text-sm">
 										<dt class="text-[#17200f]/50">Tours selected</dt>
 										<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
 										<dt class="text-[#17200f]/50">Estimated total</dt>
-										<dd class="text-right font-medium text-[#17200f]">£{tourStore.totalPrice}</dd>
+										<dd class="text-right font-medium text-[#17200f]"><Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" /></dd>
 										<dt class="text-[#17200f]/50">Deposit due</dt>
-										<dd class="text-right font-medium text-[#5C9B19]">£{tourStore.totalDeposit}</dd>
+										<dd class="text-right font-medium text-[#5C9B19]"><Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" /></dd>
 										<dt class="text-[#17200f]/50">Extras</dt>
 										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
 									</dl>
@@ -921,12 +969,14 @@
 										<dt class="text-[#17200f]/50">Destination</dt>
 										<dd class="text-right font-medium text-[#17200f]">{destination || '—'}</dd>
 										<dt class="text-[#17200f]/50">Trip type</dt>
-										<dd class="text-right font-medium capitalize text-[#17200f]">{tripType || '—'}</dd>
+										<dd class="text-right font-medium capitalize text-[#17200f]">
+											{tripType || '—'}
+										</dd>
 										<dt class="text-[#17200f]/50">Travelers</dt>
 										<dd class="text-right font-medium text-[#17200f]">{travelers}</dd>
 										{#if estimatedTotal !== null}
 											<dt class="text-[#17200f]/50">Estimated total</dt>
-											<dd class="text-right font-medium text-[#17200f]">£{estimatedTotal}</dd>
+											<dd class="text-right font-medium text-[#17200f]"><Price amountGBP={estimatedTotal} {currency} {rate} size="sm" /></dd>
 										{/if}
 										<dt class="text-[#17200f]/50">Extras</dt>
 										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
@@ -943,7 +993,8 @@
 									<button
 										type="button"
 										onclick={() => (paymentMethod = 'card')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod === 'card'
+										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod ===
+										'card'
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
 											: 'border-black/10 text-[#17200f]/60'}"
 									>
@@ -952,7 +1003,8 @@
 									<button
 										type="button"
 										onclick={() => (paymentMethod = 'crypto')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod === 'crypto'
+										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod ===
+										'crypto'
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
 											: 'border-black/10 text-[#17200f]/60'}"
 									>
@@ -1027,7 +1079,9 @@
 			</h2>
 		</div>
 
-		<div class="mt-12 grid grid-cols-2 divide-x divide-y divide-black/10 bg-white shadow-md sm:grid-cols-4 sm:divide-y-0">
+		<div
+			class="mt-12 grid grid-cols-2 divide-x divide-y divide-black/10 bg-white shadow-md sm:grid-cols-4 sm:divide-y-0"
+		>
 			<div class="p-6 text-center">
 				<p class="text-4xl font-medium text-[#5C9B19] lg:text-6xl">9+</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
@@ -1037,7 +1091,8 @@
 			<div class="p-6 text-center">
 				<p class="text-4xl font-medium text-[#5C9B19] lg:text-6xl">100+</p>
 				<p class="mt-5 text-[16px] font-normal text-[#33323e]">
-					Curated experiences designed to help you see each destination beyond the usual tourist spots.
+					Curated experiences designed to help you see each destination beyond the usual tourist
+					spots.
 				</p>
 			</div>
 			<div class="p-6 text-center">
@@ -1060,10 +1115,14 @@
 <section class="bg-[#f7f3ea] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
 	<div class="mx-auto max-w-[1440px]">
 		<div class="max-w-2xl">
-			<span class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm">
+			<span
+				class="inline-flex rounded-full bg-white px-4 py-1.5 text-[17px] font-bold capitalize text-[#5C9B19] shadow-sm"
+			>
 				How It Works
 			</span>
-			<h2 class="mt-5 text-4xl font-bold leading-[1.05] tracking-[-.03em] text-[#17200f] sm:text-5xl">
+			<h2
+				class="mt-5 text-4xl font-bold leading-[1.05] tracking-[-.03em] text-[#17200f] sm:text-5xl"
+			>
 				From form to<br />flight, in four steps.
 			</h2>
 		</div>

@@ -1,11 +1,18 @@
 <script lang="ts">
-	import { tourStore, type TourListItem } from '$lib/stores/tourStore.svelte';
+	import { page } from '$app/state';
+	import { tourStore } from '$lib/stores/tourStore.svelte';
 	import { X, Trash2, ArrowRight } from 'lucide-svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import Price from './Price.svelte';
+
+	const currency = $derived(page.data.currency);
+	const rate = $derived(page.data.rate);
 
 	function handleKeydown(e: KeyboardEvent): void {
-		if (e.key === 'Escape' && tourStore.sidebarOpen) tourStore.closeSidebar();
+		if (e.key === 'Escape' && tourStore.sidebarOpen) {
+			tourStore.closeSidebar();
+		}
 	}
 </script>
 
@@ -26,9 +33,7 @@
 		<!-- HEADER -->
 		<div class="flex items-center justify-between border-b border-black/10 px-6 py-5">
 			<div>
-				<p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#f98315]">
-					Gidi Tour
-				</p>
+				<p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#f98315]">Gidi Tour</p>
 				<h2 class="mt-1 text-xl font-bold text-[#17200f]">
 					Your Tour List {tourStore.count > 0 ? `(${tourStore.count})` : ''}
 				</h2>
@@ -82,7 +87,9 @@
 
 								<div class="flex items-center justify-between">
 									<!-- TRAVELERS STEPPER -->
-									<div class="flex items-center gap-2 rounded-full border border-black/10 px-2 py-1">
+									<div
+										class="flex items-center gap-2 rounded-full border border-black/10 px-2 py-1"
+									>
 										<button
 											type="button"
 											aria-label="Decrease travelers"
@@ -105,7 +112,7 @@
 									</div>
 
 									<span class="text-sm font-bold text-[#5C9B19]">
-										£{item.price * item.travelers}
+										<Price amountGBP={item.price * item.travelers} {currency} {rate} size="sm" />
 									</span>
 								</div>
 							</div>
@@ -120,11 +127,15 @@
 			<div class="border-t border-black/10 px-6 py-5">
 				<div class="mb-1 flex items-center justify-between">
 					<span class="text-sm font-medium text-[#17200f]/70">Deposit due today</span>
-					<span class="text-sm font-medium text-[#5C9B19]">£{tourStore.totalDeposit}</span>
+					<span class="text-sm font-medium text-[#5C9B19]"
+						><Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" /></span
+					>
 				</div>
 				<div class="mb-4 flex items-center justify-between">
 					<span class="text-sm font-medium text-[#17200f]/70">Estimated total</span>
-					<span class="text-lg font-bold text-[#17200f]">£{tourStore.totalPrice}</span>
+					<span class="text-lg font-bold text-[#17200f]"
+						><Price amountGBP={tourStore.totalPrice} {currency} {rate} size="md" />	</span
+					>
 				</div>
 
 				<a

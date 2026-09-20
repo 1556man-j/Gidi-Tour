@@ -5,7 +5,7 @@
 		amountGBP: number;
 		currency: CurrencyInfo;
 		rate: number | null;
-		suffix?: string; // e.g. "/person"
+		suffix?: string;
 		size?: 'sm' | 'md' | 'lg';
 	}
 
@@ -16,17 +16,16 @@
 	const primarySizeClass = $derived(
 		size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-base' : 'text-2xl'
 	);
+
+	const isConvertedCurrency = $derived(currency.code !== 'GBP' && convertedAmount !== null);
 </script>
 
-{#if convertedAmount !== null && currency.code !== 'GBP'}
-	<span class="inline-flex flex-col">
-		<span class="{primarySizeClass} font-bold text-[#17200f]">
+{#if isConvertedCurrency}
+		<span class={`${primarySizeClass} font-bold`}>
 			{currency.symbol}{convertedAmount.toLocaleString()}{suffix}
 		</span>
-		<span class="text-xs text-[#17200f]/45">approx. £{amountGBP}{suffix} GBP</span>
-	</span>
 {:else}
-	<span class="{primarySizeClass} font-bold text-[#17200f]">
+	<span class={`${primarySizeClass} font-bold text-[#17200f]`}>
 		£{amountGBP.toLocaleString()}{suffix}
 	</span>
 {/if}

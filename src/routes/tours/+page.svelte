@@ -1,8 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import {
-		Search, SlidersHorizontal, Star, Clock3, Users, ShieldCheck,
-		CreditCard, ArrowRight, MapPin, TrendingUp
+		Search,
+		SlidersHorizontal,
+		Star,
+		Clock3,
+		Users,
+		ShieldCheck,
+		CreditCard,
+		ArrowRight,
+		MapPin,
+		TrendingUp
 	} from 'lucide-svelte';
 	import CTABanner from '../../components/CTABanner.svelte';
 	import TestimonialBand from '../../components/TestimonialBand.svelte';
@@ -14,7 +22,14 @@
 
 	// Filter category labels are just UI labels, not content —
 	// kept local rather than pulled from Sanity for now.
-	const tourCategories = ['City Break', 'Safari', 'Cultural', 'Coastal', 'Adventure', 'Art'] as const;
+	const tourCategories = [
+		'City Break',
+		'Safari',
+		'Cultural',
+		'Coastal',
+		'Adventure',
+		'Art'
+	] as const;
 	type TourCategory = (typeof tourCategories)[number];
 
 	interface Props {
@@ -87,7 +102,8 @@
 			},
 			{ threshold: 0.15 }
 		);
-		const reobserve = () => document.querySelectorAll('.tour-card').forEach((el) => observer.observe(el));
+		const reobserve = () =>
+			document.querySelectorAll('.tour-card').forEach((el) => observer.observe(el));
 		reobserve();
 		const mo = new MutationObserver(reobserve);
 		const grid = document.querySelector('.tour-grid');
@@ -117,15 +133,19 @@
 	<div class="relative mx-auto max-w-360">
 		<div class="grid gap-10 lg:grid-cols-12 lg:items-end">
 			<div class="lg:col-span-7">
-				<span class="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[17px] font-bold uppercase text-[#F98315]">
+				<span
+					class="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[17px] font-bold uppercase text-[#F98315]"
+				>
 					Tours & Packages
 				</span>
-				<h1 class="font-bold mt-5 text-4xl leading-[1.02] tracking-[-.03em] sm:text-5xl lg:text-6xl">
+				<h1
+					class="font-bold mt-5 text-4xl leading-[1.02] tracking-[-.03em] sm:text-5xl lg:text-6xl"
+				>
 					Priced routes,<br />ready when you are.
 				</h1>
 				<p class="mt-5 max-w-lg text-lg leading-relaxed text-black/90">
-					{tours.length} tours across countries, each one built by people who've actually
-					been. Real prices, real inclusions, book in minutes.
+					{tours.length} tours across countries, each one built by people who've actually been. Real prices,
+					real inclusions, book in minutes.
 				</p>
 			</div>
 
@@ -153,7 +173,10 @@
 		<div class="mt-10 rounded-3xl bg-white p-4 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.4)] sm:p-5">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 				<label class="relative flex flex-1 items-center">
-					<Search class="pointer-events-none absolute left-4 h-4 w-4 text-[#17200f]/35" aria-hidden="true" />
+					<Search
+						class="pointer-events-none absolute left-4 h-4 w-4 text-[#17200f]/35"
+						aria-hidden="true"
+					/>
 					<input
 						type="search"
 						bind:value={query}
@@ -178,7 +201,8 @@
 				<button
 					type="button"
 					onclick={() => (activeCategory = 'All')}
-					class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === 'All'
+					class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory ===
+					'All'
 						? 'border-[#17200f] bg-[#17200f] text-white'
 						: 'border-black/10 text-[#17200f]/55 hover:border-black/20'}"
 				>
@@ -188,7 +212,8 @@
 					<button
 						type="button"
 						onclick={() => (activeCategory = cat)}
-						class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory === cat
+						class="shrink-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition {activeCategory ===
+						cat
 							? 'border-[#17200f] bg-[#17200f] text-white'
 							: 'border-black/10 text-[#17200f]/55 hover:border-black/20'}"
 					>
@@ -200,7 +225,10 @@
 			<!-- Price slider -->
 			<div class="mt-4 flex items-center gap-4 border-t border-black/5 pt-4">
 				<SlidersHorizontal class="h-5 w-5 shrink-0 text-[#17200f]/80" aria-hidden="true" />
-				<span class="whitespace-nowrap text-sm font-semibold text-[#17200f]/60">Up to £{maxPrice}</span>
+				<span class="whitespace-nowrap text-sm font-semibold text-[#17200f]/60">
+					Up to
+					<Price amountGBP={maxPrice} currency={data.currency} rate={data.rate} size="sm" />
+				</span>
 				<input
 					type="range"
 					min={priceRange.min}
@@ -214,9 +242,17 @@
 
 		<!-- Trust row -->
 		<div class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-md text-black/75">
-			<span class="flex items-center gap-2"><ShieldCheck class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Secure checkout</span>
-			<span class="flex items-center gap-2"><CreditCard class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Book with a deposit, pay the rest later</span>
-			<span class="flex items-center gap-2"><TrendingUp class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Prices shown per person, all in</span>
+			<span class="flex items-center gap-2"
+				><ShieldCheck class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Secure checkout</span
+			>
+			<span class="flex items-center gap-2"
+				><CreditCard class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Book with a deposit, pay
+				the rest later</span
+			>
+			<span class="flex items-center gap-2"
+				><TrendingUp class="h-6 w-6 text-[#5C9B19]" aria-hidden="true" />Prices shown per person,
+				all in</span
+			>
 		</div>
 	</div>
 </section>
@@ -225,7 +261,9 @@
 <section class="bg-[#f7f3ea] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
 	<div class="mx-auto max-w-360">
 		<div class="mb-8 flex items-center justify-between">
-			<p class="text-lg text-[#17200f]/75">{filtered.length} tour{filtered.length === 1 ? '' : 's'} found</p>
+			<p class="text-lg text-[#17200f]/75">
+				{filtered.length} tour{filtered.length === 1 ? '' : 's'} found
+			</p>
 		</div>
 
 		<div class="tour-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -249,18 +287,24 @@
 							/>
 						{/if}
 						{#if tour.popular}
-							<span class="absolute left-4 top-4 rounded-full bg-[#F98315] px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-white shadow">
+							<span
+								class="absolute left-4 top-4 rounded-full bg-[#F98315] px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-white shadow"
+							>
 								Popular
 							</span>
 						{/if}
-						<span class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow">
+						<span
+							class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow"
+						>
 							<Star class="h-3 w-3 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
 							{tour.rating}
 						</span>
 					</div>
 
 					<div class="p-5">
-						<p class="mb-1.5 flex items-center gap-1 text-[14px] font-bold uppercase tracking-[.1em] text-[#5C9B19]">
+						<p
+							class="mb-1.5 flex items-center gap-1 text-[14px] font-bold uppercase tracking-[.1em] text-[#5C9B19]"
+						>
 							<MapPin class="h-4 w-4" aria-hidden="true" />
 							{tour.country}
 						</p>
@@ -268,16 +312,28 @@
 						<p class="mt-2 text-lg leading-relaxed text-[#17200f]/85">{tour.summary}</p>
 
 						<div class="mt-4 flex items-center gap-4 text-sm text-[#17200f]/65">
-							<span class="flex items-center gap-1"><Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{tour.duration}</span>
-							<span class="flex items-center gap-1"><Users class="h-3.5 w-3.5" aria-hidden="true" />{tour.groupSize}</span>
+							<span class="flex items-center gap-1"
+								><Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{tour.duration}</span
+							>
+							<span class="flex items-center gap-1"
+								><Users class="h-3.5 w-3.5" aria-hidden="true" />{tour.groupSize}</span
+							>
 						</div>
 
 						<div class="mt-4 flex items-end justify-between border-t border-black/5 pt-4">
 							<div>
 								<p class="text-[14px] uppercase tracking-widest text-[#17200f]/65">From</p>
-								<Price amountGBP={tour.price} currency={data.currency} rate={data.rate} suffix=" /person" size="md" />
+								<Price
+									amountGBP={tour.price}
+									currency={data.currency}
+									rate={data.rate}
+									suffix=" /person"
+									size="md"
+								/>
 							</div>
-							<span class="flex items-center gap-1 text-base font-bold text-[#5C9B19] transition group-hover:text-[#F98315]">
+							<span
+								class="flex items-center gap-1 text-base font-bold text-[#5C9B19] transition group-hover:text-[#F98315]"
+							>
 								View & book
 								<ArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
 							</span>
@@ -300,5 +356,3 @@
 <Article articles={data.sanityArticles ?? []} />
 
 <CTABanner />
-
-<pre>{JSON.stringify({ currency: data.currency, rate: data.rate }, null, 2)}</pre>

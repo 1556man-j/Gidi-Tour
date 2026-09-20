@@ -20,6 +20,7 @@
 	import { tourStore, type TourListItem } from '$lib/stores/tourStore.svelte';
 	import { urlFor } from '$lib/sanity/client';
 	import type { PageData } from './$types';
+	import Price from '../../../components/Price.svelte';
 
 	interface Props {
 		data: PageData;
@@ -31,14 +32,16 @@
 	const related = $derived(data.related ?? []);
 
 	// SEO: tour's own seo field first, then site default
-	const seoTitle = $derived(
-		tour.seo?.metaTitle ?? `${tour.title} — Gidi Tour`
-	);
+	const seoTitle = $derived(tour.seo?.metaTitle ?? `${tour.title} — Gidi Tour`);
 	const seoDescription = $derived(tour.seo?.metaDescription ?? tour.summary);
 	const seoImage = $derived(tour.seo?.ogImage ?? tour.image);
 
-	const coverImageUrl = $derived(tour.image ? urlFor(tour.image).width(1600).height(900).url() : '');
-	const galleryUrls = $derived((tour.gallery ?? []).map((img) => urlFor(img).width(1200).height(900).url()));
+	const coverImageUrl = $derived(
+		tour.image ? urlFor(tour.image).width(1600).height(900).url() : ''
+	);
+	const galleryUrls = $derived(
+		(tour.gallery ?? []).map((img) => urlFor(img).width(1200).height(900).url())
+	);
 
 	let inTourList = $derived(tourStore.has(tour.slug.current));
 
@@ -117,9 +120,15 @@
 <section class="relative">
 	<div class="relative h-[55vh] min-h-80 w-full overflow-hidden sm:h-[65vh]">
 		{#if coverImageUrl}
-			<img src={coverImageUrl} alt={tour.title} class="absolute inset-0 h-full w-full object-cover" />
+			<img
+				src={coverImageUrl}
+				alt={tour.title}
+				class="absolute inset-0 h-full w-full object-cover"
+			/>
 		{/if}
-		<div class="absolute inset-0 bg-linear-to-t from-[#17200f]/90 via-[#17200f]/25 to-transparent"></div>
+		<div
+			class="absolute inset-0 bg-linear-to-t from-[#17200f]/90 via-[#17200f]/25 to-transparent"
+		></div>
 	</div>
 
 	<div class="relative mx-auto -mt-60 max-w-360 px-5 sm:px-8 lg:px-12">
@@ -132,23 +141,35 @@
 		</a>
 
 		<div class="flex flex-wrap items-center gap-3">
-			<span class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-[#17200f] shadow">
+			<span
+				class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-[#17200f] shadow"
+			>
 				<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
 				{tour.rating} ({tour.reviewCount} reviews)
 			</span>
 			{#if tour.popular}
-				<span class="rounded-full bg-[#F98315] px-3 py-1 text-sm font-bold text-white shadow">Popular</span>
+				<span class="rounded-full bg-[#F98315] px-3 py-1 text-sm font-bold text-white shadow"
+					>Popular</span
+				>
 			{/if}
 		</div>
 
-		<h1 class="font-bold mt-4 text-3xl leading-[1.05] tracking-[-.02em] text-white sm:text-4xl lg:text-5xl">
+		<h1
+			class="font-bold mt-4 text-3xl leading-[1.05] tracking-[-.02em] text-white sm:text-4xl lg:text-5xl"
+		>
 			{tour.title}
 		</h1>
 
 		<div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-base text-white/85">
-			<span class="flex items-center gap-1.5"><MapPin class="h-4 w-4" aria-hidden="true" />{tour.country}</span>
-			<span class="flex items-center gap-1.5"><Clock3 class="h-4 w-4" aria-hidden="true" />{tour.duration}</span>
-			<span class="flex items-center gap-1.5"><Users class="h-4 w-4" aria-hidden="true" />{tour.groupSize}</span>
+			<span class="flex items-center gap-1.5"
+				><MapPin class="h-4 w-4" aria-hidden="true" />{tour.country}</span
+			>
+			<span class="flex items-center gap-1.5"
+				><Clock3 class="h-4 w-4" aria-hidden="true" />{tour.duration}</span
+			>
+			<span class="flex items-center gap-1.5"
+				><Users class="h-4 w-4" aria-hidden="true" />{tour.groupSize}</span
+			>
 		</div>
 	</div>
 </section>
@@ -183,11 +204,15 @@
 			<!-- Highlights -->
 			{#if tour.highlights?.length}
 				<div class="mt-12">
-					<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">Trip highlights</h2>
+					<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">
+						Trip highlights
+					</h2>
 					<div class="mt-5 grid gap-3 sm:grid-cols-2">
 						{#each tour.highlights as h (h)}
 							<div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-								<span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#5C9B19]/10">
+								<span
+									class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#5C9B19]/10"
+								>
 									<Check class="h-4 w-5 text-[#5C9B19]" aria-hidden="true" />
 								</span>
 								<p class="text-base leading-relaxed text-[#17200f]/75">{h}</p>
@@ -200,7 +225,9 @@
 			<!-- Includes -->
 			{#if tour.includes?.length}
 				<div class="mt-12">
-					<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">What's included</h2>
+					<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl">
+						What's included
+					</h2>
 					<div class="mt-5 flex flex-col gap-3">
 						{#each tour.includes as item (item)}
 							<div class="flex items-center gap-3 border-b border-black/10 py-3 last:border-0">
@@ -212,12 +239,14 @@
 				</div>
 			{/if}
 
-			<div class="mt-10 flex items-center gap-3 rounded-2xl border border-[#5C9B19]/20 bg-[#5C9B19]/5 p-5">
+			<div
+				class="mt-10 flex items-center gap-3 rounded-2xl border border-[#5C9B19]/20 bg-[#5C9B19]/5 p-5"
+			>
 				<ShieldCheck class="h-6 w-6 shrink-0 text-[#5C9B19]" aria-hidden="true" />
 				<p class="text-base leading-relaxed text-[#17200f]/70">
 					Secure a spot with a {Math.round((tour.deposit / tour.price) * 100)}% deposit; pay the
-					balance before departure. Full cancellation terms are confirmed in writing before you
-					pay anything.
+					balance before departure. Full cancellation terms are confirmed in writing before you pay
+					anything.
 				</p>
 			</div>
 		</div>
@@ -228,18 +257,27 @@
 				<div class="flex items-baseline justify-between">
 					<div>
 						<p class="text-[12px] uppercase tracking-widest text-[#17200f]/70">From</p>
-						<p class="font-bold text-3xl text-[#17200f]">
-							£{tour.price}<span class="text-base font-normal text-[#17200f]/70"> /person</span>
-						</p>
+
+						<Price
+							amountGBP={tour.price}
+							currency={data.currency}
+							rate={data.rate}
+							suffix=" /person"
+							size="lg"
+						/>
 					</div>
-					<span class="flex items-center gap-1 rounded-full bg-[#F98315]/20 px-2.5 py-1 text-sm font-bold text-[#F98315]">
+
+					<span
+						class="flex items-center gap-1 rounded-full bg-[#F98315]/20 px-2.5 py-1 text-sm font-bold text-[#F98315]"
+					>
 						<Star class="h-4 w-4 fill-current" aria-hidden="true" />
 						{tour.rating}
 					</span>
 				</div>
 
 				<div class="mt-6 flex flex-col gap-1.5">
-					<span class="text-sm font-medium text-[#17200f]/70">Travelers</span>
+					<span class="text-sm font-medium text-[#17200f]/70"> Travelers </span>
+
 					<div class="flex w-fit items-center gap-4 rounded-2xl border border-black/10 px-4 py-2">
 						<button
 							type="button"
@@ -249,7 +287,11 @@
 						>
 							−
 						</button>
-						<span class="w-6 text-center text-sm font-bold text-[#17200f]">{travelers}</span>
+
+						<span class="w-6 text-center text-sm font-bold text-[#17200f]">
+							{travelers}
+						</span>
+
 						<button
 							type="button"
 							onclick={() => (travelers += 1)}
@@ -263,23 +305,32 @@
 
 				<div class="mt-6 flex flex-col gap-2 border-t border-black/10 pt-5 text-base">
 					<div class="flex items-center justify-between text-[#17200f]/70">
-						<span>£{tour.price} - {travelers} traveler{travelers > 1 ? 's' : ''}</span>
-						<span class="font-medium text-[#17200f]">£{totalPrice}</span>
+						<span>
+							<Price amountGBP={tour.price} currency={data.currency} rate={data.rate} size="sm" />
+							- {travelers} traveler{travelers > 1 ? 's' : ''}
+						</span>
+
+						<Price amountGBP={totalPrice} currency={data.currency} rate={data.rate} size="sm" />
 					</div>
+
 					<div class="flex items-center justify-between text-[#17200f]/70">
 						<span>Deposit due today</span>
-						<span class="font-medium text-[#5C9B19]">£{totalDeposit}</span>
+
+						<Price amountGBP={totalDeposit} currency={data.currency} rate={data.rate} size="sm" />
 					</div>
+
 					<div class="mt-2 flex items-center justify-between border-t border-black/10 pt-3">
-						<span class="font-bold text-[#17200f]">Total trip cost</span>
-						<span class="font-bold text-xl text-[#17200f]">£{totalPrice}</span>
+						<span class="font-bold text-[#17200f]"> Total trip cost </span>
+
+						<Price amountGBP={totalPrice} currency={data.currency} rate={data.rate} size="md" />
 					</div>
 				</div>
+
 				<button
 					type="button"
 					onclick={handleAddToTour}
 					class="mt-6 flex w-full items-center justify-center gap-2 rounded-full border-2 px-6 py-3.5 text-sm font-bold transition
-	{inTourList
+				{inTourList
 						? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#5C9B19]'
 						: 'border-black/10 bg-white text-[#17200f] hover:border-[#5C9B19]/40'}"
 				>
@@ -290,6 +341,7 @@
 						Add to Tour List
 					{/if}
 				</button>
+
 				<button
 					type="button"
 					onclick={handleBookNow}
@@ -298,6 +350,7 @@
 					Book this tour
 					<ArrowRight class="h-4 w-4" aria-hidden="true" />
 				</button>
+
 				<p class="mt-3 text-center text-sm text-[#17200f]/0">
 					No payment taken yet — you'll review everything first.
 				</p>
@@ -332,7 +385,13 @@
 						<div class="p-5">
 							<h3 class="font-bold text-lg leading-snug text-[#17200f]">{t.title}</h3>
 							<p class="mt-1 font-bold text-lg text-[#5C9B19]">
-								£{t.price}<span class="text-sm font-normal text-[#17200f]/70"> /person</span>
+								<Price
+									amountGBP={t.price}
+									currency={data.currency}
+									rate={data.rate}
+									suffix=" /person"
+									size="sm"
+								/>
 							</p>
 						</div>
 					</a>
