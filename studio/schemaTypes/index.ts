@@ -10,5 +10,6 @@ import jobPosition from './jobPosition';
 import postcard from './postcard';
 import teamQuote from './teamQuote';
 import trustpilotReview from './trustpilotReview';
+import booking from './booking';
 
-export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview ];
+export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview, booking];

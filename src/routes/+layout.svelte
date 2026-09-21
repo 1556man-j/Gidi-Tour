@@ -6,6 +6,7 @@
 	import Navbar from '../components/Navbar.svelte';
 	import Footer from '../components/Footer.svelte';
 	import TourSidebar from '../components/TourSidebar.svelte';
+	import CookieConsent from '../components/CookieConsent.svelte';
 
 	let { data, children } = $props();
 
@@ -66,7 +67,7 @@
 <Navbar />
 <MobileNav />
 <svelte:head>
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-YW1HK7XNWF"></script>
+	<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-YW1HK7XNWF"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
 		function gtag() {
@@ -75,7 +76,8 @@
 		gtag('js', new Date());
 
 		gtag('config', 'G-YW1HK7XNWF');
-	</script>
+	</script> -->
+	
 	<link rel="icon" href={favicon} />
 	{#if data.siteSettings?.defaultSeo?.metaTitle}
 		<title>{data.siteSettings.defaultSeo.metaTitle}</title>
@@ -88,3 +90,4 @@
 {@render children()}
 <TourSidebar />
 <Footer />
+<CookieConsent />

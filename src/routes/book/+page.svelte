@@ -20,9 +20,10 @@
 	import { tourStore } from '$lib/stores/tourStore.svelte';
 	import { tours } from '$lib/data/tours';
 	import SeoHead from '../../components/SeoHead.svelte';
-	import type { PageData } from './$types';
 	import FaqSection from '../../components/FaqSection.svelte';
 	import Price from '../../components/Price.svelte';
+	import StripePaymentForm from '../../components/StripePaymentForm.svelte';
+	import type { PageData } from './$types';
 
 	// =========================================================
 	// PAGE PROPS + SEO
@@ -36,6 +37,7 @@
 
 	const currency = $derived(data.currency);
 	const rate = $derived(data.rate);
+	const paymentProvider = $derived(data.paymentProvider); // 'stripe' | 'dlocal'
 
 	const seoTitle = $derived(
 		data.pageSeo?.metaTitle ?? data.siteSettings?.defaultSeo?.metaTitle ?? 'Gidi Tour'
@@ -44,20 +46,6 @@
 		data.pageSeo?.metaDescription ?? data.siteSettings?.defaultSeo?.metaDescription
 	);
 	const seoImage = $derived(data.pageSeo?.ogImage ?? data.siteSettings?.defaultSeo?.ogImage);
-
-	// =========================================================
-	// PAYSTACK GLOBAL TYPE
-	// =========================================================
-
-	declare global {
-		interface Window {
-			PaystackPop?: {
-				setup: (options: Record<string, unknown>) => {
-					openIframe: () => void;
-				};
-			};
-		}
-	}
 
 	// =========================================================
 	// BOOKING STEPS
@@ -155,13 +143,6 @@
 	let phone = $state('');
 	let travelingFrom = $state('');
 	let notes = $state('');
-
-	// =========================================================
-	// PAYMENT METHOD (DEMO)
-	// =========================================================
-
-	let paymentMethod = $state<'card' | 'crypto'>('card');
-	let showCryptoDemo = $state(false);
 
 	// =========================================================
 	// SUBMISSION STATE
@@ -265,63 +246,19 @@
 		phone,
 		travelingFrom,
 		notes,
-		paymentMethod,
+		paymentMethod: paymentProvider,
 		estimatedTotal
 	});
 
 	// =========================================================
-	// FORM SUBMISSION (no backend yet — this is a stand-in)
+	// PAYMENT (Stripe / dLocal)
 	// =========================================================
 
-	async function handleSubmit() {
-		error = '';
+	let stripeClientSecret = $state<string | null>(null);
+	let stripeBookingId = $state<string | null>(null);
+	let dlocalRedirecting = $state(false);
 
-		if (!name.trim()) {
-			error = 'Please enter your full name.';
-			return;
-		}
-		if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-			error = 'Please enter a valid email address.';
-			return;
-		}
-		if (!startDate || !endDate || !datesValid) {
-			error = dateError || 'Please enter valid travel dates.';
-			return;
-		}
-
-		loading = true;
-
-		try {
-			const res = await fetch('/api/book', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(bookingPayload)
-			});
-
-			if (res.ok) {
-				const data = await res.json().catch(() => ({}));
-				if (!data) {
-					// no-op, just avoiding unused var lint
-				}
-			}
-
-			submitted = true;
-			tourStore.clear();
-		} catch {
-			submitted = true;
-			tourStore.clear();
-		} finally {
-			loading = false;
-		}
-	}
-
-	// =========================================================
-	// PAYSTACK (TEST MODE DEMO — NOT VERIFIED SERVER-SIDE YET)
-	// =========================================================
-
-	const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ?? '';
-
-	function payWithPaystack(): void {
+	async function startPayment(): Promise<void> {
 		error = '';
 
 		if (!name.trim()) {
@@ -338,66 +275,67 @@
 		}
 
 		const amountDue = tourStore.count > 0 ? tourStore.totalDeposit : (estimatedTotal ?? 0);
+		const convertedAmount = rate !== null ? Math.round(amountDue * rate) : amountDue;
 
-		if (!PAYSTACK_PUBLIC_KEY || typeof window === 'undefined' || !window.PaystackPop) {
-			error = 'Card payment is not fully configured yet — submitting your booking request instead.';
-			handleSubmit();
-			return;
-		}
+		loading = true;
 
-		const amountInKobo = Math.round(amountDue * 100);
+		try {
+			if (paymentProvider === 'stripe') {
+				const res = await fetch('/api/book/stripe/init', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						...bookingPayload,
+						amountGBP: amountDue,
+						convertedAmount,
+						currencyCode: currency.code
+					})
+				});
+				const initData = await res.json();
 
-		const handler = window.PaystackPop.setup({
-			key: PAYSTACK_PUBLIC_KEY,
-			email,
-			amount: amountInKobo,
-			currency: 'NGN',
-			ref: `gidi_${Date.now()}`,
-			callback: function () {
-				handleSubmit();
-			},
-			onClose: function () {
-				// user closed the popup without paying — no action needed
+				if (!res.ok) {
+					error = initData.error ?? 'Could not start payment.';
+					return;
+				}
+
+				stripeClientSecret = initData.clientSecret;
+				stripeBookingId = initData.bookingId;
+			} else {
+				const res = await fetch('/api/book/dlocal/init', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						...bookingPayload,
+						amountGBP: amountDue,
+						convertedAmount,
+						currencyCode: currency.code,
+						countryCode: data.countryCode
+					})
+				});
+				const initData = await res.json();
+
+				if (!res.ok) {
+					error = initData.error ?? 'Could not start payment.';
+					return;
+				}
+
+				dlocalRedirecting = true;
+				window.location.href = initData.redirectUrl;
 			}
-		});
-
-		handler.openIframe();
+		} catch {
+			error = 'Network error. Please try again.';
+		} finally {
+			loading = false;
+		}
 	}
 
-	// =========================================================
-	// CRYPTO (VISUAL DEMO ONLY — NOT A REAL PAYMENT INTEGRATION)
-	// =========================================================
-
-	function payWithCrypto(): void {
-		error = '';
-
-		if (!name.trim()) {
-			error = 'Please enter your full name.';
-			return;
-		}
-		if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-			error = 'Please enter a valid email address.';
-			return;
-		}
-		if (!startDate || !endDate || !datesValid) {
-			error = dateError || 'Please enter valid travel dates.';
-			return;
-		}
-
-		showCryptoDemo = true;
+	function handleStripeSuccess() {
+		submitted = true;
+		tourStore.clear();
 	}
 
-	function confirmCryptoDemo(): void {
-		showCryptoDemo = false;
-		handleSubmit();
-	}
-
-	function handlePaymentClick(): void {
-		if (paymentMethod === 'card') {
-			payWithPaystack();
-		} else {
-			payWithCrypto();
-		}
+	function handleStripeError(msg: string) {
+		error = msg;
 	}
 
 	// =========================================================
@@ -630,7 +568,9 @@
 							<p class="text-xs uppercase tracking-wide text-[#17200f]/40">
 								{tourStore.count > 0 ? 'Estimated total' : 'Estimated from'}
 							</p>
-							<p class="text-lg font-bold text-[#5C9B19]"><Price amountGBP={estimatedTotal} {currency} {rate} size="sm" /></p>
+							<p class="text-lg font-bold text-[#5C9B19]">
+								<Price amountGBP={estimatedTotal} {currency} {rate} size="sm" />
+							</p>
 						{:else}
 							<p class="text-xs text-[#17200f]/40">We'll quote you once you pick a destination</p>
 						{/if}
@@ -958,9 +898,13 @@
 										<dt class="text-[#17200f]/50">Tours selected</dt>
 										<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
 										<dt class="text-[#17200f]/50">Estimated total</dt>
-										<dd class="text-right font-medium text-[#17200f]"><Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" /></dd>
+										<dd class="text-right font-medium text-[#17200f]">
+											<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" />
+										</dd>
 										<dt class="text-[#17200f]/50">Deposit due</dt>
-										<dd class="text-right font-medium text-[#5C9B19]"><Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" /></dd>
+										<dd class="text-right font-medium text-[#5C9B19]">
+											<Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" />
+										</dd>
 										<dt class="text-[#17200f]/50">Extras</dt>
 										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
 									</dl>
@@ -976,7 +920,9 @@
 										<dd class="text-right font-medium text-[#17200f]">{travelers}</dd>
 										{#if estimatedTotal !== null}
 											<dt class="text-[#17200f]/50">Estimated total</dt>
-											<dd class="text-right font-medium text-[#17200f]"><Price amountGBP={estimatedTotal} {currency} {rate} size="sm" /></dd>
+											<dd class="text-right font-medium text-[#17200f]">
+												<Price amountGBP={estimatedTotal} {currency} {rate} size="sm" />
+											</dd>
 										{/if}
 										<dt class="text-[#17200f]/50">Extras</dt>
 										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
@@ -985,36 +931,29 @@
 							</div>
 
 							<!-- PAYMENT METHOD (DEMO) -->
-							<div class="mt-6 rounded-2xl border border-black/10 p-5">
-								<p class="mb-3 text-xs font-bold uppercase tracking-wide text-[#17200f]/50">
-									How would you like to pay the deposit?
-								</p>
-								<div class="grid grid-cols-2 gap-3">
-									<button
-										type="button"
-										onclick={() => (paymentMethod = 'card')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod ===
-										'card'
-											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
-											: 'border-black/10 text-[#17200f]/60'}"
-									>
-										Card (Paystack)
-									</button>
-									<button
-										type="button"
-										onclick={() => (paymentMethod = 'crypto')}
-										class="rounded-2xl border px-4 py-3 text-sm font-semibold transition {paymentMethod ===
-										'crypto'
-											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
-											: 'border-black/10 text-[#17200f]/60'}"
-									>
-										Crypto
-									</button>
+							{#if paymentProvider === 'stripe' && stripeClientSecret}
+								<div class="mt-6 rounded-2xl border border-black/10 p-5">
+									<p class="mb-4 text-xs font-bold uppercase tracking-wide text-[#17200f]/50">
+										Card, Apple Pay or Google Pay
+									</p>
+									<StripePaymentForm
+										clientSecret={stripeClientSecret}
+										bookingId={stripeBookingId ?? ''}
+										onSuccess={handleStripeSuccess}
+										onError={handleStripeError}
+									/>
 								</div>
-								<p class="mt-3 text-xs text-[#17200f]/40">
-									Demo mode — no real charge will be made on either option yet.
-								</p>
-							</div>
+							{:else if paymentProvider === 'dlocal'}
+								<div class="mt-6 rounded-2xl border border-black/10 p-5">
+									<p class="text-xs font-bold uppercase tracking-wide text-[#17200f]/50">
+										Local payment
+									</p>
+									<p class="mt-2 text-sm text-[#17200f]/60">
+										You'll be redirected to complete payment via your local bank or mobile money
+										provider.
+									</p>
+								</div>
+							{/if}
 
 							{#if error}
 								<p class="mt-4 text-sm text-[#F98315]" role="alert">{error}</p>
@@ -1049,19 +988,28 @@
 							<ArrowRight class="h-4 w-4" aria-hidden="true" />
 						</button>
 					{:else}
-						<button
-							type="button"
-							onclick={handlePaymentClick}
-							disabled={loading || !canProceed()}
-							class="inline-flex items-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
-						>
-							{#if loading}
-								Sending...
-							{:else}
-								Continue to Payment
-							{/if}
-							<ArrowRight class="h-4 w-4" aria-hidden="true" />
-						</button>
+						{#if paymentProvider === 'stripe' && !stripeClientSecret}
+							<button
+								type="button"
+								onclick={startPayment}
+								disabled={loading || !canProceed()}
+								class="inline-flex items-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+							>
+								{loading ? 'Loading…' : 'Continue to Payment'}
+								<ArrowRight class="h-4 w-4" aria-hidden="true" />
+							</button>
+						{:else if paymentProvider === 'dlocal'}
+							<button
+								type="button"
+								onclick={startPayment}
+								disabled={loading || dlocalRedirecting || !canProceed()}
+								class="inline-flex items-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+							>
+								{loading || dlocalRedirecting ? 'Redirecting…' : 'Continue to Payment'}
+								<ArrowRight class="h-4 w-4" aria-hidden="true" />
+							</button>
+						{/if}
+						<!-- Once stripeClientSecret is set, the StripePaymentForm's own "Pay now" button (added in step 4) takes over -->
 					{/if}
 				</div>
 			</div>
@@ -1153,40 +1101,6 @@
 
 <!-- FAQ -->
 <FaqSection faqs={data.sanityFaqs ?? []} heading="Before you hit submit." />
-
-<!-- CRYPTO DEMO MODAL -->
-{#if showCryptoDemo}
-	<div class="fixed inset-0 z-110 flex items-center justify-center bg-black/60 p-4">
-		<div class="w-full max-w-sm rounded-[24px] bg-white p-6 text-center shadow-2xl">
-			<p class="text-xs font-bold uppercase tracking-wide text-[#5C9B19]">Demo — Crypto Payment</p>
-			<p class="mt-3 text-2xl font-bold text-[#17200f]">
-				£{tourStore.count > 0 ? tourStore.totalDeposit : (estimatedTotal ?? 0)} equivalent
-			</p>
-			<p class="mt-2 text-xs text-[#17200f]/50">
-				Send to this test address (demo only, not a real wallet):
-			</p>
-			<p class="mt-2 break-all rounded-xl bg-[#f7f3ea] px-3 py-2 font-mono text-xs text-[#17200f]">
-				bc1qdemoWALLETaddressXXXXXXXXXXXXXXXXXX
-			</p>
-			<div class="mt-5 flex flex-col gap-2">
-				<button
-					type="button"
-					onclick={confirmCryptoDemo}
-					class="rounded-full bg-[#5C9B19] px-5 py-3 text-sm font-bold text-white"
-				>
-					I've sent payment (demo)
-				</button>
-				<button
-					type="button"
-					onclick={() => (showCryptoDemo = false)}
-					class="text-xs font-semibold text-[#17200f]/50"
-				>
-					Cancel
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
 
 <style>
 	@keyframes step-in {

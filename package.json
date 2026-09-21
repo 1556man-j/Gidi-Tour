@@ -35,11 +35,14 @@
 		"@portabletext/svelte": "^4.0.0",
 		"@sanity/client": "^8.5.0",
 		"@sanity/image-url": "^2.1.1",
+		"@stripe/stripe-js": "^9.16.0",
 		"@tailwindcss/vite": "^4.3.3",
 		"embla-carousel": "^8.6.0",
 		"embla-carousel-autoplay": "^8.6.0",
 		"embla-carousel-svelte": "^8.6.0",
 		"lucide-svelte": "^1.0.1",
+		"resend": "^6.28.1",
+		"stripe": "^22.6.2",
 		"tailwindcss": "^4.3.3"
 	}
 }

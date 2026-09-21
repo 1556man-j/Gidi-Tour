@@ -6,6 +6,7 @@ import type { PageServerLoad } from './$types';
 import { getTrustpilotReviews } from '$lib/sanity/queries/trustpilotReviews';
 
 
+
 export const load: PageServerLoad = async () => {
 	const [pageSeo, sanityArticles, sanityDestinations, sanityFaqs, trustpilotReviews] = await Promise.all([
 		getPageSeo('home'),

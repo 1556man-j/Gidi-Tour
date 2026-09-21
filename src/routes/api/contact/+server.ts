@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { RESEND_API_KEY } from '$env/static/private';
 import { sanityWriteClient } from '$lib/sanity/serverClient';
 
-const COMPANY_EMAIL = 'delivered@resend.dev'; // where enquiries land
+const COMPANY_EMAIL = 'support@giditour.com';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json().catch(() => null);
@@ -50,7 +50,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				from: 'Gidi Tour Website <onboarding@resend.dev>',
+				from: 'Gidi Tour Website <bookings@giditour.com>',
 				to: COMPANY_EMAIL,
 				reply_to: email,
 				subject: `New enquiry from ${name}${interest ? ` — ${interest}` : ''}`,
