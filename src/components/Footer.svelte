@@ -187,9 +187,9 @@
 					<div class="flex gap-3">
 						<MapPin class="mt-0.5 h-4 w-4 shrink-0 text-[#8bc74d]" />
 						<p class="text-sm leading-5 text-black/70">
-							9 Norman Rd<br />
-							London SE10 9QZ<br />
-							United Kingdom
+							95 Fenham Road<br />
+							London SE15 1AE<br />
+							England
 						</p>
 					</div>
 

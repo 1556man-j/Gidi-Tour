@@ -42,7 +42,7 @@
 				type="button"
 				aria-label="Close"
 				onclick={() => tourStore.closeSidebar()}
-				class="flex h-9 w-9 items-center justify-center rounded-full text-[#17200f]/60 transition hover:bg-black/5 hover:text-[#17200f]"
+				class="flex h-10 w-10 items-center justify-center rounded-full text-[#17200f]/60 transition hover:bg-black/5 hover:text-[#17200f]"
 			>
 				<X class="h-5 w-5" aria-hidden="true" />
 			</button>
@@ -79,7 +79,7 @@
 										type="button"
 										aria-label={`Remove ${item.title}`}
 										onclick={() => tourStore.remove(item.id)}
-										class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#17200f]/40 transition hover:bg-red-50 hover:text-red-500"
+										class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#17200f]/40 transition hover:bg-red-50 hover:text-red-500"
 									>
 										<Trash2 class="h-4 w-4" aria-hidden="true" />
 									</button>

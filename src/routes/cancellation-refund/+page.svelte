@@ -188,9 +188,9 @@
 
 					<div class="mt-5 text-sm font-medium leading-6 text-[#17200f]">
 						Gidi Tour Ltd<br />
-						9 Norman Rd<br />
-						London SE10 9QZ<br />
-						United Kingdom
+						95 Fenham Road<br />
+						London SE15 1AE<br />
+						England
 					</div>
 
 					<a

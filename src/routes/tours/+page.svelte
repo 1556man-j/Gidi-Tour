@@ -152,18 +152,18 @@
 			<!-- Live stats -->
 			<div class="grid grid-cols-3 gap-4 lg:col-span-5 lg:col-start-8">
 				<div class="rounded-2xl bg-black/6 p-4">
-					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} />
+					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} size="md"/>
 					<p class="mt-1 text-[14px] text-black/75">avg. price / person</p>
 				</div>
 				<div class="rounded-2xl bg-black/6 p-4">
-					<p class="flex items-center gap-1 font-bold text-2xl text-black sm:text-3xl">
+					<p class="flex items-center gap-1 font-bold text-lg text-black sm:text-3xl">
 						{avgRating}
 						<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
 					</p>
 					<p class="mt-1 text-[14px] text-black/75">average rating</p>
 				</div>
 				<div class="rounded-2xl bg-black/6 p-4">
-					<p class="font-bold text-2xl text-black sm:text-3xl">{countryCount}</p>
+					<p class="font-bold text-lg text-black sm:text-3xl">{countryCount}</p>
 					<p class="mt-1 text-[14px] text-black/75">countries covered</p>
 				</div>
 			</div>

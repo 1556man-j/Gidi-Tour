@@ -56,7 +56,10 @@ export async function createPendingBooking(input: BookingInput) {
 
 	return sanityWriteClient.create({
 		_type: 'booking',
+
 		tours,
+		tourIds: input.tourIds,
+
 		destination: input.destination,
 		tripType: input.tripType,
 		startDate: input.startDate,
@@ -64,14 +67,20 @@ export async function createPendingBooking(input: BookingInput) {
 		flexibleDates: input.flexibleDates,
 		travelers: input.travelers,
 		addOns: input.addOns,
+
 		name: input.name,
 		email: input.email,
 		phone: input.phone,
 		travelingFrom: input.travelingFrom,
 		notes: input.notes,
+
 		amountGBP: input.amountGBP,
 		convertedAmount: input.convertedAmount,
+		estimatedTotal: input.estimatedTotal,
+
+		countryCode: input.countryCode,
 		currencyCode: input.currencyCode,
+
 		paymentMethod: input.paymentMethod,
 
 		paymentStatus: 'pending',
@@ -117,13 +126,22 @@ export async function getBookingStatus(bookingId: string) {
 			_id,
 			name,
 			email,
+
 			amountGBP,
 			amountCharged,
+			convertedAmount,
+			estimatedTotal,
+
 			currency,
 			currencyCode,
+			countryCode,
+
 			paymentMethod,
 			paymentStatus,
+
 			confirmationEmailSent,
+			confirmationEmailSentAt,
+
 			destination,
 			tripType,
 			startDate,
@@ -131,10 +149,18 @@ export async function getBookingStatus(bookingId: string) {
 			flexibleDates,
 			travelers,
 			addOns,
+
 			phone,
 			travelingFrom,
 			notes,
-			tours
+
+			tourIds,
+			tours,
+
+			stripePaymentIntentId,
+			dlocalPaymentId,
+
+			createdAt
 		}`,
 		{ bookingId }
 	);

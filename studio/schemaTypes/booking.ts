@@ -18,14 +18,22 @@ export default defineType({
             {name: 'title', type: 'string'},
             {name: 'price', type: 'number'},
             {name: 'travelers', type: 'number'},
+            {name: 'image', type: 'string'},
           ],
         },
       ],
     }),
 
     defineField({
+      name: 'tourIds',
+      title: 'Tour IDs',
+      type: 'array',
+      of: [{type: 'string'}],
+    }),
+
+    defineField({
       name: 'destination',
-      title: 'Destination (freeform booking)',
+      title: 'Destination',
       type: 'string',
     }),
 
@@ -48,6 +56,12 @@ export default defineType({
     }),
 
     defineField({
+      name: 'flexibleDates',
+      title: 'Flexible dates',
+      type: 'string',
+    }),
+
+    defineField({
       name: 'travelers',
       title: 'Travelers',
       type: 'number',
@@ -62,13 +76,13 @@ export default defineType({
 
     defineField({
       name: 'name',
-      title: 'Name',
+      title: 'Customer name',
       type: 'string',
     }),
 
     defineField({
       name: 'email',
-      title: 'Email',
+      title: 'Customer email',
       type: 'string',
     }),
 
@@ -79,19 +93,39 @@ export default defineType({
     }),
 
     defineField({
+      name: 'travelingFrom',
+      title: 'Traveling from',
+      type: 'string',
+    }),
+
+    defineField({
       name: 'notes',
       title: 'Notes',
       type: 'text',
     }),
 
-    // Booking amount in GBP
+    // =========================
+    // PRICING
+    // =========================
+
     defineField({
       name: 'amountGBP',
       title: 'Amount due (GBP)',
       type: 'number',
     }),
 
-    // Actual amount charged by the payment provider
+    defineField({
+      name: 'convertedAmount',
+      title: 'Converted amount',
+      type: 'number',
+    }),
+
+    defineField({
+      name: 'estimatedTotal',
+      title: 'Estimated total',
+      type: 'number',
+    }),
+
     defineField({
       name: 'amountCharged',
       title: 'Amount charged (minor units)',
@@ -103,50 +137,23 @@ export default defineType({
       title: 'Currency charged',
       type: 'string',
     }),
+
     defineField({
-      name: 'convertedAmount',
-      title: 'Converted Amount',
-      type: 'number',
+      name: 'currencyCode',
+      title: 'Customer currency',
+      type: 'string',
     }),
 
     defineField({
       name: 'countryCode',
-      title: 'Country Code',
+      title: 'Customer country',
       type: 'string',
     }),
 
-    defineField({
-      name: 'currencyCode',
-      title: 'Currency Code',
-      type: 'string',
-    }),
+    // =========================
+    // PAYMENT
+    // =========================
 
-    defineField({
-      name: 'estimatedTotal',
-      title: 'Estimated Total',
-      type: 'number',
-    }),
-
-    defineField({
-      name: 'flexibleDates',
-      title: 'Flexible Dates',
-      type: 'string',
-    }),
-
-    defineField({
-      name: 'tourIds',
-      title: 'Tour IDs',
-      type: 'array',
-      of: [{type: 'string'}],
-    }),
-
-    defineField({
-      name: 'travelingFrom',
-      title: 'Traveling From',
-      type: 'string',
-    }),
-
-    // Payment provider
     defineField({
       name: 'paymentMethod',
       title: 'Payment provider',
@@ -159,7 +166,6 @@ export default defineType({
       },
     }),
 
-    // Payment status
     defineField({
       name: 'paymentStatus',
       title: 'Payment status',
@@ -175,19 +181,54 @@ export default defineType({
       initialValue: 'pending',
     }),
 
-    // Stripe payment reference
+    defineField({
+      name: 'confirmationEmailSent',
+      title: 'Confirmation email sent',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      type: 'datetime',
+    }),
+
+    // =========================
+    // STRIPE
+    // =========================
+
     defineField({
       name: 'stripePaymentIntentId',
       title: 'Stripe Payment Intent ID',
       type: 'string',
     }),
 
-    // dLocal payment reference
+    defineField({
+      name: 'stripeCheckoutSessionId',
+      title: 'Stripe Checkout Session ID',
+      type: 'string',
+    }),
+
+    // =========================
+    // DLOCAL
+    // =========================
+
     defineField({
       name: 'dlocalPaymentId',
       title: 'dLocal Payment ID',
       type: 'string',
     }),
+
+    defineField({
+      name: 'dlocalTransactionId',
+      title: 'dLocal Transaction ID',
+      type: 'string',
+    }),
+
+    // =========================
+    // DATE
+    // =========================
 
     defineField({
       name: 'createdAt',

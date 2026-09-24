@@ -98,14 +98,14 @@
 									loading="lazy"
 								/>
 							{/if}
-							<div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent"></div>
+							<div class="absolute inset-0 bg-linear-to-t from-black/75 to-black/40 "></div>
 							<div class="absolute inset-x-0 bottom-0 p-5">
 								{#if story.destination}
-									<p class="mb-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#F98315]">
+									<p class="mb-2 text-[10px] font-bold uppercase  text-[#F98315]">
 										{story.destination}
 									</p>
 								{/if}
-								<h3 class="font-display text-2xl leading-tight text-white">{story.title}</h3>
+								<h3 class="font-display text-xl leading-tight text-white">{story.title}</h3>
 								<p class="mt-3 flex items-center text-xs font-bold text-[#F98315]">
 									Read story
 									<ArrowRight class="ml-1 w-3.5 h-3.5" aria-hidden="true" />

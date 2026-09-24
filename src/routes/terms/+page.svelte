@@ -210,9 +210,9 @@
 					<h2 class="text-2xl font-bold">Contact Gidi Tour</h2>
 					<p class="mt-3 leading-7 text-[#17200f]/65">
 						Gidi Tour Ltd<br />
-						9 Norman Rd<br />
-						London SE10 9QZ<br />
-						United Kingdom
+						95 Fenham Road<br />
+						London SE15 1AE<br />
+						England
 					</p>
 					<a
 						href="mailto:support@giditour.com"

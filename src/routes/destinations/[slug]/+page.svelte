@@ -169,7 +169,7 @@
 									loading="lazy"
 								/>
 							{/if}
-							<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+							<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20 "></div>
 						</div>
 						<div class="absolute inset-x-0 bottom-0 p-5 text-white">
 							<h3 class="font-display text-xl">{city.name}</h3>

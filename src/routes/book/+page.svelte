@@ -14,11 +14,12 @@
 		ChevronDown,
 		PenLine,
 		Route,
-		PlaneTakeoff
+		PlaneTakeoff,
+		ExternalLink
 	} from 'lucide-svelte';
 
 	import { tourStore } from '$lib/stores/tourStore.svelte';
-	import { tours } from '$lib/data/tours';
+	import { urlFor } from '$lib/sanity/client';
 	import SeoHead from '../../components/SeoHead.svelte';
 	import FaqSection from '../../components/FaqSection.svelte';
 	import Price from '../../components/Price.svelte';
@@ -51,20 +52,21 @@
 	// BOOKING STEPS
 	// =========================================================
 
-	const steps = $derived(
-		tourStore.count > 0
-			? ['Dates & Travelers', 'Make It Yours', 'Your Details']
-			: ['Your Trip', 'Dates & Travelers', 'Make It Yours', 'Your Details']
-	);
+	const steps = ['Your Trip', 'Dates & Travelers', 'Make It Yours', 'Your Details'];
 
 	let currentStep = $state(0);
 	const currentStepName = $derived(steps[currentStep]);
 
 	// =========================================================
-	// TOUR / TRIP DATA
+	// TOURS FROM SANITY (same source as the Tours page)
 	// =========================================================
 
-	const countries = [...new Set(tours.map((tour) => tour.country))];
+	type Tour = NonNullable<PageData['sanityTours']>[number];
+
+	const tours = $derived<Tour[]>(data.sanityTours ?? []);
+
+	// Countries come from the tours you've already added in Sanity
+	const countries = $derived([...new Set(tours.map((tour) => tour.country))].sort());
 
 	const tripTypes = [
 		{ id: 'solo', label: 'Solo', icon: MapPin },
@@ -82,32 +84,52 @@
 	let travelers = $state(1);
 
 	// =========================================================
-	// LIVE PRICE ESTIMATE (for freeform bookings with no tour list)
+	// TOURS AVAILABLE IN THE CHOSEN COUNTRY
 	// =========================================================
 
-	function cheapestTourFor(countryName: string): number | null {
-		const matches = tours.filter((t) => t.country === countryName);
-		if (matches.length === 0) return null;
-		return Math.min(...matches.map((t) => t.price));
+	// Slugs of the tours the person picks on this page
+	const toursInCountry = $derived(
+		destination ? tours.filter((tour) => tour.country === destination) : []
+	);
+
+	// "Picked" tours are just tourStore items that belong to the chosen country —
+	// there's no separate local list, tourStore is the single source of truth.
+	const pickedTours = $derived(
+		destination ? tourStore.items.filter((item) => item.country === destination) : []
+	);
+
+	function chooseCountry(country: string) {
+		destination = country;
 	}
 
-	const estimatedPricePerPerson = $derived(
-		tourStore.count > 0 ? null : destination ? cheapestTourFor(destination) : null
-	);
+	function toggleTourInStore(tour: Tour) {
+		tourStore.toggle({
+			id: tour.slug.current,
+			slug: tour.slug.current,
+			title: tour.title,
+			image: tour.image ? urlFor(tour.image).width(400).height(300).url() : '',
+			price: tour.price,
+			deposit: tour.deposit,
+			travelers: 1,
+			duration: tour.duration ?? '',
+			country: tour.country
+		});
+	}
 
-	const estimatedTotal = $derived(
-		tourStore.count > 0
-			? tourStore.totalPrice
-			: estimatedPricePerPerson !== null
-				? estimatedPricePerPerson * travelers
-				: null
-	);
+	// =========================================================
+	// LIVE PRICE ESTIMATE
+	// =========================================================
+
+	// Only counts tours the person actually picked (price x travelers).
+	// No tours picked = no estimate, and we quote them later.
+	const estimatedTotal = $derived(tourStore.count > 0 ? tourStore.totalPrice : null);
 
 	// =========================================================
 	// ADD-ONS / PREFERENCES
 	// =========================================================
 
 	let addOns = $state<string[]>([]);
+	let customAddOn = $state('');
 
 	const addOnOptions = [
 		{ id: 'transfers', label: 'Airport transfers', desc: 'Pickup and drop-off arranged for you.' },
@@ -131,7 +153,11 @@
 	];
 
 	function toggleAddOn(id: string) {
-		addOns = addOns.includes(id) ? addOns.filter((item) => item !== id) : [...addOns, id];
+		const wasSelected = addOns.includes(id);
+		addOns = wasSelected ? addOns.filter((item) => item !== id) : [...addOns, id];
+		if (id === 'custom' && wasSelected) {
+			customAddOn = '';
+		}
 	}
 
 	// =========================================================
@@ -234,6 +260,12 @@
 			travelers: item.travelers,
 			image: item.image
 		})),
+		// Tours picked on this page for the chosen country
+		pickedTours: pickedTours.map((tour) => ({
+			slug: tour.slug,
+			title: tour.title,
+			price: tour.price
+		})),
 		destination,
 		tripType,
 		startDate,
@@ -241,6 +273,7 @@
 		flexibleDates,
 		travelers,
 		addOns,
+		customAddOn: addOns.includes('custom') ? customAddOn.trim() : '',
 		name,
 		email,
 		phone,
@@ -395,13 +428,7 @@
 
 	let processVisible = $state<boolean[]>(process.map(() => false));
 
-	// =========================================================
-	// FAQ
-	// =========================================================
-
-	const faqs = $derived(data.sanityFaqs ?? []);
-
-	let openFaq = $state<number | null>(null);
+	
 
 	// =========================================================
 	// SCROLL ANIMATIONS
@@ -423,6 +450,10 @@
 
 		const statsEl = document.querySelector('.trust-stats');
 		if (statsEl) statsObserver.observe(statsEl);
+
+		if (tourStore.count > 0 && currentStep === 0) {
+		currentStep = 1;
+	}
 
 		const processObserver = new IntersectionObserver(
 			(entries) => {
@@ -548,6 +579,12 @@
 								Destination:
 								<span class="font-semibold text-[#17200f]">{destination || 'Not chosen yet'}</span>
 							</span>
+							{#if pickedTours.length > 0}
+								<span class="text-[#17200f]/60">
+									Tours:
+									<span class="font-semibold text-[#17200f]">{pickedTours.length} selected</span>
+								</span>
+							{/if}
 							{#if startDate && endDate}
 								<span class="text-[#17200f]/60">
 									Dates: <span class="font-semibold text-[#17200f]">{startDate} → {endDate}</span>
@@ -565,20 +602,20 @@
 
 					<div class="text-right">
 						{#if estimatedTotal !== null}
-							<p class="text-xs uppercase tracking-wide text-[#17200f]/40">
-								{tourStore.count > 0 ? 'Estimated total' : 'Estimated from'}
-							</p>
+							<p class="text-xs uppercase tracking-wide text-[#17200f]/40">Estimated total</p>
 							<p class="text-lg font-bold text-[#5C9B19]">
 								<Price amountGBP={estimatedTotal} {currency} {rate} size="sm" />
 							</p>
 						{:else}
-							<p class="text-xs text-[#17200f]/40">We'll quote you once you pick a destination</p>
+							<p class="text-xs text-[#17200f]/40">
+								Pick a tour for an estimate, or we'll quote you after your request
+							</p>
 						{/if}
 					</div>
 				</div>
 			{/if}
 
-			<!-- SELECTED TOURS -->
+			<!-- SELECTED TOURS (from tour store) -->
 			{#if tourStore.count > 0}
 				<div class="mb-6 rounded-[28px] border border-[#5C9B19]/20 bg-[#5C9B19]/5 p-6">
 					<div class="mb-4 flex items-center justify-between gap-4">
@@ -635,7 +672,7 @@
 								{#each countries as country (country)}
 									<button
 										type="button"
-										onclick={() => (destination = country)}
+										onclick={() => chooseCountry(country)}
 										class="rounded-2xl border px-4 py-3 text-left text-sm font-medium transition {destination ===
 										country
 											? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#17200f]'
@@ -645,6 +682,80 @@
 									</button>
 								{/each}
 							</div>
+
+							{#if countries.length === 0}
+								<p class="mt-4 text-sm text-[#17200f]/50">
+									No destinations available right now. Please check back soon.
+								</p>
+							{/if}
+
+							<!-- TOURS IN THE CHOSEN COUNTRY -->
+							{#if destination && toursInCountry.length > 0}
+								<div class="mt-8">
+									<p class="text-sm font-semibold text-[#17200f]">
+										Available tours in {destination}
+									</p>
+									<p class="mt-1 text-xs text-[#17200f]/50">
+										Select the tours you like, or skip this and we'll shape a custom trip for you.
+									</p>
+
+									<div class="mt-4 flex flex-col gap-3">
+										{#each toursInCountry as tour (tour.slug.current)}
+											{@const isPicked = tourStore.has(tour.slug.current)}
+											<div
+												class="flex items-center gap-3 rounded-2xl border p-3 transition {isPicked
+													? 'border-[#5C9B19] bg-[#5C9B19]/5'
+													: 'border-black/10'}"
+											>
+												{#if tour.image}
+													<img
+														src={urlFor(tour.image).width(160).height(160).url()}
+														alt={tour.title}
+														class="h-16 w-16 shrink-0 rounded-xl object-cover"
+														loading="lazy"
+													/>
+												{:else}
+													<div class="h-16 w-16 shrink-0 rounded-xl bg-black/5"></div>
+												{/if}
+												<div class="min-w-0 flex-1">
+													<p class="truncate text-sm font-semibold text-[#17200f]">
+														{tour.title}
+													</p>
+													<p class="mt-0.5 text-xs text-[#17200f]/50">
+														{#if tour.duration}{tour.duration} ·
+														{/if}From
+														<Price amountGBP={tour.price} {currency} {rate} size="sm" /> per person
+													</p>
+													<a
+														href={`/tours/${tour.slug.current}`}
+														// target="_blank"
+														// rel="noopener noreferrer"
+														class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#5C9B19] hover:underline"
+													>
+														View details
+														<ExternalLink class="h-3 w-3" aria-hidden="true" />
+													</a>
+												</div>
+												<button
+													type="button"
+													onclick={() => toggleTourInStore(tour)}
+													aria-pressed={isPicked}
+													class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition {isPicked
+														? 'bg-[#5C9B19] text-white'
+														: 'border border-black/10 text-[#17200f]/70 hover:border-[#5C9B19] hover:text-[#5C9B19]'}"
+												>
+													{#if isPicked}
+														<Check class="h-3.5 w-3.5" aria-hidden="true" />
+														Selected
+													{:else}
+														Select
+													{/if}
+												</button>
+											</div>
+										{/each}
+									</div>
+								</div>
+							{/if}
 
 							<p class="mb-3 mt-8 text-sm font-semibold text-[#17200f]">
 								What kind of trip are you planning?
@@ -811,6 +922,23 @@
 								{/each}
 							</div>
 
+							<!-- CUSTOM ADD-ON INPUT -->
+							{#if addOns.includes('custom')}
+								<div class="mt-5 flex flex-col gap-1.5">
+									<label for="custom-addon" class="text-xs font-medium text-[#17200f]/60">
+										What else would you like us to arrange?
+									</label>
+									<textarea
+										id="custom-addon"
+										bind:value={customAddOn}
+										rows="3"
+										maxlength="500"
+										placeholder="e.g. a private boat ride, a cooking class, a surprise dinner..."
+										class="w-full resize-y rounded-2xl border border-black/10 px-4 py-3.5 text-sm leading-relaxed text-[#17200f] outline-none transition focus:border-[#5C9B19]"
+									></textarea>
+								</div>
+							{/if}
+
 							<!-- STEP: DETAILS -->
 						{:else if currentStepName === 'Your Details'}
 							<h2 class="text-2xl font-medium text-[#17200f] sm:text-3xl">Almost there.</h2>
@@ -916,6 +1044,12 @@
 										<dd class="text-right font-medium capitalize text-[#17200f]">
 											{tripType || '—'}
 										</dd>
+										{#if pickedTours.length > 0}
+											<dt class="text-[#17200f]/50">Tours</dt>
+											<dd class="text-right font-medium text-[#17200f]">
+												{pickedTours.map((tour) => tour.title).join(', ')}
+											</dd>
+										{/if}
 										<dt class="text-[#17200f]/50">Travelers</dt>
 										<dd class="text-right font-medium text-[#17200f]">{travelers}</dd>
 										{#if estimatedTotal !== null}
@@ -926,6 +1060,10 @@
 										{/if}
 										<dt class="text-[#17200f]/50">Extras</dt>
 										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
+										{#if addOns.includes('custom') && customAddOn.trim()}
+											<dt class="text-[#17200f]/50">Your request</dt>
+											<dd class="text-right font-medium text-[#17200f]">{customAddOn.trim()}</dd>
+										{/if}
 									</dl>
 								{/if}
 							</div>

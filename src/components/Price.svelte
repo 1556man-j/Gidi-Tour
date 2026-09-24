@@ -14,7 +14,7 @@
 	const convertedAmount = $derived(rate !== null ? Math.round(amountGBP * rate) : null);
 
 	const primarySizeClass = $derived(
-		size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-base' : 'text-2xl'
+		size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-lg' : 'text-2xl'
 	);
 
 	const isConvertedCurrency = $derived(currency.code !== 'GBP' && convertedAmount !== null);
