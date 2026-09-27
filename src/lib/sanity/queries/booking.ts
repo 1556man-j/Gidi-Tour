@@ -16,6 +16,7 @@ export interface BookingInput {
 		price: number;
 		travelers: number;
 		image?: string;
+		customerId?: string;
 	}[];
 
 	tourIds?: string[];

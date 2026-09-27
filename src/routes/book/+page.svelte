@@ -11,7 +11,6 @@
 		ShieldCheck,
 		Clock3,
 		MessageCircle,
-		ChevronDown,
 		PenLine,
 		Route,
 		PlaneTakeoff,
@@ -25,6 +24,7 @@
 	import Price from '../../components/Price.svelte';
 	import StripePaymentForm from '../../components/StripePaymentForm.svelte';
 	import type { PageData } from './$types';
+	import { redirect } from '@sveltejs/kit';
 
 	// =========================================================
 	// PAGE PROPS + SEO
@@ -321,7 +321,8 @@
 						...bookingPayload,
 						amountGBP: amountDue,
 						convertedAmount,
-						currencyCode: currency.code
+						currencyCode: currency.code,
+						customerId: data.session?.user?.id
 					})
 				});
 				const initData = await res.json();
@@ -342,7 +343,8 @@
 						amountGBP: amountDue,
 						convertedAmount,
 						currencyCode: currency.code,
-						countryCode: data.countryCode
+						countryCode: data.countryCode,
+						customerId: data.session?.user?.id
 					})
 				});
 				const initData = await res.json();
@@ -526,9 +528,9 @@
 				>
 					<Check class="h-7 w-7 text-[#5C9B19]" aria-hidden="true" />
 				</div>
-				<p class="text-3xl font-medium tracking-[-.02em] text-[#17200f]">Request sent!</p>
+				<p class="text-3xl font-medium tracking-[-.02em] text-[#17200f]">Payment successful!</p>
 				<p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-[#17200f]/60">
-					We're putting together your {destination || 'trip'} itinerary now.
+					Your booking has been received and we're preparing your {destination || 'trip'}.
 					{#if email}
 						Expect an email at {email} within 24 hours.
 					{:else}

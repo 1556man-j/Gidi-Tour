@@ -1,3 +1,4 @@
+```svelte
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { loadStripe, type Stripe, type StripeElements } from '@stripe/stripe-js';
@@ -39,31 +40,6 @@
 		}
 	});
 
-	async function waitForBookingConfirmation(): Promise<boolean> {
-		const maxAttempts = 15;
-		const delay = 1000;
-
-		for (let attempt = 0; attempt < maxAttempts; attempt++) {
-			try {
-				const response = await fetch(`/api/book/status/${encodeURIComponent(bookingId)}`);
-
-				if (response.ok) {
-					const data = await response.json();
-
-					if (data.paymentStatus === 'paid') {
-						return true;
-					}
-				}
-			} catch (error) {
-				console.error('Booking status check failed:', error);
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, delay));
-		}
-
-		return false;
-	}
-
 	async function handleSubmit() {
 		if (!stripe || !elements) {
 			onError('Payment form is not ready yet.');
@@ -71,6 +47,7 @@
 		}
 
 		submitting = true;
+		onError('');
 
 		try {
 			const { error, paymentIntent } = await stripe.confirmPayment({
@@ -81,29 +58,73 @@
 				redirect: 'if_required'
 			});
 
+			// --------------------------------------------------
+			// STRIPE PAYMENT FAILED
+			// --------------------------------------------------
+
 			if (error) {
+				console.error('Stripe payment failed:', error);
 				onError(error.message ?? 'Payment failed.');
 				return;
 			}
 
 			console.log('Stripe payment completed:', paymentIntent?.id);
+			console.log('Stripe payment status:', paymentIntent?.status);
 
-			// Wait for our server-side webhook to update Sanity.
-			const confirmed = await waitForBookingConfirmation();
+			// --------------------------------------------------
+			// NO PAYMENT INTENT
+			// --------------------------------------------------
 
-			if (!confirmed) {
+			if (!paymentIntent) {
 				onError(
-					'Your payment was received, but we are still confirming your booking. Please do not pay again. Check your email shortly or contact Gidi Tour.'
+					'We could not confirm the payment status. Please do not pay again. Check your email shortly or contact Gidi Tour.'
 				);
 				return;
 			}
+
+			// --------------------------------------------------
+			// PAYMENT NOT COMPLETED
+			// --------------------------------------------------
+
+			if (paymentIntent.status !== 'succeeded') {
+				console.log(
+					`Stripe PaymentIntent is not succeeded yet: ${paymentIntent.status}`
+				);
+
+				onError(
+					'Your payment is still being processed. Please do not pay again. Check your email shortly for confirmation.'
+				);
+				return;
+			}
+
+			// --------------------------------------------------
+			// PAYMENT SUCCESSFUL
+			// --------------------------------------------------
+
+			console.log('Stripe payment succeeded:', paymentIntent.id);
+
+			/*
+			 * Stripe has confirmed the payment.
+			 *
+			 * The webhook independently handles:
+			 *
+			 * Stripe
+			 *   ↓
+			 * payment_intent.succeeded
+			 *   ↓
+			 * Sanity booking = paid
+			 *   ↓
+			 * Confirmation email
+			 *
+			 * We do NOT make the customer wait for that process.
+			 */
 
 			onSuccess();
 		} catch (error) {
 			console.error('Stripe payment error:', error);
 
 			onError(
-				'Something went wrong while confirming your payment. Please try again or contact Gidi Tour.'
+				'Your payment may have been successful. Please do not pay again. Check your email shortly or contact Gidi Tour.'
 			);
 		} finally {
 			submitting = false;
@@ -119,5 +140,6 @@
 	disabled={submitting}
 	class="w-full rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
 >
-	{submitting ? 'Confirming your booking…' : 'Pay now'}
+	{submitting ? 'Confirming your payment…' : 'Pay now'}
 </button>
+```

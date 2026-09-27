@@ -25,6 +25,13 @@ export default defineType({
     }),
 
     defineField({
+      name: 'customer',
+      title: 'Customer',
+      type: 'reference',
+      to: [{type: 'customer'}],
+    }),
+
+    defineField({
       name: 'tourIds',
       title: 'Tour IDs',
       type: 'array',

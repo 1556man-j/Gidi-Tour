@@ -7,6 +7,8 @@
 	import Footer from '../components/Footer.svelte';
 	import TourSidebar from '../components/TourSidebar.svelte';
 	import CookieConsent from '../components/CookieConsent.svelte';
+	import CartDrawer from '../components/CartDrawer.svelte'; 
+	
 
 	let { data, children } = $props();
 
@@ -108,3 +110,9 @@
 <TourSidebar />
 <Footer />
 <CookieConsent />
+<CartDrawer
+	currency={data.currency}
+	rate={data.rate}
+	paymentProvider={data.paymentProvider}
+	countryCode={data.countryCode}
+/>

@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { signOut } from '@auth/sveltekit/client';
 	import { tourStore } from '$lib/stores/tourStore.svelte';
 	let scrolled = $state(false);
 
@@ -22,6 +24,7 @@
 		{ label: 'Tours', href: '/tours' },
 		{ label: 'About Us', href: '/about' },
 		{ label: 'Travel Journal', href: '/stories' },
+		{ label: 'Store', href: '/store' },
 		{ label: 'Contact', href: '/contact' }
 	];
 </script>
@@ -124,16 +127,43 @@
 				</span>
 			</a>
 
-			<!-- MENU BUTTON -->
-			<!-- <button
-				type="button"
-				aria-label="Open menu"
-				class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
-			>
-				<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none">
-					<path d="M4 8H20M4 16H20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-				</svg>
-			</button> -->
+			{#if page.data.session?.user}
+				<div class="relative group">
+					<button
+						type="button"
+						class="flex h-10 w-10 text-xl items-center justify-center rounded-full border-2 border-[#f98315]/90 font-bold text-[#eef4e7]"
+					>
+						{(page.data.session.user.name ?? page.data.session.user.email ?? '?')
+							.charAt(0)
+							.toUpperCase()}
+					</button>
+					<div
+						class="absolute right-0 top-full mt-2 hidden w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-lg group-hover:block"
+					>
+						<a
+							href="/account/bookings"
+							class="block rounded-xl px-3 py-2 text-sm text-[#17200f] hover:bg-black/5"
+							>My Bookings</a
+						>
+						<a
+							href="/account/profile"
+							class="block rounded-xl px-3 py-2 text-sm text-[#17200f] hover:bg-black/5">Profile</a
+						>
+						<button
+							type="button"
+							onclick={() => signOut({ callbackUrl: '/' })}
+							class="block w-full rounded-xl px-3 py-2 text-left text-sm text-red-500 hover:bg-black/5"
+							>Log out</button
+						>
+					</div>
+				</div>
+			{:else}
+				<a
+					href="/login"
+					class="rounded-full border-2 border-[#f98315] px-4 py-2 text-sm font-semibold text-[#f1f8ec] *:transition hover:bg-[#f98315]/90"
+					>Log in</a
+				>
+			{/if}
 		</div>
 	</nav>
 </header>
