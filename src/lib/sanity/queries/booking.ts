@@ -166,3 +166,18 @@ export async function getBookingStatus(bookingId: string) {
 		{ bookingId }
 	);
 }
+
+export async function getBookingsForCustomer(customerId: string) {
+	return sanityClient.fetch(
+		`*[_type == "booking" && customer._ref == $customerId] | order(createdAt desc)`,
+		{ customerId }
+	);
+}
+
+export async function getBookingByIdForCustomer(bookingId: string, customerId: string) {
+	// customer._ref check ensures nobody can view another person's booking by guessing an ID
+	return sanityClient.fetch(
+		`*[_type == "booking" && _id == $bookingId && customer._ref == $customerId][0]`,
+		{ bookingId, customerId }
+	);
+}

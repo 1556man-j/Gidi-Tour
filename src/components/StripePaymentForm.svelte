@@ -1,4 +1,3 @@
-```svelte
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { loadStripe, type Stripe, type StripeElements } from '@stripe/stripe-js';
@@ -142,4 +141,3 @@
 >
 	{submitting ? 'Confirming your payment…' : 'Pay now'}
 </button>
-```

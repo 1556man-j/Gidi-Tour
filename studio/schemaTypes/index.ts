@@ -13,5 +13,6 @@ import trustpilotReview from './trustpilotReview';
 import booking from './booking';
 import customer from './customer';
 import storeproduct from './storeproduct';
+import storeOrder from './storeOrder';
 
-export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview, booking, customer, storeproduct];
+export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview, booking, customer, storeproduct, storeOrder];

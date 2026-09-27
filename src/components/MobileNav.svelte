@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { signOut } from '@auth/sveltekit/client';
 	import { tourStore } from '$lib/stores/tourStore.svelte';
 
 	let open = $state(false);
+	let accountOpen = $state(false);
 	let scrolled = $state(false);
 
 	const navLinks = [
@@ -45,57 +46,66 @@
 
 	function closeMenu() {
 		open = false;
+		accountOpen = false;
 	}
 
 	function toggleMenu() {
 		open = !open;
+		accountOpen = false;
+	}
+
+	function toggleAccount() {
+		accountOpen = !accountOpen;
+		open = false;
+	}
+
+	async function handleSignOut() {
+		accountOpen = false;
+		await signOut({ callbackUrl: '/' });
 	}
 </script>
 
 <!-- MOBILE NAV -->
 <header
 	class:pt-3={scrolled}
-	class="fixed inset-x-0 top-0 z-60 px-3 transition-all duration-500 ease-out md:hidden"
+	class="fixed inset-x-0 top-0 z-[60] px-3 transition-all duration-500 ease-out md:hidden"
 >
 	<nav
-		class={`flex h-16 items-center justify-between border px-4 shadow-2xl backdrop-blur-xl transition-all duration-500 ease-out ${
+		class={[
+			'flex h-16 items-center justify-between px-3.5 transition-all duration-500 ease-out',
 			scrolled
-				? 'rounded-2xl border-white/10 bg-black/55'
-				: 'rounded-b-2xl border-transparent bg-black/55'
-		}`}
+				? 'rounded-2xl border border-white/10 bg-black/65 shadow-2xl backdrop-blur-xl'
+				: 'rounded-b-2xl border border-transparent bg-black/55 backdrop-blur-xl'
+		].join(' ')}
 	>
 		<!-- LOGO -->
 		<a
 			href="/"
 			aria-label="Gidi Tour home"
 			onclick={closeMenu}
-			class="flex flex-col leading-none w-24"
+			class="flex w-[92px] shrink-0 items-center"
 		>
-			<!-- <span class="text-[22px] font-bold tracking-[-0.05em] text-white">
-				GIDI<span class="text-[#f98315]">×</span>
-			</span>
-
-			<span class="text-[10px] font-bold tracking-[0.25em] text-[#f98315]"> TOUR </span> -->
-			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full" />
+			<img src="/images/assets/LOGO-3.png" alt="Gidi Tour" class="block w-full object-contain" />
 		</a>
 
-		<!-- RIGHT -->
-		<div class="flex items-center gap-2">
-			<!-- Tour list button -->
+		<!-- RIGHT ACTIONS -->
+		<div class="flex items-center gap-1">
+			<!-- TOUR LIST -->
 			<button
 				type="button"
 				onclick={() => tourStore.toggleSidebar()}
 				aria-label="Your tour list"
-				class="group relative flex h-14 w-14 items-center justify-center rounded-full text-white/70 transition hover:bg-white/5 hover:text-white lg:hidden"
+				class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/80 transition active:scale-90 hover:bg-white/10 hover:text-white"
 			>
 				<svg
-					class="h-6 w-6"
+					class="h-[21px] w-[21px]"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
 					stroke-width="1.7"
 					stroke-linecap="round"
 					stroke-linejoin="round"
+					aria-hidden="true"
 				>
 					<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
 					<path d="M16 11V7a4 4 0 0 0-8 0v4" />
@@ -103,80 +113,102 @@
 
 				{#if tourStore.count > 0}
 					<span
-						class="absolute top-2 right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#f98315] px-1 text-[10px] font-bold text-black"
+						class="absolute right-1 top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#f98315] px-1 text-[9px] font-bold leading-none text-black"
 					>
 						{tourStore.count}
 					</span>
 				{/if}
-
-				<span
-					class="pointer-events-none absolute right-0 top-full mt-2 translate-y-1 whitespace-nowrap rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] text-white opacity-0 shadow-2xl transition-all duration-200 group-active:translate-y-0 group-active:opacity-100"
-				>
-					{tourStore.count > 0 ? `${tourStore.count} in your tour` : 'Your tour list is empty'}
-				</span>
 			</button>
-			<!-- BOOK -->
-			<a
-				// eslint-disable-next-line svelte/no-navigation-without-resolve
-				href="/book"
-				onclick={closeMenu}
-				class="flex h-10 items-center gap-1.5 rounded-full bg-[#f98315] px-3.5 text-[11px] font-bold text-black transition active:scale-95"
-			>
-				Book a Tour
 
-				<span class="flex h-5 w-5 items-center justify-center rounded-full bg-black text-[#f98315]">
-					→
-				</span>
-			</a>
-
+			<!-- ACCOUNT -->
 			{#if page.data.session?.user}
-				<div class="relative group">
+				<div class="relative">
 					<button
 						type="button"
-						class="flex h-10 w-10 text-xl items-center justify-center rounded-full border-2 border-[#f98315]/90 font-bold text-[#eef4e7]"
+						onclick={toggleAccount}
+						aria-label="Account menu"
+						aria-expanded={accountOpen}
+						class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#f98315]/70 bg-white/5 text-sm font-bold text-white transition active:scale-90 hover:bg-white/10"
 					>
 						{(page.data.session.user.name ?? page.data.session.user.email ?? '?')
 							.charAt(0)
 							.toUpperCase()}
 					</button>
-					<div
-						class="absolute right-0 top-full mt-2 hidden w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-lg group-hover:block"
-					>
-						<a
-							href="/account/bookings"
-							class="block rounded-xl px-3 py-2 text-sm text-[#17200f] hover:bg-black/5"
-							>My Bookings</a
+
+					{#if accountOpen}
+						<div
+							class="absolute right-0 top-[calc(100%+10px)] w-52 overflow-hidden rounded-2xl border border-black/10 bg-white p-2 shadow-2xl"
 						>
-						<a
-							href="/account/profile"
-							class="block rounded-xl px-3 py-2 text-sm text-[#17200f] hover:bg-black/5">Profile</a
-						>
-						<button
-							type="button"
-							onclick={() => signOut({ callbackUrl: '/' })}
-							class="block w-full rounded-xl px-3 py-2 text-left text-sm text-red-500 hover:bg-black/5"
-							>Log out</button
-						>
-					</div>
+							<div class="border-b border-black/5 px-3 py-2.5">
+								<p class="truncate text-xs font-semibold text-[#17200f]">
+									{page.data.session.user.name ?? 'Gidi Tour traveller'}
+								</p>
+
+								{#if page.data.session.user.email}
+									<p class="mt-0.5 truncate text-[10px] text-[#17200f]/50">
+										{page.data.session.user.email}
+									</p>
+								{/if}
+							</div>
+
+							<a
+								href="/account/bookings"
+								onclick={() => (accountOpen = false)}
+								class="mt-1 flex items-center rounded-xl px-3 py-2.5 text-sm text-[#17200f] transition hover:bg-black/5"
+							>
+								My Bookings
+							</a>
+
+							<a
+								href="/account/profile"
+								onclick={() => (accountOpen = false)}
+								class="flex items-center rounded-xl px-3 py-2.5 text-sm text-[#17200f] transition hover:bg-black/5"
+							>
+								Profile
+							</a>
+
+							<button
+								type="button"
+								onclick={handleSignOut}
+								class="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm text-red-500 transition hover:bg-red-50"
+							>
+								Log out
+							</button>
+						</div>
+					{/if}
 				</div>
 			{:else}
 				<a
 					href="/login"
-					class="rounded-full border-2 border-[#f98315] px-4 py-2 text-sm font-semibold text-[#f1f8ec] *:transition hover:bg-[#f98315]/90"
-					>Log in</a
+					aria-label="Log in"
+					class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#f98315]/70 bg-white/5 text-white transition active:scale-90 hover:bg-[#f98315] hover:text-black"
 				>
+					<svg
+						class="h-[21px] w-[21px]"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<circle cx="12" cy="8" r="3.5" />
+						<path d="M5 20c.8-3.3 3.3-5 7-5s6.2 1.7 7 5" />
+					</svg>
+				</a>
 			{/if}
 
-			<!-- MENU -->
+			<!-- MENU BUTTON -->
 			<button
 				type="button"
 				aria-label={open ? 'Close menu' : 'Open menu'}
 				aria-expanded={open}
 				onclick={toggleMenu}
-				class="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition active:scale-95"
+				class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition active:scale-90 hover:bg-white/10"
 			>
 				{#if !open}
-					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+					<svg class="h-[21px] w-[21px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
 						<path
 							d="M4 8H20M4 16H20"
 							stroke="currentColor"
@@ -185,7 +217,7 @@
 						/>
 					</svg>
 				{:else}
-					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+					<svg class="h-[21px] w-[21px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
 						<path
 							d="M6 6L18 18M18 6L6 18"
 							stroke="currentColor"
@@ -199,11 +231,11 @@
 	</nav>
 </header>
 
-<!-- FULL SCREEN MENU -->
+<!-- FULL SCREEN MOBILE MENU -->
 {#if open}
-	<div class="fixed inset-0 z-50 overflow-y-auto bg-black text-white md:hidden">
-		<!-- TOP -->
-		<div class="flex items-center justify-between px-5 pb-5 pt-24">
+	<div class="fixed inset-0 z-50 overflow-y-auto bg-[#080b06] text-white md:hidden">
+		<!-- MENU HEADER -->
+		<div class="flex items-center justify-between px-5 pb-6 pt-24">
 			<div>
 				<p class="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#f98315]">
 					Explore Gidi Tour
@@ -211,6 +243,24 @@
 
 				<h2 class="mt-2 text-2xl font-bold tracking-tight">Where will you go?</h2>
 			</div>
+
+			<button
+				type="button"
+				onclick={closeMenu}
+				aria-label="Close menu"
+				class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70"
+			>
+				<svg
+					class="h-5 w-5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.7"
+					stroke-linecap="round"
+				>
+					<path d="M6 6L18 18M18 6L6 18" />
+				</svg>
+			</button>
 		</div>
 
 		<!-- MAIN LINKS -->
@@ -219,15 +269,22 @@
 				<a
 					href={link.href}
 					onclick={closeMenu}
-					class="group flex items-center justify-between border-b border-white/10 py-5"
+					class="group flex items-center justify-between border-b border-white/10 py-4.5"
 				>
 					<div class="flex items-center gap-4">
-						<span class="text-xs text-[#f98315]">{String(i + 1).padStart(2, '0')}</span>
-						<span class="text-2xl font-semibold">{link.label}</span>
+						<span class="w-5 text-[10px] font-medium text-[#f98315]">
+							{String(i + 1).padStart(2, '0')}
+						</span>
+
+						<span
+							class="text-[21px] font-semibold tracking-tight transition-colors group-hover:text-[#f98315]"
+						>
+							{link.label}
+						</span>
 					</div>
 
 					<span
-						class="text-white/30 transition group-hover:translate-x-1 group-hover:text-[#f98315]"
+						class="text-lg text-white/25 transition group-hover:translate-x-1 group-hover:text-[#f98315]"
 					>
 						→
 					</span>
@@ -252,7 +309,7 @@
 					<a
 						href={destination.href}
 						onclick={closeMenu}
-						class="rounded-xl border border-white/10 bg-white/3 px-4 py-3 text-sm text-white/70 transition active:bg-[#f98315] active:text-black"
+						class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70 transition hover:border-[#f98315]/40 hover:bg-[#f98315] hover:text-black active:bg-[#f98315] active:text-black"
 					>
 						{destination.name}
 					</a>
@@ -260,10 +317,38 @@
 			</div>
 		</div>
 
-		<!-- CTA -->
+		<!-- ACCOUNT / BOOKING AREA -->
 		<div class="px-5 pb-10">
+			{#if page.data.session?.user}
+				<div class="mb-3 grid grid-cols-2 gap-2">
+					<a
+						href="/account/bookings"
+						onclick={closeMenu}
+						class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm text-white/80 transition hover:bg-white/10"
+					>
+						My Bookings
+					</a>
+
+					<a
+						href="/account/profile"
+						onclick={closeMenu}
+						class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm text-white/80 transition hover:bg-white/10"
+					>
+						Profile
+					</a>
+				</div>
+			{:else}
+				<a
+					href="/login"
+					onclick={closeMenu}
+					class="mb-3 flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+				>
+					Log in to your account
+				</a>
+			{/if}
+
+			<!-- BOOK CTA -->
 			<a
-				// eslint-disable-next-line svelte/no-navigation-without-resolve
 				href="/book"
 				onclick={closeMenu}
 				class="group flex w-full items-center justify-between rounded-2xl bg-[#f98315] px-5 py-4 text-black"
@@ -280,6 +365,12 @@
 					→
 				</span>
 			</a>
+
+			{#if page.data.session?.user}
+				<button type="button" onclick={handleSignOut} class="mt-4 w-full py-2 text-xs text-red-400">
+					Log out
+				</button>
+			{/if}
 		</div>
 	</div>
 {/if}

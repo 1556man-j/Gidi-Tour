@@ -38,16 +38,30 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
 			if (account?.provider === 'google' && user.email) {
 				const existing = await getCustomerByEmail(user.email);
 				if (!existing) {
-					await createCustomer({
+					const created = await createCustomer({
 						name: user.name ?? undefined,
 						email: user.email,
 						provider: 'google'
 					});
+					user.id = created._id; // attach the Sanity ID immediately after creating
+				} else {
+					user.id = existing._id; // attach the existing customer's Sanity ID
 				}
 			}
 			return true;
 		},
-		async session({ session }) {
+		async jwt({ token, user }) {
+			// `user` is only present on initial sign-in — persist the id into the token
+			if (user?.id) {
+				token.id = user.id;
+			}
+			return token;
+		},
+		async session({ session, token }) {
+			// pull the id back out of the token into session.user, where your pages read it
+			if (token?.id && session.user) {
+				session.user.id = token.id as string;
+			}
 			return session;
 		}
 	},

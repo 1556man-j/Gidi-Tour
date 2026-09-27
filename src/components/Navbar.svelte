@@ -160,9 +160,23 @@
 			{:else}
 				<a
 					href="/login"
-					class="rounded-full border-2 border-[#f98315] px-4 py-2 text-sm font-semibold text-[#f1f8ec] *:transition hover:bg-[#f98315]/90"
-					>Log in</a
+					aria-label="Log in"
+					class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#f98315]/70 bg-white/5 text-white transition active:scale-90 hover:bg-[#f98315] hover:text-black"
 				>
+					<svg
+						class="h-[21px] w-[21px]"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<circle cx="12" cy="8" r="3.5" />
+						<path d="M5 20c.8-3.3 3.3-5 7-5s6.2 1.7 7 5" />
+					</svg>
+				</a>
 			{/if}
 		</div>
 	</nav>
