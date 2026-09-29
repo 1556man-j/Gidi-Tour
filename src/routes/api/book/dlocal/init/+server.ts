@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
 import { createPendingBooking } from '$lib/sanity/queries/booking';
-import type { RequestHandler } from './$types';
+import type { RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, url }) => {
 	const body = await request.json();
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 		notification_url: `${url.origin}/api/book/dlocal/webhook`,
 
-		callback_url: `${url.origin}/book/confirmation?bookingId=${booking._id}`
+		callback_url: `${url.origin}/api/book/dlocal/return?bookingId=${booking._id}`,
 	};
 	const bodyString = JSON.stringify(payload);
 

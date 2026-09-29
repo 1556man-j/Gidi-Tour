@@ -36,7 +36,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 		notification_url: `${url.origin}/api/store/checkout/dlocal/webhook`,
 
-		callback_url: `${url.origin}/store?orderId=${order._id}`
+		callback_url: `${url.origin}/api/store/checkout/dlocal/return?orderId=${order._id}`
 	};
 	const bodyString = JSON.stringify(payload);
 
