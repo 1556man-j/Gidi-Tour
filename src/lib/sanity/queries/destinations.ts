@@ -12,7 +12,6 @@ export interface SanityExperienceTour {
 	title: string;
 	slug: { current: string };
 	price: number;
-	deposit: number;
 	image?: { asset: { _ref: string } };
 	duration?: string;
 	country: string;
@@ -59,7 +58,7 @@ export async function getDestinationBySlug(slug: string): Promise<SanityDestinat
 			...,
 			experiences[]{
 				...,
-				tour->{ _id, title, slug, price, deposit, image, duration, country }
+				tour->{ _id, title, slug, price, image, duration, country }
 			}
 		}`,
 		{ slug }

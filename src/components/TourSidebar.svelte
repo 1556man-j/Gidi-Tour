@@ -125,17 +125,11 @@
 		<!-- FOOTER -->
 		{#if tourStore.count > 0}
 			<div class="border-t border-black/10 px-6 py-5">
-				<div class="mb-1 flex items-center justify-between">
-					<span class="text-sm font-medium text-[#17200f]/70">Deposit due today</span>
-					<span class="text-sm font-medium text-[#5C9B19]"
-						><Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" /></span
-					>
-				</div>
 				<div class="mb-4 flex items-center justify-between">
 					<span class="text-sm font-medium text-[#17200f]/70">Estimated total</span>
-					<span class="text-lg font-bold text-[#17200f]"
-						><Price amountGBP={tourStore.totalPrice} {currency} {rate} size="md" />	</span
-					>
+					<span class="text-lg font-bold text-[#17200f]">
+						<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="md" />
+					</span>
 				</div>
 
 				<a
@@ -146,6 +140,7 @@
 					Proceed to booking
 					<ArrowRight class="h-4 w-4" aria-hidden="true" />
 				</a>
+
 				<button
 					type="button"
 					onclick={() => tourStore.clear()}

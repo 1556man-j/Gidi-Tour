@@ -4,7 +4,6 @@ export interface TourListItem {
 	title: string;
 	image: string;
 	price: number;
-	deposit: number;
 	travelers: number;
 	duration?: string;
 	country?: string;
@@ -14,6 +13,7 @@ const STORAGE_KEY = 'gidi-tour-list';
 
 function load(): TourListItem[] {
 	if (typeof window === 'undefined') return [];
+
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
 		return raw ? (JSON.parse(raw) as TourListItem[]) : [];
@@ -34,16 +34,13 @@ class TourStore {
 		return this.items.reduce((sum, item) => sum + item.price * item.travelers, 0);
 	}
 
-	get totalDeposit(): number {
-		return this.items.reduce((sum, item) => sum + item.deposit * item.travelers, 0);
-	}
-
 	has(id: string): boolean {
 		return this.items.some((item) => item.id === id);
 	}
 
 	add(tour: TourListItem): void {
 		if (this.has(tour.id)) return;
+
 		this.items = [...this.items, tour];
 		this.#persist();
 	}
@@ -65,6 +62,7 @@ class TourStore {
 		this.items = this.items.map((item) =>
 			item.id === id ? { ...item, travelers: Math.max(1, travelers) } : item
 		);
+
 		this.#persist();
 	}
 
@@ -87,6 +85,7 @@ class TourStore {
 
 	#persist(): void {
 		if (typeof window === 'undefined') return;
+
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items));
 	}
 }

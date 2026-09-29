@@ -27,6 +27,8 @@
 
 	let activeCategory = $state<'all' | 'magazine' | 'merchandise'>('all');
 
+	
+
 	const filtered = $derived(
 		activeCategory === 'all' ? products : products.filter((p) => p.category === activeCategory)
 	);
@@ -54,6 +56,23 @@
 		// Pop the shared drawer open so they see what they just added.
 		// See wiring notes: this reaches the CartDrawer instance mounted in +layout.svelte.
 		window.dispatchEvent(new CustomEvent('gt-cart-open'));
+	}
+
+	const PRODUCTS_PER_PAGE = 12;
+
+	let visibleCount = $state(PRODUCTS_PER_PAGE);
+
+	const visibleProducts = $derived(filtered.slice(0, visibleCount));
+
+	const hasMore = $derived(visibleCount < filtered.length);
+	const canShowLess = $derived(visibleCount > PRODUCTS_PER_PAGE);
+
+	function showMore() {
+		visibleCount += PRODUCTS_PER_PAGE;
+	}
+
+	function showLess() {
+		visibleCount = PRODUCTS_PER_PAGE;
 	}
 </script>
 
@@ -86,8 +105,12 @@
 		<div class="mt-8 flex items-center gap-2">
 			<button
 				type="button"
-				onclick={() => (activeCategory = 'all')}
-				class="rounded-full border px-4 py-2 text-sm font-semibold transition {activeCategory === 'all'
+				onclick={() => {
+					activeCategory = 'all';
+					visibleCount = PRODUCTS_PER_PAGE;
+				}}
+				class="rounded-full border px-4 py-2 text-sm font-semibold transition {activeCategory ===
+				'all'
 					? 'border-[#17200f] bg-[#17200f] text-white'
 					: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
 			>
@@ -95,7 +118,10 @@
 			</button>
 			<button
 				type="button"
-				onclick={() => (activeCategory = 'magazine')}
+				onclick={() => {
+					activeCategory = 'magazine';
+					visibleCount = PRODUCTS_PER_PAGE;
+				}}
 				class="rounded-full border px-4 py-2 text-sm font-semibold transition {activeCategory ===
 				'magazine'
 					? 'border-[#17200f] bg-[#17200f] text-white'
@@ -105,7 +131,10 @@
 			</button>
 			<button
 				type="button"
-				onclick={() => (activeCategory = 'merchandise')}
+				onclick={() => {
+					activeCategory = 'merchandise';
+					visibleCount = PRODUCTS_PER_PAGE;
+				}}
 				class="rounded-full border px-4 py-2 text-sm font-semibold transition {activeCategory ===
 				'merchandise'
 					? 'border-[#17200f] bg-[#17200f] text-white'
@@ -121,10 +150,10 @@
 <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-360">
 		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as product (product.slug.current)}
+			{#each visibleProducts as product (product.slug.current)}
 				{@const sold = outOfStock(product)}
 				<div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-					<div class="relative aspect-[4/3] overflow-hidden bg-black/5">
+					<div class="relative aspect-4/3 overflow-hidden bg-black/5">
 						{#if product.image}
 							<img
 								src={urlFor(product.image).width(600).height(450).url()}
@@ -134,13 +163,13 @@
 							/>
 						{/if}
 						<span
-							class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[.1em] text-[#17200f]/70 shadow"
+							class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#17200f]/70 shadow"
 						>
 							{product.category === 'magazine' ? 'Digital issue' : 'Merchandise'}
 						</span>
 						{#if sold}
 							<span
-								class="absolute right-4 top-4 rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-[.1em] text-white"
+								class="absolute right-4 top-4 rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white"
 							>
 								Sold out
 							</span>
@@ -173,7 +202,29 @@
 				</div>
 			{/each}
 		</div>
+		{#if filtered.length > PRODUCTS_PER_PAGE}
+			<div class="mt-10 flex items-center justify-center gap-3">
+				{#if hasMore}
+					<button
+						type="button"
+						onclick={showMore}
+						class="rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#4c8316]"
+					>
+						Show more
+					</button>
+				{/if}
 
+				{#if canShowLess}
+					<button
+						type="button"
+						onclick={showLess}
+						class="rounded-full border border-black/10 bg-white px-6 py-3 text-sm font-bold text-[#17200f] transition hover:border-black/20"
+					>
+						Show less
+					</button>
+				{/if}
+			</div>
+		{/if}
 		{#if filtered.length === 0}
 			<p class="py-16 text-center text-sm text-[#17200f]/50">Nothing here yet — check back soon.</p>
 		{/if}

@@ -89,6 +89,19 @@
 
 	let visibleCards = $state<Set<string>>(new Set());
 
+	const TOURS_PER_PAGE = 9;
+
+	let visibleCount = $state(TOURS_PER_PAGE);
+
+	let hasMoreTours = $derived(visibleCount < filtered.length);
+
+	function showMore() {
+		visibleCount = Math.min(visibleCount + TOURS_PER_PAGE, filtered.length);
+	}
+
+	function showLess() {
+		visibleCount = TOURS_PER_PAGE;
+	}
 	onMount(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -152,7 +165,7 @@
 			<!-- Live stats -->
 			<div class="grid grid-cols-3 gap-4 lg:col-span-5 lg:col-start-8">
 				<div class="rounded-2xl bg-black/6 p-4">
-					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} size="md"/>
+					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} size="md" />
 					<p class="mt-1 text-[14px] text-black/75">avg. price / person</p>
 				</div>
 				<div class="rounded-2xl bg-black/6 p-4">
@@ -267,7 +280,7 @@
 		</div>
 
 		<div class="tour-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as tour (tour.slug.current)}
+			{#each filtered.slice(0, visibleCount) as tour (tour.slug.current)}
 				<a
 					href={`/tours/${tour.slug.current}`}
 					data-slug={tour.slug.current}
@@ -286,6 +299,7 @@
 								loading="lazy"
 							/>
 						{/if}
+
 						{#if tour.popular}
 							<span
 								class="absolute left-4 top-4 rounded-full bg-[#F98315] px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-white shadow"
@@ -293,6 +307,7 @@
 								Popular
 							</span>
 						{/if}
+
 						<span
 							class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow"
 						>
@@ -308,21 +323,35 @@
 							<MapPin class="h-4 w-4" aria-hidden="true" />
 							{tour.country}
 						</p>
-						<h3 class="font-bold text-2xl leading-snug text-[#17200f]">{tour.title}</h3>
-						<p class="mt-2 text-lg leading-relaxed text-[#17200f]/85">{tour.summary}</p>
+
+						<h3 class="font-bold text-2xl leading-snug text-[#17200f]">
+							{tour.title}
+						</h3>
+
+						<!-- SUMMARY: MAX 2 LINES -->
+						<p
+							class="mt-2 overflow-hidden text-lg leading-relaxed text-[#17200f]/85"
+							style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"
+						>
+							{tour.summary}
+						</p>
 
 						<div class="mt-4 flex items-center gap-4 text-sm text-[#17200f]/65">
-							<span class="flex items-center gap-1"
-								><Clock3 class="h-3.5 w-3.5" aria-hidden="true" />{tour.duration}</span
-							>
-							<span class="flex items-center gap-1"
-								><Users class="h-3.5 w-3.5" aria-hidden="true" />{tour.groupSize}</span
-							>
+							<span class="flex items-center gap-1">
+								<Clock3 class="h-3.5 w-3.5" aria-hidden="true" />
+								{tour.duration}
+							</span>
+
+							<span class="flex items-center gap-1">
+								<Users class="h-3.5 w-3.5" aria-hidden="true" />
+								{tour.groupSize}
+							</span>
 						</div>
 
 						<div class="mt-4 flex items-end justify-between border-t border-black/5 pt-4">
 							<div>
 								<p class="text-[14px] uppercase tracking-widest text-[#17200f]/65">From</p>
+
 								<Price
 									amountGBP={tour.price}
 									currency={data.currency}
@@ -331,6 +360,7 @@
 									size="md"
 								/>
 							</div>
+
 							<span
 								class="flex items-center gap-1 text-base font-bold text-[#5C9B19] transition group-hover:text-[#F98315]"
 							>
@@ -343,6 +373,28 @@
 			{/each}
 		</div>
 
+		<!-- SHOW MORE / SHOW LESS -->
+		{#if filtered.length > 9}
+			<div class="mt-10 flex justify-center">
+				{#if hasMoreTours}
+					<button
+						type="button"
+						onclick={showMore}
+						class="rounded-full bg-[#5C9B19] px-6 py-3 font-bold text-white transition hover:bg-[#F98315]"
+					>
+						Show More
+					</button>
+				{:else}
+					<button
+						type="button"
+						onclick={showLess}
+						class="rounded-full border border-[#5C9B19] px-6 py-3 font-bold text-[#5C9B19] transition hover:bg-[#5C9B19] hover:text-white"
+					>
+						Show Less
+					</button>
+				{/if}
+			</div>
+		{/if}
 		{#if filtered.length === 0}
 			<p class="py-16 text-center text-sm text-[#17200f]/50">
 				Nothing matches those filters — try widening your price range or category.

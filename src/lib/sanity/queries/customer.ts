@@ -28,3 +28,17 @@ export async function createCustomer(input: {
 		createdAt: new Date().toISOString()
 	});
 }
+
+// Explicit projection: passwordHash is deliberately NOT listed here.
+const SAFE_PROFILE_FIELDS = `
+	_id, name, email, provider, nationality, dateOfBirth,
+	phoneDialCode, phoneNumber, address, emergencyContact, travelNotes, avatar
+`;
+
+export async function getCustomerProfile(id: string) {
+	// Write client = no CDN, so edits show up immediately. Server-only.
+	return sanityWriteClient.fetch(
+		`*[_type == "customer" && _id == $id][0]{ ${SAFE_PROFILE_FIELDS} }`,
+		{ id }
+	);
+}

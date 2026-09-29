@@ -122,17 +122,28 @@
 
 			<!-- ACCOUNT -->
 			{#if page.data.session?.user}
+				{@const account = page.data.customer}
+				{@const displayName =
+					account?.name ?? page.data.session.user.name ?? page.data.session.user.email ?? '?'}
 				<div class="relative">
 					<button
 						type="button"
 						onclick={toggleAccount}
 						aria-label="Account menu"
 						aria-expanded={accountOpen}
-						class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#f98315]/70 bg-white/5 text-sm font-bold text-white transition active:scale-90 hover:bg-white/10"
-					>
-						{(page.data.session.user.name ?? page.data.session.user.email ?? '?')
-							.charAt(0)
-							.toUpperCase()}
+						>{#if account?.avatarUrl}
+							<img
+								src={account.avatarUrl}
+								alt=""
+								class="h-11 w-11 object-cover rounded-full border border-[#f98315]/70"
+							/>
+						{:else}
+							<div
+								class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#f98315]/70 bg-white/5 text-sm font-bold text-white transition active:scale-90 hover:bg-white/10"
+							>
+								{displayName.charAt(0).toUpperCase()}
+							</div>
+						{/if}
 					</button>
 
 					{#if accountOpen}
@@ -141,7 +152,7 @@
 						>
 							<div class="border-b border-black/5 px-3 py-2.5">
 								<p class="truncate text-xs font-semibold text-[#17200f]">
-									{page.data.session.user.name ?? 'Gidi Tour traveller'}
+									{displayName}
 								</p>
 
 								{#if page.data.session.user.email}

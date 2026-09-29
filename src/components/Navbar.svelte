@@ -128,14 +128,21 @@
 			</a>
 
 			{#if page.data.session?.user}
+				{@const account = page.data.customer}
+				{@const displayName =
+					account?.name ?? page.data.session.user.name ?? page.data.session.user.email ?? '?'}
 				<div class="relative group">
 					<button
 						type="button"
-						class="flex h-10 w-10 text-xl items-center justify-center rounded-full border-2 border-[#f98315]/90 font-bold text-[#eef4e7]"
-					>
-						{(page.data.session.user.name ?? page.data.session.user.email ?? '?')
-							.charAt(0)
-							.toUpperCase()}
+						>{#if account?.avatarUrl}
+							<img src={account.avatarUrl} alt="" class="h-11 w-11 object-cover rounded-full border border-[#f98315]/70" />
+						{:else}
+							<div
+								class="flex h-10 w-10 text-xl items-center justify-center rounded-full border-2 border-[#f98315]/90 font-bold text-[#eef4e7]"
+							>
+								{displayName.charAt(0).toUpperCase()}
+							</div>
+						{/if}
 					</button>
 					<div
 						class="absolute right-0 top-full mt-2 hidden w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-lg group-hover:block"

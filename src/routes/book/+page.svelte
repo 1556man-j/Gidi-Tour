@@ -109,7 +109,6 @@
 			title: tour.title,
 			image: tour.image ? urlFor(tour.image).width(400).height(300).url() : '',
 			price: tour.price,
-			deposit: tour.deposit,
 			travelers: 1,
 			duration: tour.duration ?? '',
 			country: tour.country
@@ -307,7 +306,7 @@
 			return;
 		}
 
-		const amountDue = tourStore.count > 0 ? tourStore.totalDeposit : (estimatedTotal ?? 0);
+		const amountDue = estimatedTotal ?? 0;
 		const convertedAmount = rate !== null ? Math.round(amountDue * rate) : amountDue;
 
 		loading = true;
@@ -430,8 +429,6 @@
 
 	let processVisible = $state<boolean[]>(process.map(() => false));
 
-	
-
 	// =========================================================
 	// SCROLL ANIMATIONS
 	// =========================================================
@@ -454,8 +451,8 @@
 		if (statsEl) statsObserver.observe(statsEl);
 
 		if (tourStore.count > 0 && currentStep === 0) {
-		currentStep = 1;
-	}
+			currentStep = 1;
+		}
 
 		const processObserver = new IntersectionObserver(
 			(entries) => {
@@ -1025,19 +1022,17 @@
 								</p>
 								{#if tourStore.count > 0}
 									<dl class="grid grid-cols-2 gap-y-2 text-sm">
-										<dt class="text-[#17200f]/50">Tours selected</dt>
-										<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
-										<dt class="text-[#17200f]/50">Estimated total</dt>
-										<dd class="text-right font-medium text-[#17200f]">
-											<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" />
-										</dd>
-										<dt class="text-[#17200f]/50">Deposit due</dt>
-										<dd class="text-right font-medium text-[#5C9B19]">
-											<Price amountGBP={tourStore.totalDeposit} {currency} {rate} size="sm" />
-										</dd>
-										<dt class="text-[#17200f]/50">Extras</dt>
-										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
-									</dl>
+	<dt class="text-[#17200f]/50">Tours selected</dt>
+	<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
+
+	<dt class="text-[#17200f]/50">Total</dt>
+	<dd class="text-right font-medium text-[#5C9B19]">
+		<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" />
+	</dd>
+
+	<dt class="text-[#17200f]/50">Extras</dt>
+	<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
+</dl>
 								{:else}
 									<dl class="grid grid-cols-2 gap-y-2 text-sm">
 										<dt class="text-[#17200f]/50">Destination</dt>

@@ -52,7 +52,6 @@
 			title: tour.title,
 			image: coverImageUrl,
 			price: tour.price,
-			deposit: tour.deposit,
 			travelers,
 			duration: tour.duration ?? '',
 			country: tour.country
@@ -75,7 +74,6 @@
 
 	let travelers = $state(1);
 	const totalPrice = $derived(tour.price * travelers);
-	const totalDeposit = $derived(tour.deposit * travelers);
 
 	let lightboxIndex = $state<number | null>(null);
 	function openLightbox(i: number) {
@@ -244,9 +242,8 @@
 			>
 				<ShieldCheck class="h-6 w-6 shrink-0 text-[#5C9B19]" aria-hidden="true" />
 				<p class="text-base leading-relaxed text-[#17200f]/70">
-					Secure a spot with a {Math.round((tour.deposit / tour.price) * 100)}% deposit; pay the
-					balance before departure. Full cancellation terms are confirmed in writing before you pay
-					anything.
+					Secure a spot with a deposit; pay the balance before departure. Full cancellation terms
+					are confirmed in writing before you pay anything.
 				</p>
 			</div>
 		</div>
@@ -311,12 +308,6 @@
 						</span>
 
 						<Price amountGBP={totalPrice} currency={data.currency} rate={data.rate} size="sm" />
-					</div>
-
-					<div class="flex items-center justify-between text-[#17200f]/70">
-						<span>Deposit due today</span>
-
-						<Price amountGBP={totalDeposit} currency={data.currency} rate={data.rate} size="sm" />
 					</div>
 
 					<div class="mt-2 flex items-center justify-between border-t border-black/10 pt-3">

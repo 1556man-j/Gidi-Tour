@@ -21,7 +21,6 @@
 		ChevronDown,
 		Sun,
 		CloudRain,
-		Sunrise,
 		CheckCircle2
 	} from 'lucide-svelte';
 
@@ -78,6 +77,20 @@
 	}
 
 	let visibleCards = $state<Set<string>>(new Set());
+
+	const ARTICLES_PER_PAGE = 12;
+
+	let visibleCount = $state(ARTICLES_PER_PAGE);
+
+	let hasMoreArticles = $derived(visibleCount < filtered.length);
+
+	function showMore() {
+		visibleCount = Math.min(visibleCount + ARTICLES_PER_PAGE, filtered.length);
+	}
+
+	function showLess() {
+		visibleCount = ARTICLES_PER_PAGE;
+	}
 
 	onMount(() => {
 		const observer = new IntersectionObserver(
@@ -378,7 +391,7 @@
 <section class="bg-[#f7f3ea] px-5 pb-10 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-360">
 		<div class="journal-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as article (article.slug.current)}
+			{#each filtered.slice(0, visibleCount) as article (article.slug.current)}
 				<a
 					href={`/stories/${article.slug.current}`}
 					data-slug={article.slug.current}
@@ -426,6 +439,29 @@
 				</a>
 			{/each}
 		</div>
+
+		<!-- SHOW MORE / SHOW LESS -->
+		{#if filtered.length > 12}
+			<div class="mt-12 flex justify-center">
+				{#if hasMoreArticles}
+					<button
+						type="button"
+						onclick={showMore}
+						class="rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#F98315]"
+					>
+						Show more
+					</button>
+				{:else}
+					<button
+						type="button"
+						onclick={showLess}
+						class="rounded-full border border-[#5C9B19] px-6 py-3 text-sm font-bold text-[#5C9B19] transition hover:bg-[#5C9B19] hover:text-white"
+					>
+						Show less
+					</button>
+				{/if}
+			</div>
+		{/if}
 
 		{#if filtered.length === 0}
 			<p class="py-16 text-center text-sm text-[#17200f]/50">
@@ -528,10 +564,7 @@
 				<ul>
 					{#each travelTips as tip, i (tip)}
 						<li class="flex gap-4 border-b border-white/10 py-5 first:pt-0 last:border-0">
-							<CheckCircle2
-								class="mt-0.5 h-5 w-5 shrink-0 text-[#5C9B19]"
-								aria-hidden="true"
-							/>
+							<CheckCircle2 class="mt-0.5 h-5 w-5 shrink-0 text-[#5C9B19]" aria-hidden="true" />
 							<p class="text-[15px] leading-relaxed text-black/79">{tip}</p>
 						</li>
 					{/each}
@@ -566,8 +599,7 @@
 				<button
 					type="button"
 					onclick={() => (activeSeason = i)}
-					class="relative shrink-0 px-4 py-3 text-sm font-bold transition-colors {activeSeason ===
-					i
+					class="relative shrink-0 px-4 py-3 text-sm font-bold transition-colors {activeSeason === i
 						? 'text-[#17200f]'
 						: 'text-[#17200f]/40 hover:text-[#17200f]/70'}"
 				>

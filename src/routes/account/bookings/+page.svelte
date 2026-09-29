@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Calendar, MapPin, ArrowUpRight } from 'lucide-svelte';
+	import AccountHeader from '../../../components/AccountHeader.svelte';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -17,16 +18,24 @@
 	}
 
 	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+		return new Date(iso).toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
 	}
 </script>
 
 <section class="mx-auto max-w-4xl px-5 py-24">
-	<h1 class="text-3xl font-bold text-[#17200f]">My Bookings</h1>
-	<p class="mt-2 text-sm text-[#17200f]/60">Everything you've booked with us, in one place.</p>
+	<AccountHeader
+		customer={data.customer}
+		title="My Bookings"
+		subtitle="Everything you've booked with us, in one place."
+	/>
+	
 
 	{#if bookings.length === 0}
-		<div class="mt-10 rounded-[24px] border border-black/10 bg-white p-10 text-center">
+		<div class="mt-10 rounded-3xl border border-black/10 bg-white p-10 text-center">
 			<p class="text-sm text-[#17200f]/60">You haven't booked a trip yet.</p>
 			<a
 				href="/tours"
@@ -45,18 +54,30 @@
 					<div class="min-w-0 flex-1">
 						<div class="flex flex-wrap items-center gap-2">
 							<p class="font-semibold text-[#17200f]">
-								{booking.tours?.length ? booking.tours.map((t: any) => t.title).join(', ') : booking.destination || 'Custom trip'}
+								{booking.tours?.length
+									? booking.tours.map((t: any) => t.title).join(', ')
+									: booking.destination || 'Custom trip'}
 							</p>
-							<span class="rounded-full px-2.5 py-0.5 text-xs font-bold capitalize {statusColor(booking.paymentStatus)}">
+							<span
+								class="rounded-full px-2.5 py-0.5 text-xs font-bold capitalize {statusColor(
+									booking.paymentStatus
+								)}"
+							>
 								{booking.paymentStatus}
 							</span>
 						</div>
 						<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#17200f]/50">
 							{#if booking.destination}
-								<span class="flex items-center gap-1"><MapPin class="h-3.5 w-3.5" aria-hidden="true" />{booking.destination}</span>
+								<span class="flex items-center gap-1"
+									><MapPin class="h-3.5 w-3.5" aria-hidden="true" />{booking.destination}</span
+								>
 							{/if}
 							{#if booking.startDate}
-								<span class="flex items-center gap-1"><Calendar class="h-3.5 w-3.5" aria-hidden="true" />{formatDate(booking.startDate)}</span>
+								<span class="flex items-center gap-1"
+									><Calendar class="h-3.5 w-3.5" aria-hidden="true" />{formatDate(
+										booking.startDate
+									)}</span
+								>
 							{/if}
 							<span>Booked {formatDate(booking.createdAt)}</span>
 						</div>

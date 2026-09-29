@@ -39,7 +39,6 @@ export default defineType({
 		defineField({ name: 'duration', title: 'Duration', type: 'string' }),
 		defineField({ name: 'groupSize', title: 'Group size', type: 'string' }),
 		defineField({ name: 'price', title: 'Price per person (USD)', type: 'number', validation: (r) => r.required() }),
-		defineField({ name: 'deposit', title: 'Deposit', type: 'number', validation: (r) => r.required() }),
 		defineField({ name: 'rating', title: 'Rating', type: 'number' }),
 		defineField({ name: 'reviewCount', title: 'Review count', type: 'number' }),
 		defineField({ name: 'summary', title: 'Summary', type: 'text' }),

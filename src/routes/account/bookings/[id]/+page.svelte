@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ArrowLeft, Calendar, Users, CreditCard } from 'lucide-svelte';
 	import type { PageData } from './$types';
+	import AccountHeader from '../../../../components/AccountHeader.svelte';
 
 	interface Props {
 		data: PageData;
@@ -10,22 +11,34 @@
 	const booking = $derived(data.booking);
 
 	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+		return new Date(iso).toLocaleDateString('en-US', {
+			month: 'long',
+			day: 'numeric',
+			year: 'numeric'
+		});
 	}
 </script>
 
 <section class="mx-auto max-w-2xl px-5 py-24">
-	<a href="/account/bookings" class="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#17200f]/60 hover:text-[#17200f]">
+	<a
+		href="/account/bookings"
+		class="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#17200f]/60 hover:text-[#17200f]"
+	>
 		<ArrowLeft class="h-4 w-4" aria-hidden="true" />
 		All bookings
 	</a>
 
 	<div class="rounded-[28px] border border-black/10 bg-white p-8">
 		<div class="flex items-center justify-between">
+			<AccountHeader customer={data.customer} title="Booking details" />
 			<h1 class="text-2xl font-bold text-[#17200f]">
-				{booking.tours?.length ? booking.tours.map((t: any) => t.title).join(', ') : booking.destination || 'Custom trip'}
+				{booking.tours?.length
+					? booking.tours.map((t: any) => t.title).join(', ')
+					: booking.destination || 'Custom trip'}
 			</h1>
-			<span class="rounded-full bg-[#5C9B19]/10 px-3 py-1 text-xs font-bold capitalize text-[#5C9B19]">
+			<span
+				class="rounded-full bg-[#5C9B19]/10 px-3 py-1 text-xs font-bold capitalize text-[#5C9B19]"
+			>
 				{booking.paymentStatus}
 			</span>
 		</div>
@@ -52,7 +65,9 @@
 				<p class="mb-3 text-xs font-bold uppercase tracking-wide text-[#17200f]/50">Tours</p>
 				<div class="flex flex-col gap-2">
 					{#each booking.tours as tour (tour.id)}
-						<div class="flex items-center justify-between rounded-2xl bg-[#f7f3ea] px-4 py-3 text-sm">
+						<div
+							class="flex items-center justify-between rounded-2xl bg-[#f7f3ea] px-4 py-3 text-sm"
+						>
 							<span class="font-medium text-[#17200f]">{tour.title}</span>
 							<span class="text-[#17200f]/60">£{tour.price} × {tour.travelers}</span>
 						</div>

@@ -12,7 +12,6 @@ export interface SanityTour {
 	duration?: string;
 	groupSize?: string;
 	price: number;
-	deposit: number;
 	rating?: number;
 	reviewCount?: number;
 	summary?: string;
@@ -34,7 +33,10 @@ export async function getTourBySlug(slug: string): Promise<SanityTour | null> {
 	return sanityClient.fetch(`*[_type == "tour" && slug.current == $slug][0]`, { slug });
 }
 
-export async function getRelatedTours(countrySlug: string, excludeSlug: string): Promise<SanityTour[]> {
+export async function getRelatedTours(
+	countrySlug: string,
+	excludeSlug: string
+): Promise<SanityTour[]> {
 	return sanityClient.fetch(
 		`*[_type == "tour" && countrySlug == $countrySlug && slug.current != $excludeSlug][0...3]`,
 		{ countrySlug, excludeSlug }

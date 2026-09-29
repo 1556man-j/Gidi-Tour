@@ -2,6 +2,8 @@ import { getSiteSettings } from '$lib/sanity/queries/siteSettings';
 import { detectCountryFromIp, getVisitorCurrency } from '$lib/server/geoCurrency';
 import type { LayoutServerLoad } from './$types';
 import { getPaymentProvider } from '$lib/server/paymentRouter';
+import { getCustomerProfile } from '$lib/sanity/queries/customer';
+import { urlFor } from '$lib/sanity/client';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { cookies, getClientAddress, url } = event;
@@ -28,5 +30,18 @@ export const load: LayoutServerLoad = async (event) => {
 
 	const paymentProvider = getPaymentProvider(countryCode);
 
-	return { siteSettings, currency, rate, countryCode, session, paymentProvider  };
+	let customer = null;
+	if (session?.user?.id) {
+		const profile = await getCustomerProfile(session.user.id);
+		if (profile) {
+			customer = {
+				...profile,
+				avatarUrl: profile.avatar
+					? urlFor(profile.avatar).width(160).height(160).fit('crop').url()
+					: null
+			};
+		}
+	}
+
+	return { siteSettings, currency, rate, countryCode, session, paymentProvider, customer };
 };

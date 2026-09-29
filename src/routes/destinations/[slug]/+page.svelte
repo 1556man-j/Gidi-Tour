@@ -37,7 +37,6 @@
 			title: tour.title,
 			image: tour.image ? urlFor(tour.image).width(400).height(300).url() : '',
 			price: tour.price,
-			deposit: tour.deposit,
 			travelers: 1,
 			duration: tour.duration ?? '',
 			country: tour.country
