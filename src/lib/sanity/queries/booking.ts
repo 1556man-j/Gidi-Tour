@@ -10,6 +10,8 @@ export interface BookingTour {
 }
 
 export interface BookingInput {
+	customerId?: string;
+
 	tours: {
 		id: string;
 		title: string;
@@ -57,6 +59,12 @@ export async function createPendingBooking(input: BookingInput) {
 
 	return sanityWriteClient.create({
 		_type: 'booking',
+		customer: input.customerId
+			? {
+					_type: 'reference',
+					_ref: input.customerId
+				}
+			: undefined,
 
 		tours,
 		tourIds: input.tourIds,
