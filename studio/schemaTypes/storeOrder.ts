@@ -35,6 +35,8 @@ export default defineType({
 		defineField({ name: 'name', title: 'Customer name', type: 'string' }),
 		defineField({ name: 'email', title: 'Customer email', type: 'string' }),
 
+		defineField({ name: 'customerId', title: 'Customer account ID', type: 'string' }),
+
 		defineField({
 			name: 'shipping',
 			title: 'Shipping address',

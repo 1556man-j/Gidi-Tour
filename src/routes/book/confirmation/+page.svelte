@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import {
 		Check,
 		ArrowRight,
@@ -9,6 +11,7 @@
 		Clock3,
 		ShieldCheck
 	} from 'lucide-svelte';
+	import { tourStore } from '$lib/stores/tourStore.svelte';
 	import SeoHead from '../../../components/SeoHead.svelte';
 
 	let { data } = $props();
@@ -27,6 +30,42 @@
 	const currency = $derived(booking?.currency ?? '');
 
 	const isPaid = $derived(paymentStatus === 'paid');
+
+	const methodLabel = $derived(
+		booking?.paymentMethod === 'dlocal'
+			? 'dLocal'
+			: booking?.paymentMethod === 'stripe'
+				? 'Stripe'
+				: 'Secure checkout'
+	);
+
+	// Payment providers can return the customer a moment before our webhook
+	// marks the booking as paid. Check again a few times instead of leaving
+	// them on "pending" forever.
+	onMount(() => {
+		// If the provider says it worked, the trip list can be cleared now.
+		const params = new URLSearchParams(window.location.search);
+		if (isPaid || params.get('redirect_status') === 'succeeded') {
+			tourStore.clear();
+		}
+
+		let tries = 0;
+		const timer = setInterval(async () => {
+			if (isPaid || tries >= 10) {
+				clearInterval(timer);
+				return;
+			}
+			tries += 1;
+			await invalidateAll();
+		}, 3000);
+
+		return () => clearInterval(timer);
+	});
+
+	// Clear the list as soon as the status flips to paid while polling.
+	$effect(() => {
+		if (isPaid) tourStore.clear();
+	});
 
 	function formatDate(date: string) {
 		if (!date) return '—';
@@ -80,7 +119,9 @@
 />
 
 <!-- HERO -->
-<section class="relative overflow-hidden bg-[#f7f3ea] px-5 pb-12 pt-16 sm:px-8 lg:px-12 lg:pb-16 lg:pt-24">
+<section
+	class="relative overflow-hidden bg-[#f7f3ea] px-5 pb-12 pt-16 sm:px-8 lg:px-12 lg:pb-16 lg:pt-24"
+>
 	<div
 		class="pointer-events-none absolute inset-x-0 top-[-10%] h-[60%] bg-[radial-gradient(55%_60%_at_30%_0%,rgba(92,155,25,0.14),transparent_70%)]"
 		aria-hidden="true"
@@ -130,17 +171,11 @@
 <!-- CONFIRMATION CONTENT -->
 <section class="bg-[#f7f3ea] px-5 pb-20 sm:px-8 lg:px-12 lg:pb-28">
 	<div class="mx-auto max-w-3xl">
-
 		<!-- MAIN CARD -->
-		<div
-			class="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm"
-		>
+		<div class="overflow-hidden rounded-[28px] border border-black/10 bg-white shadow-sm">
 			<div class="p-6 sm:p-10">
-
 				<!-- STATUS -->
-				<div
-					class="flex items-start gap-4 rounded-2xl bg-[#5C9B19]/5 p-5"
-				>
+				<div class="flex items-start gap-4 rounded-2xl bg-[#5C9B19]/5 p-5">
 					<div
 						class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5C9B19]/10"
 					>
@@ -207,17 +242,13 @@
 					</h2>
 
 					<div class="mt-6 grid gap-3 sm:grid-cols-2">
-
 						<!-- DESTINATION -->
 						<div class="rounded-2xl border border-black/10 p-4">
 							<div class="flex items-center gap-3">
 								<div
 									class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5C9B19]/10"
 								>
-									<MapPin
-										class="h-4 w-4 text-[#5C9B19]"
-										aria-hidden="true"
-									/>
+									<MapPin class="h-4 w-4 text-[#5C9B19]" aria-hidden="true" />
 								</div>
 
 								<div>
@@ -238,10 +269,7 @@
 								<div
 									class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5C9B19]/10"
 								>
-									<Users
-										class="h-4 w-4 text-[#5C9B19]"
-										aria-hidden="true"
-									/>
+									<Users class="h-4 w-4 text-[#5C9B19]" aria-hidden="true" />
 								</div>
 
 								<div>
@@ -250,7 +278,8 @@
 									</p>
 
 									<p class="mt-0.5 text-sm font-semibold text-[#17200f]">
-										{travelers} {travelers === 1 ? 'traveler' : 'travelers'}
+										{travelers}
+										{travelers === 1 ? 'traveler' : 'travelers'}
 									</p>
 								</div>
 							</div>
@@ -262,10 +291,7 @@
 								<div
 									class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5C9B19]/10"
 								>
-									<Calendar
-										class="h-4 w-4 text-[#5C9B19]"
-										aria-hidden="true"
-									/>
+									<Calendar class="h-4 w-4 text-[#5C9B19]" aria-hidden="true" />
 								</div>
 
 								<div>
@@ -286,10 +312,7 @@
 								<div
 									class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5C9B19]/10"
 								>
-									<Calendar
-										class="h-4 w-4 text-[#5C9B19]"
-										aria-hidden="true"
-									/>
+									<Calendar class="h-4 w-4 text-[#5C9B19]" aria-hidden="true" />
 								</div>
 
 								<div>
@@ -316,7 +339,7 @@
 								</p>
 
 								<p class="mt-1 text-sm text-[#17200f]/55">
-									dLocal
+									{methodLabel}
 								</p>
 							</div>
 
@@ -334,22 +357,15 @@
 				{/if}
 
 				<!-- EMAIL MESSAGE -->
-				<div
-					class="mt-8 flex items-start gap-4 rounded-2xl border border-black/10 p-5"
-				>
+				<div class="mt-8 flex items-start gap-4 rounded-2xl border border-black/10 p-5">
 					<div
 						class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F98315]/10"
 					>
-						<Mail
-							class="h-5 w-5 text-[#F98315]"
-							aria-hidden="true"
-						/>
+						<Mail class="h-5 w-5 text-[#F98315]" aria-hidden="true" />
 					</div>
 
 					<div>
-						<p class="text-sm font-bold text-[#17200f]">
-							Your confirmation email
-						</p>
+						<p class="text-sm font-bold text-[#17200f]">Your confirmation email</p>
 
 						<p class="mt-1 text-sm leading-relaxed text-[#17200f]/55">
 							{#if email}
@@ -364,9 +380,7 @@
 				</div>
 
 				<!-- ACTIONS -->
-				<div
-					class="mt-8 flex flex-col gap-3 sm:flex-row"
-				>
+				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 					<a
 						href="/tours"
 						class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#4c8316]"
@@ -388,45 +402,29 @@
 		<!-- TRUST -->
 		<div class="mt-6 grid gap-3 sm:grid-cols-3">
 			<div class="rounded-2xl bg-white p-5 text-center shadow-sm">
-				<ShieldCheck
-					class="mx-auto h-5 w-5 text-[#5C9B19]"
-					aria-hidden="true"
-				/>
-				<p class="mt-3 text-sm font-semibold text-[#17200f]">
-					Secure payment
-				</p>
+				<ShieldCheck class="mx-auto h-5 w-5 text-[#5C9B19]" aria-hidden="true" />
+				<p class="mt-3 text-sm font-semibold text-[#17200f]">Secure payment</p>
 				<p class="mt-1 text-xs leading-relaxed text-[#17200f]/45">
-					Your payment was processed through dLocal.
+					Your payment was processed securely.
 				</p>
 			</div>
 
 			<div class="rounded-2xl bg-white p-5 text-center shadow-sm">
-				<Mail
-					class="mx-auto h-5 w-5 text-[#5C9B19]"
-					aria-hidden="true"
-				/>
-				<p class="mt-3 text-sm font-semibold text-[#17200f]">
-					Email confirmation
-				</p>
+				<Mail class="mx-auto h-5 w-5 text-[#5C9B19]" aria-hidden="true" />
+				<p class="mt-3 text-sm font-semibold text-[#17200f]">Email confirmation</p>
 				<p class="mt-1 text-xs leading-relaxed text-[#17200f]/45">
 					We'll send your booking details to your email.
 				</p>
 			</div>
 
 			<div class="rounded-2xl bg-white p-5 text-center shadow-sm">
-				<Clock3
-					class="mx-auto h-5 w-5 text-[#5C9B19]"
-					aria-hidden="true"
-				/>
-				<p class="mt-3 text-sm font-semibold text-[#17200f]">
-					We're on it
-				</p>
+				<Clock3 class="mx-auto h-5 w-5 text-[#5C9B19]" aria-hidden="true" />
+				<p class="mt-3 text-sm font-semibold text-[#17200f]">We're on it</p>
 				<p class="mt-1 text-xs leading-relaxed text-[#17200f]/45">
 					Our team will follow up with your next steps.
 				</p>
 			</div>
 		</div>
-
 	</div>
 </section>
 

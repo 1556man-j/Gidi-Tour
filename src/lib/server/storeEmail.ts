@@ -156,7 +156,15 @@ export async function sendStoreOrderConfirmationEmails(order: StoreOrderEmailInp
 			</div>
 
 			<div class="content" style="padding:42px;">
-				<div style="width:54px;height:54px;border-radius:50%;background:#5C9B19;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:22px;">✓</div>
+				<div style="width:54px; height:54px;
+					border-radius:50%;
+					background:#5C9B19;
+					color:#ffffff;
+					font-size:26px;
+					font-weight:bold;
+					line-height:54px;
+					text-align:center;
+					margin:0 auto 22px;">✓</div>
 
 				<h1 style="margin:0;font-size:30px;line-height:1.15;letter-spacing:-1px;color:#17200f;">
 					Thanks, ${safeName}.

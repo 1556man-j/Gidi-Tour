@@ -24,7 +24,6 @@
 	import Price from '../../components/Price.svelte';
 	import StripePaymentForm from '../../components/StripePaymentForm.svelte';
 	import type { PageData } from './$types';
-	import { redirect } from '@sveltejs/kit';
 
 	// =========================================================
 	// PAGE PROPS + SEO
@@ -87,13 +86,11 @@
 	// TOURS AVAILABLE IN THE CHOSEN COUNTRY
 	// =========================================================
 
-	// Slugs of the tours the person picks on this page
 	const toursInCountry = $derived(
 		destination ? tours.filter((tour) => tour.country === destination) : []
 	);
 
-	// "Picked" tours are just tourStore items that belong to the chosen country —
-	// there's no separate local list, tourStore is the single source of truth.
+	// "Picked" tours are just tourStore items that belong to the chosen country
 	const pickedTours = $derived(
 		destination ? tourStore.items.filter((item) => item.country === destination) : []
 	);
@@ -119,8 +116,6 @@
 	// LIVE PRICE ESTIMATE
 	// =========================================================
 
-	// Only counts tours the person actually picked (price x travelers).
-	// No tours picked = no estimate, and we quote them later.
 	const estimatedTotal = $derived(tourStore.count > 0 ? tourStore.totalPrice : null);
 
 	// =========================================================
@@ -160,14 +155,20 @@
 	}
 
 	// =========================================================
-	// TRAVELER DETAILS
+	// TRAVELER DETAILS (auto-filled from the saved profile, still editable)
 	// =========================================================
 
-	let name = $state('');
-	let email = $state('');
-	let phone = $state('');
-	let travelingFrom = $state('');
-	let notes = $state('');
+	const customer = data.customer;
+
+	let name = $state(customer?.name ?? data.session?.user?.name ?? '');
+	let email = $state(customer?.email ?? data.session?.user?.email ?? '');
+	let phone = $state(
+		[customer?.phoneDialCode, customer?.phoneNumber].filter(Boolean).join(' ')
+	);
+	let travelingFrom = $state(
+		[customer?.address?.city, customer?.address?.country].filter(Boolean).join(', ')
+	);
+	let notes = $state(customer?.travelNotes ?? '');
 
 	// =========================================================
 	// SUBMISSION STATE
@@ -259,7 +260,6 @@
 			travelers: item.travelers,
 			image: item.image
 		})),
-		// Tours picked on this page for the chosen country
 		pickedTours: pickedTours.map((tour) => ({
 			slug: tour.slug,
 			title: tour.title,
@@ -1022,17 +1022,17 @@
 								</p>
 								{#if tourStore.count > 0}
 									<dl class="grid grid-cols-2 gap-y-2 text-sm">
-	<dt class="text-[#17200f]/50">Tours selected</dt>
-	<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
+										<dt class="text-[#17200f]/50">Tours selected</dt>
+										<dd class="text-right font-medium text-[#17200f]">{tourStore.count}</dd>
 
-	<dt class="text-[#17200f]/50">Total</dt>
-	<dd class="text-right font-medium text-[#5C9B19]">
-		<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" />
-	</dd>
+										<dt class="text-[#17200f]/50">Total</dt>
+										<dd class="text-right font-medium text-[#5C9B19]">
+											<Price amountGBP={tourStore.totalPrice} {currency} {rate} size="sm" />
+										</dd>
 
-	<dt class="text-[#17200f]/50">Extras</dt>
-	<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
-</dl>
+										<dt class="text-[#17200f]/50">Extras</dt>
+										<dd class="text-right font-medium text-[#17200f]">{addOns.length || 'None'}</dd>
+									</dl>
 								{:else}
 									<dl class="grid grid-cols-2 gap-y-2 text-sm">
 										<dt class="text-[#17200f]/50">Destination</dt>

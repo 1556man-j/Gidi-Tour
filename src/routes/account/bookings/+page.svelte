@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Calendar, MapPin, ArrowUpRight } from 'lucide-svelte';
 	import AccountHeader from '../../../components/AccountHeader.svelte';
+	import Price from '../../../components/Price.svelte';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -10,6 +11,8 @@
 	let { data }: Props = $props();
 
 	const bookings = $derived(data.bookings ?? []);
+	const currency = $derived(data.currency);
+	const rate = $derived(data.rate);
 
 	function statusColor(status: string) {
 		if (status === 'paid') return 'bg-[#5C9B19]/10 text-[#5C9B19]';
@@ -24,25 +27,43 @@
 			year: 'numeric'
 		});
 	}
+
+	function cardTitle(booking: any) {
+		if (booking.kind === 'store') {
+			return (booking.items ?? [])
+				.map((i: any) => `${i.title}${i.quantity > 1 ? ` ×${i.quantity}` : ''}`)
+				.join(', ');
+		}
+		return booking.tours?.length
+			? booking.tours.map((t: any) => t.title).join(', ')
+			: booking.destination || 'Custom trip';
+	}
 </script>
 
 <section class="mx-auto max-w-4xl px-5 py-24">
 	<AccountHeader
 		customer={data.customer}
 		title="My Bookings"
-		subtitle="Everything you've booked with us, in one place."
+		subtitle="Everything you've booked or bought with us, in one place."
 	/>
-	
 
 	{#if bookings.length === 0}
 		<div class="mt-10 rounded-3xl border border-black/10 bg-white p-10 text-center">
-			<p class="text-sm text-[#17200f]/60">You haven't booked a trip yet.</p>
-			<a
-				href="/tours"
-				class="mt-4 inline-flex rounded-full bg-[#5C9B19] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#4c8316]"
-			>
-				Browse tours
-			</a>
+			<p class="text-sm text-[#17200f]/60">You haven't booked or ordered anything yet.</p>
+			<div class="mt-4 flex items-center justify-center gap-3">
+				<a
+					href="/tours"
+					class="inline-flex rounded-full bg-[#5C9B19] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#4c8316]"
+				>
+					Browse tours
+				</a>
+				<a
+					href="/store"
+					class="inline-flex rounded-full border border-black/10 px-5 py-2.5 text-sm font-bold text-[#17200f] transition hover:border-black/20"
+				>
+					Visit store
+				</a>
+			</div>
 		</div>
 	{:else}
 		<div class="mt-8 flex flex-col gap-4">
@@ -53,11 +74,10 @@
 				>
 					<div class="min-w-0 flex-1">
 						<div class="flex flex-wrap items-center gap-2">
-							<p class="font-semibold text-[#17200f]">
-								{booking.tours?.length
-									? booking.tours.map((t: any) => t.title).join(', ')
-									: booking.destination || 'Custom trip'}
-							</p>
+							<span class="rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-bold text-[#17200f]/60">
+								{booking.kind === 'store' ? 'Store' : 'Tour'}
+							</span>
+							<p class="font-semibold text-[#17200f]">{cardTitle(booking)}</p>
 							<span
 								class="rounded-full px-2.5 py-0.5 text-xs font-bold capitalize {statusColor(
 									booking.paymentStatus
@@ -67,23 +87,23 @@
 							</span>
 						</div>
 						<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#17200f]/50">
-							{#if booking.destination}
+							{#if booking.kind === 'tour' && booking.destination}
 								<span class="flex items-center gap-1"
 									><MapPin class="h-3.5 w-3.5" aria-hidden="true" />{booking.destination}</span
 								>
 							{/if}
-							{#if booking.startDate}
+							{#if booking.kind === 'tour' && booking.startDate}
 								<span class="flex items-center gap-1"
 									><Calendar class="h-3.5 w-3.5" aria-hidden="true" />{formatDate(
 										booking.startDate
 									)}</span
 								>
 							{/if}
-							<span>Booked {formatDate(booking.createdAt)}</span>
+							<span>{booking.kind === 'store' ? 'Ordered' : 'Booked'} {formatDate(booking.createdAt)}</span>
 						</div>
 					</div>
 					<div class="flex items-center gap-3">
-						<p class="font-bold text-[#17200f]">£{booking.amountGBP}</p>
+						<Price amountGBP={booking.amountGBP} {currency} {rate} size="md" />
 						<ArrowUpRight class="h-4 w-4 text-[#17200f]/30" aria-hidden="true" />
 					</div>
 				</a>

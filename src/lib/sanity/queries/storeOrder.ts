@@ -16,6 +16,7 @@ export interface StoreOrderInput {
 
 	name: string;
 	email: string;
+	customerId?: string;
 	shipping?: {
 		address: string;
 		city: string;
@@ -48,7 +49,8 @@ export async function createPendingOrder(input: StoreOrderInput) {
 		subtotal: input.subtotal,
 
 		name: input.name,
-		email: input.email,
+		email: input.email.trim().toLowerCase(),
+		customerId: input.customerId ?? null,
 		shipping: input.shipping ?? null,
 
 		convertedAmount: input.convertedAmount,
@@ -137,5 +139,51 @@ export async function getMagazineDownloadFiles(slugs: string[]) {
 			digitalFile
 		}`,
 		{ slugs }
+	);
+}
+
+// Paid store orders for the logged-in user, matched by account id or by email.
+export async function getStoreOrdersForCustomer(customerId: string, email?: string | null) {
+	return sanityWriteClient.fetch(
+		`*[
+			_type == "storeOrder" &&
+			paymentStatus == "paid" &&
+			(customerId == $customerId || (defined($email) && lower(email) == $email))
+		] | order(createdAt desc){
+			_id,
+			items,
+			subtotal,
+			paymentStatus,
+			shipping,
+			createdAt
+		}`,
+		{ customerId, email: email?.trim().toLowerCase() ?? null }
+	);
+}
+
+// One paid store order, only if it belongs to this user.
+export async function getStoreOrderByIdForCustomer(
+	orderId: string,
+	customerId: string,
+	email?: string | null
+) {
+	return sanityWriteClient.fetch(
+		`*[
+			_type == "storeOrder" &&
+			_id == $orderId &&
+			paymentStatus == "paid" &&
+			(customerId == $customerId || (defined($email) && lower(email) == $email))
+		][0]{
+			_id,
+			name,
+			email,
+			items,
+			subtotal,
+			shipping,
+			paymentMethod,
+			paymentStatus,
+			createdAt
+		}`,
+		{ orderId, customerId, email: email?.trim().toLowerCase() ?? null }
 	);
 }

@@ -5,17 +5,26 @@
 	import Price from './Price.svelte';
 	import StripePaymentForm from './StripePaymentForm.svelte';
 
-	// Passed down from +layout.svelte, which already has these from the root
-	// +layout.server.ts (currency, rate, countryCode). paymentProvider should be
-	// computed once at the layout level too — see the wiring notes.
 	interface Props {
 		currency: { code: string };
 		rate: number | null;
 		paymentProvider: 'stripe' | 'dlocal';
 		countryCode: string;
+		// Logged-in user's saved profile (null for guests). Used to auto-fill the form.
+		customer?: {
+			name?: string;
+			email?: string;
+			address?: {
+				line1?: string;
+				line2?: string;
+				city?: string;
+				postalCode?: string;
+				country?: string;
+			};
+		} | null;
 	}
 
-	let { currency, rate, paymentProvider, countryCode }: Props = $props();
+	let { currency, rate, paymentProvider, countryCode, customer = null }: Props = $props();
 
 	let cartOpen = $state(false);
 
@@ -42,19 +51,36 @@
 		if (storeCart.hasMerchandise) {
 			return Boolean(
 				shippingAddress.trim() &&
-					shippingCity.trim() &&
-					shippingCountry.trim() &&
-					shippingPostcode.trim()
+				shippingCity.trim() &&
+				shippingCountry.trim() &&
+				shippingPostcode.trim()
 			);
 		}
 		return true;
 	});
 
+	// Fill the form from the saved profile. Only fills fields that are still empty,
+	// so anything the user already typed is never overwritten. Everything stays editable.
+	function prefillFromProfile() {
+		if (!customer) return;
+
+		if (!name) name = customer.name ?? '';
+		if (!email) email = customer.email ?? '';
+
+		if (!shippingAddress) {
+			shippingAddress = [customer.address?.line1, customer.address?.line2]
+				.filter(Boolean)
+				.join(', ');
+		}
+		if (!shippingCity) shippingCity = customer.address?.city ?? '';
+		if (!shippingPostcode) shippingPostcode = customer.address?.postalCode ?? '';
+		if (!shippingCountry) shippingCountry = customer.address?.country ?? '';
+	}
+
 	function openCart() {
 		cartOpen = true;
 	}
 
-	// Exposed for direct use from +layout.svelte if ever needed (e.g. a header cart icon).
 	export function open() {
 		openCart();
 	}
@@ -63,17 +89,15 @@
 		cartOpen = false;
 	}
 
-	// Any page can request the drawer open without a direct reference to this component —
-	// it lives in the root layout, above every page, so bind:this from a page can't reach it.
 	onMount(() => {
 		const handler = () => openCart();
 		window.addEventListener('gt-cart-open', handler);
-		// Hydrate the cart from localStorage once, on first mount of the layout.
 		storeCart.hydrate();
 		return () => window.removeEventListener('gt-cart-open', handler);
 	});
 
 	function startCheckout() {
+		prefillFromProfile();
 		checkingOut = true;
 		checkoutStep = 'details';
 	}
@@ -95,7 +119,7 @@
 	}
 
 	// =========================================================
-	// PAYMENT (mirrors the booking page's Stripe / dLocal pattern)
+	// PAYMENT
 	// =========================================================
 
 	let stripeClientSecret = $state<string | null>(null);
@@ -187,7 +211,6 @@
 
 	function resetAndClose() {
 		closeCart();
-		// Reset for the next visit, after the drawer has closed
 		setTimeout(() => {
 			submitted = false;
 			checkingOut = false;
@@ -253,7 +276,9 @@
 				{#if submitted}
 					<!-- SUCCESS -->
 					<div class="flex flex-col items-center py-10 text-center">
-						<div class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#5C9B19]/10">
+						<div
+							class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#5C9B19]/10"
+						>
 							<Check class="h-7 w-7 text-[#5C9B19]" aria-hidden="true" />
 						</div>
 						<p class="text-xl font-medium text-[#17200f]">Thanks{name ? `, ${name}` : ''}!</p>
@@ -262,6 +287,14 @@
 							available from the link in that email, and any merchandise will ship with tracking
 							details sent separately.
 						</p>
+						{#if customer}
+							<a
+								href="/account/bookings"
+								class="mt-6 inline-flex rounded-full bg-[#5C9B19] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#4c8316]"
+							>
+								View in My Bookings
+							</a>
+						{/if}
 					</div>
 				{:else if !checkingOut}
 					<!-- CART CONTENTS -->
@@ -287,11 +320,14 @@
 									</div>
 
 									{#if item.category === 'merchandise'}
-										<div class="flex items-center gap-2 rounded-full border border-black/10 px-2 py-1">
+										<div
+											class="flex items-center gap-2 rounded-full border border-black/10 px-2 py-1"
+										>
 											<button
 												type="button"
 												aria-label="Decrease quantity"
-												onclick={() => storeCart.setQuantity(item.id, item.quantity - 1, item.variant)}
+												onclick={() =>
+													storeCart.setQuantity(item.id, item.quantity - 1, item.variant)}
 												class="flex h-10 w-10 items-center justify-center rounded-full text-[#17200f]/60 hover:bg-black/5"
 											>
 												<Minus class="h-3 w-3 text-[#17200f]/60" aria-hidden="true" />
@@ -302,7 +338,8 @@
 											<button
 												type="button"
 												aria-label="Increase quantity"
-												onclick={() => storeCart.setQuantity(item.id, item.quantity + 1, item.variant)}
+												onclick={() =>
+													storeCart.setQuantity(item.id, item.quantity + 1, item.variant)}
 												class="flex h-10 w-10 items-center justify-center rounded-full text-[#17200f]/60 hover:bg-black/5"
 											>
 												<Plus class="h-3 w-3 " aria-hidden="true" />
@@ -325,11 +362,19 @@
 				{:else if checkoutStep === 'details'}
 					<!-- CHECKOUT: DETAILS -->
 					<div class="flex flex-col gap-4">
+						{#if customer}
+							<p class="rounded-2xl bg-[#5C9B19]/10 px-4 py-3 text-xs text-[#17200f]/70">
+								Filled in from your profile. You can change anything for this order.
+							</p>
+						{/if}
+
 						<div class="flex flex-col gap-1.5">
-							<label for="store-name" class="text-xs font-medium text-[#17200f]/60">Full name</label>
+							<label for="store-name" class="text-xs font-medium text-[#17200f]/60">Full name</label
+							>
 							<input
 								id="store-name"
 								type="text"
+								autocomplete="name"
 								bind:value={name}
 								placeholder="Adaeze Okafor"
 								class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
@@ -340,12 +385,15 @@
 							<input
 								id="store-email"
 								type="email"
+								autocomplete="email"
 								bind:value={email}
 								placeholder="you@example.com"
 								class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
 							/>
 							{#if storeCart.hasMagazine}
-								<p class="text-xs text-[#17200f]/45">Your permanent download links are sent here.</p>
+								<p class="text-xs text-[#17200f]/45">
+									Your permanent download links are sent here.
+								</p>
 							{/if}
 						</div>
 
@@ -360,6 +408,7 @@
 								<input
 									id="store-address"
 									type="text"
+									autocomplete="street-address"
 									bind:value={shippingAddress}
 									class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
 								/>
@@ -370,6 +419,7 @@
 									<input
 										id="store-city"
 										type="text"
+										autocomplete="address-level2"
 										bind:value={shippingCity}
 										class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
 									/>
@@ -381,6 +431,7 @@
 									<input
 										id="store-postcode"
 										type="text"
+										autocomplete="postal-code"
 										bind:value={shippingPostcode}
 										class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
 									/>
@@ -393,6 +444,7 @@
 								<input
 									id="store-country"
 									type="text"
+									autocomplete="country-name"
 									bind:value={shippingCountry}
 									class="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19]"
 								/>
@@ -419,6 +471,7 @@
 							<StripePaymentForm
 								clientSecret={stripeClientSecret}
 								bookingId={stripeOrderId ?? ''}
+								returnPath={`/store/confirmation?orderId=${encodeURIComponent(stripeOrderId ?? '')}`}
 								onSuccess={handleStripeSuccess}
 								onError={handleStripeError}
 							/>

@@ -24,6 +24,30 @@ interface BookingEmailInput {
 	}[];
 }
 
+function formatPaidAmount(amount: number | null | undefined, currency?: string) {
+	if (amount === null || amount === undefined) {
+		return '—';
+	}
+
+	const symbols: Record<string, string> = {
+		NGN: '₦',
+		GHS: 'GH₵',
+		KES: 'KSh',
+		TZS: 'TSh',
+		RWF: 'FRw',
+		EGP: 'E£',
+		MAD: 'MAD ',
+		ZAR: 'R',
+		GBP: '£',
+		USD: '$'
+	};
+
+	const currencyCode = (currency ?? 'GBP').toUpperCase();
+	const symbol = symbols[currencyCode] ?? `${currencyCode} `;
+
+	return `${symbol}${amount.toLocaleString('en-GB')}`;
+}
+
 function escapeHtml(value: unknown): string {
 	return String(value ?? '')
 		.replace(/&/g, '&amp;')
@@ -55,11 +79,34 @@ function formatPaymentAmount(
 	amountGBP?: number
 ): string {
 	if (amountCharged !== undefined && currency) {
-		return `${currency.toUpperCase()} ${(amountCharged / 100).toFixed(2)}`;
+		const currencyCode = currency.toUpperCase();
+
+		const symbols: Record<string, string> = {
+			NGN: '₦',
+			GHS: 'GH₵',
+			KES: 'KSh',
+			TZS: 'TSh',
+			RWF: 'FRw',
+			EGP: 'E£',
+			MAD: 'MAD',
+			ZAR: 'R',
+			GBP: '£',
+			USD: '$'
+		};
+
+		const symbol = symbols[currencyCode] ?? `${currencyCode} `;
+
+		return `${symbol}${(amountCharged / 100).toLocaleString('en-GB', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		})}`;
 	}
 
 	if (amountGBP !== undefined) {
-		return `£${amountGBP.toFixed(2)}`;
+		return `£${amountGBP.toLocaleString('en-GB', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		})}`;
 	}
 
 	return 'See booking details';

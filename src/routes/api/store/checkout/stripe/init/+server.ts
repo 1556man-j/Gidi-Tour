@@ -3,9 +3,10 @@ import { stripe } from '$lib/server/stripeClient';
 import { createPendingOrder } from '$lib/sanity/queries/storeOrder';
 import type { RequestHandler } from '../$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		const body = await request.json();
+		const session = await locals.auth();
 
 		if (!body.name || !body.email || !Array.isArray(body.items) || body.items.length === 0) {
 			return json({ error: 'Missing required order fields.' }, { status: 400 });
@@ -39,7 +40,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			shipping: body.shipping ?? null,
 			convertedAmount: body.convertedAmount,
 			currencyCode: body.currencyCode?.toLowerCase(),
-			paymentMethod: 'stripe'
+			paymentMethod: 'stripe',
+			customerId: session?.user?.id
 		});
 
 		console.log('Created pending store order:', order._id);
@@ -58,10 +60,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				orderId: order._id
 			},
 
-			automatic_payment_methods: {
-				enabled: true,
-				allow_redirects: 'always'
-			},
+			payment_method_types: ['card', 'paypal'],
 
 			receipt_email: body.email.trim().toLowerCase()
 		});

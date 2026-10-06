@@ -3,8 +3,9 @@ import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
 import { createPendingOrder } from '$lib/sanity/queries/storeOrder';
 import type { RequestHandler } from '../$types';
 
-export const POST: RequestHandler = async ({ request, url }) => {
+export const POST: RequestHandler = async ({ request, url, locals }) => {
 	const body = await request.json();
+	const session = await locals.auth();
 
 	if (!body.name || !body.email || !body.convertedAmount || !body.currencyCode) {
 		return json({ error: 'Missing required order fields.' }, { status: 400 });
@@ -18,7 +19,11 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		return json({ error: 'Shipping details are required for this order.' }, { status: 400 });
 	}
 
-	const order = await createPendingOrder({ ...body, paymentMethod: 'dlocal' });
+	const order = await createPendingOrder({
+		...body,
+		paymentMethod: 'dlocal',
+		customerId: session?.user?.id
+	});
 
 	const payload = {
 		amount: body.convertedAmount,

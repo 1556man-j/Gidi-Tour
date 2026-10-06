@@ -4,10 +4,13 @@ import { getAllTours } from '$lib/sanity/queries/tours'; // use the same import 
 import { getPaymentProvider } from '$lib/server/paymentRouter';
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
+import { getCustomerProfile } from '$lib/sanity/queries/customer';
 
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
+	const profile = session?.user?.id ? await getCustomerProfile(session.user.id) : null;
+
 
 	if (!session?.user) {
 		throw redirect(303, '/login?redirectTo=/book');
@@ -23,5 +26,13 @@ export const load: PageServerLoad = async (event) => {
 
 	const paymentProvider = getPaymentProvider(parentData.countryCode);
 
-	return { pageSeo, sanityFaqs, sanityTours, paymentProvider, session };
+	const prefill = {
+	name: profile?.name ?? session?.user?.name ?? '',
+	email: profile?.email ?? session?.user?.email ?? '',
+	phone: [profile?.phoneDialCode, profile?.phoneNumber].filter(Boolean).join(' '),
+	travelingFrom: profile?.address?.country ?? profile?.nationality ?? ''
+};
+
+
+	return { pageSeo, sanityFaqs, sanityTours, paymentProvider, session, prefill  };
 };

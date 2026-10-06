@@ -60,7 +60,7 @@
 				bind:value={password}
 				placeholder="Password"
 				required
-				class="rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19] w-full  "
+				class="rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none focus:border-[#5C9B19] w-full"
 			/>
 			<button
 				type="button"
@@ -77,6 +77,12 @@
 		{#if error}
 			<p class="text-sm text-red-500">{error}</p>
 		{/if}
+		<a
+			href="/forgot-password"
+			class="self-end text-sm font-semibold text-[#5C9B19] hover:underline"
+		>
+			Forgot password?
+		</a>
 		<button
 			type="submit"
 			disabled={loading}

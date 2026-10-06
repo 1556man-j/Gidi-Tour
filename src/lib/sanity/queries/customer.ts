@@ -1,5 +1,6 @@
 import { sanityClient } from '../client';
 import { sanityWriteClient } from '../serverClient';
+import crypto from 'node:crypto';
 
 export interface SanityCustomer {
 	_id: string;
@@ -41,4 +42,44 @@ export async function getCustomerProfile(id: string) {
 		`*[_type == "customer" && _id == $id][0]{ ${SAFE_PROFILE_FIELDS} }`,
 		{ id }
 	);
+}
+export async function setPasswordResetToken(
+	customerId: string,
+	tokenHash: string,
+	expiresAt: string
+) {
+	return sanityWriteClient
+		.patch(customerId)
+		.set({
+			passwordResetToken: tokenHash,
+			passwordResetExpires: expiresAt
+		})
+		.commit();
+}
+
+export async function getCustomerByResetToken(tokenHash: string) {
+	return sanityClient.fetch(
+		`*[
+			_type == "customer" &&
+			passwordResetToken == $tokenHash &&
+			passwordResetExpires > $now
+		][0]`,
+		{
+			tokenHash,
+			now: new Date().toISOString()
+		}
+	);
+}
+
+export async function updateCustomerPassword(
+	customerId: string,
+	passwordHash: string
+) {
+	return sanityWriteClient
+		.patch(customerId)
+		.set({
+			passwordHash
+		})
+		.unset(['passwordResetToken', 'passwordResetExpires'])
+		.commit();
 }

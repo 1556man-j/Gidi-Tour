@@ -75,10 +75,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				customerId: customerId ?? ''
 			},
 
-			automatic_payment_methods: {
-				enabled: true,
-				allow_redirects: 'always'
-			},
+			payment_method_types: ['card', 'paypal'],
 
 			receipt_email: body.email.trim().toLowerCase()
 		});

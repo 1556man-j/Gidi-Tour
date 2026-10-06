@@ -115,4 +115,5 @@
 	rate={data.rate}
 	paymentProvider={data.paymentProvider}
 	countryCode={data.countryCode}
+	customer={data.customer}
 />
