@@ -1,40 +1,33 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ url }) => {
-	const bookingId =
-		url.searchParams.get('bookingId') ??
-		url.searchParams.get('order_id') ??
-		url.searchParams.get('orderId');
-
+function toConfirmation(bookingId: string | null | undefined): never {
 	if (!bookingId) {
 		throw redirect(303, '/book');
 	}
+	throw redirect(303, `/book/confirmation?bookingId=${encodeURIComponent(bookingId)}`);
+}
 
-	throw redirect(
-		303,
-		`/book/confirmation?bookingId=${encodeURIComponent(bookingId)}`
+export const GET: RequestHandler = async ({ url }) => {
+	return toConfirmation(
+		url.searchParams.get('bookingId') ??
+			url.searchParams.get('order_id') ??
+			url.searchParams.get('orderId')
 	);
 };
 
 export const POST: RequestHandler = async ({ request, url }) => {
-	const formData = await request.formData();
+	let bodyBookingId = '';
 
-	const queryBookingId = url.searchParams.get('bookingId');
-
-	const bodyBookingId =
-		String(formData.get('bookingId') ?? '') ||
-		String(formData.get('order_id') ?? '') ||
-		String(formData.get('orderId') ?? '');
-
-	const bookingId = queryBookingId || bodyBookingId;
-
-	if (!bookingId) {
-		throw redirect(303, '/book');
+	try {
+		const formData = await request.formData();
+		bodyBookingId =
+			String(formData.get('bookingId') ?? '') ||
+			String(formData.get('order_id') ?? '') ||
+			String(formData.get('orderId') ?? '');
+	} catch {
+		// Not a form body, fall back to the query string below.
 	}
 
-	throw redirect(
-		303,
-		`/book/confirmation?bookingId=${encodeURIComponent(bookingId)}`
-	);
+	return toConfirmation(url.searchParams.get('bookingId') || bodyBookingId);
 };

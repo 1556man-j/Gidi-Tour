@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type ComponentProps } from 'svelte';
 	import { ArrowRight, ArrowLeft, Check, ShoppingBag, Minus, Plus, X } from 'lucide-svelte';
 	import { storeCart } from '$lib/stores/storeCart.svelte';
 	import Price from './Price.svelte';
 	import StripePaymentForm from './StripePaymentForm.svelte';
 
+	// Same currency type that Price expects, so the two can never drift apart.
+	type CurrencyInfo = ComponentProps<typeof Price>['currency'];
 	interface Props {
-		currency: { code: string };
+		currency: CurrencyInfo;
 		rate: number | null;
 		paymentProvider: 'stripe' | 'dlocal';
 		countryCode: string;

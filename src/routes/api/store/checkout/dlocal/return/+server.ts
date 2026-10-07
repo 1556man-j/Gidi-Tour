@@ -1,40 +1,27 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ url }) => {
-	const orderId =
-		url.searchParams.get('orderId') ??
-		url.searchParams.get('order_id');
-
+function toConfirmation(orderId: string | null | undefined): never {
 	if (!orderId) {
 		throw redirect(303, '/store');
 	}
+	throw redirect(303, `/store/confirmation?orderId=${encodeURIComponent(orderId)}`);
+}
 
-	throw redirect(
-		303,
-		`/store?orderId=${encodeURIComponent(orderId)}`
-	);
+export const GET: RequestHandler = async ({ url }) => {
+	return toConfirmation(url.searchParams.get('orderId') ?? url.searchParams.get('order_id'));
 };
 
 export const POST: RequestHandler = async ({ request, url }) => {
-	const formData = await request.formData();
+	let bodyOrderId = '';
 
-	const queryOrderId =
-		url.searchParams.get('orderId') ??
-		url.searchParams.get('order_id');
-
-	const bodyOrderId =
-		String(formData.get('orderId') ?? '') ||
-		String(formData.get('order_id') ?? '');
-
-	const orderId = queryOrderId || bodyOrderId;
-
-	if (!orderId) {
-		throw redirect(303, '/store');
+	try {
+		const formData = await request.formData();
+		bodyOrderId =
+			String(formData.get('orderId') ?? '') || String(formData.get('order_id') ?? '');
+	} catch {
+		// Not a form body, fall back to the query string below.
 	}
 
-	throw redirect(
-		303,
-		`/store?orderId=${encodeURIComponent(orderId)}`
-	);
+	return toConfirmation(url.searchParams.get('orderId') || bodyOrderId);
 };

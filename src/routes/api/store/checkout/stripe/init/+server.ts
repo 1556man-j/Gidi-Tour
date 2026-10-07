@@ -1,72 +1,164 @@
 import { json } from '@sveltejs/kit';
 import { stripe } from '$lib/server/stripeClient';
-import { createPendingOrder } from '$lib/sanity/queries/storeOrder';
-import type { RequestHandler } from '../$types';
+import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/queries/storeOrder';
+import { getStoreProducts } from '$lib/sanity/queries/store';
+import { getVisitorCurrency } from '$lib/server/geoCurrency';
+import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+// PayPal on Stripe only works for some currencies. For any other currency
+// the customer still gets card, Apple Pay and Google Pay.
+// Check the current list in the Stripe docs and edit this if needed.
+const PAYPAL_CURRENCIES = [
+	'aud',
+	'cad',
+	'chf',
+	'czk',
+	'dkk',
+	'eur',
+	'gbp',
+	'nok',
+	'nzd',
+	'pln',
+	'sek',
+	'usd'
+];
+
+export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	try {
 		const body = await request.json();
 		const session = await locals.auth();
 
-		if (!body.name || !body.email || !Array.isArray(body.items) || body.items.length === 0) {
+		if (
+			!body.name?.trim() ||
+			!body.email?.trim() ||
+			!Array.isArray(body.items) ||
+			body.items.length === 0
+		) {
 			return json({ error: 'Missing required order fields.' }, { status: 400 });
 		}
 
-		if (typeof body.subtotal !== 'number' || typeof body.convertedAmount !== 'number') {
-			return json({ error: 'Invalid order amount.' }, { status: 400 });
+		// ------------------------------------------------------------
+		// Re-price every item from Sanity. Prices, titles and categories
+		// sent by the browser are ignored.
+		// ------------------------------------------------------------
+		const products = await getStoreProducts();
+		const productBySlug = new Map(products.map((p) => [p.slug.current, p]));
+
+		const items: StoreOrderItemInput[] = [];
+
+		for (const raw of body.items) {
+			const product = productBySlug.get(raw?.id);
+
+			if (!product) {
+				return json(
+					{ error: 'One of the items in your cart is no longer available.' },
+					{ status: 400 }
+				);
+			}
+
+			const quantity =
+				product.category === 'magazine' ? 1 : Math.floor(Number(raw.quantity));
+
+			if (!Number.isFinite(quantity) || quantity < 1 || quantity > 20) {
+				return json({ error: 'Invalid item quantity.' }, { status: 400 });
+			}
+
+			items.push({
+				id: product.slug.current,
+				category: product.category,
+				title: product.title,
+				price: product.price,
+				quantity,
+				variant: typeof raw.variant === 'string' ? raw.variant : undefined
+			});
 		}
 
-		if (body.convertedAmount <= 0) {
+		const subtotal =
+			Math.round(items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100;
+
+		if (subtotal <= 0) {
 			return json({ error: 'Order amount must be greater than zero.' }, { status: 400 });
 		}
 
-		const hasMerchandise = body.items.some(
-			(item: { category?: string }) => item.category === 'merchandise'
-		);
+		// ------------------------------------------------------------
+		// Shipping (only needed for merchandise)
+		// ------------------------------------------------------------
+		const hasMerchandise = items.some((item) => item.category === 'merchandise');
 
-		if (hasMerchandise && !body.shipping) {
-			return json({ error: 'Shipping details are required for this order.' }, { status: 400 });
+		let shipping: { address: string; city: string; country: string; postcode: string } | null =
+			null;
+
+		if (hasMerchandise) {
+			const s = body.shipping;
+			if (!s?.address?.trim() || !s?.city?.trim() || !s?.country?.trim() || !s?.postcode?.trim()) {
+				return json({ error: 'Shipping details are required for this order.' }, { status: 400 });
+			}
+			shipping = {
+				address: s.address.trim(),
+				city: s.city.trim(),
+				country: s.country.trim(),
+				postcode: s.postcode.trim()
+			};
 		}
 
-		// NOTE: as with the booking flow, this trusts the client-computed subtotal/
-		// convertedAmount rather than re-pricing items from Sanity. Worth tightening
-		// later by re-fetching each item's price by slug before charging.
+		// ------------------------------------------------------------
+		// Currency and converted amount, worked out on the server
+		// (same source and same rounding as the page the customer saw)
+		// ------------------------------------------------------------
+		const countryCode = cookies.get('visitor_country') ?? 'GB';
+		const { currency, rate } = await getVisitorCurrency(countryCode);
 
-		const order = await createPendingOrder({
-			items: body.items,
-			subtotal: body.subtotal,
-			name: body.name.trim(),
-			email: body.email.trim().toLowerCase(),
-			shipping: body.shipping ?? null,
-			convertedAmount: body.convertedAmount,
-			currencyCode: body.currencyCode?.toLowerCase(),
-			paymentMethod: 'stripe',
-			customerId: session?.user?.id
-		});
+		const currencyCode = currency.code.toLowerCase();
+		const convertedAmount = rate !== null ? Math.round(subtotal * rate) : subtotal;
 
-		console.log('Created pending store order:', order._id);
-
-		const amountInMinorUnits = Math.round(body.convertedAmount * 100);
+		const amountInMinorUnits = Math.round(convertedAmount * 100);
 
 		if (amountInMinorUnits <= 0) {
 			return json({ error: 'Invalid Stripe payment amount.' }, { status: 400 });
 		}
 
+		// ------------------------------------------------------------
+		// Save the pending order
+		// ------------------------------------------------------------
+		const customerId = session?.user?.id;
+
+		const order = await createPendingOrder({
+			items,
+			subtotal,
+			name: body.name.trim(),
+			email: body.email.trim().toLowerCase(),
+			shipping,
+			convertedAmount,
+			countryCode,
+			currencyCode,
+			paymentMethod: 'stripe',
+			customerId
+		});
+
+		console.log('Created pending store order:', order._id);
+
+		// ------------------------------------------------------------
+		// Create the Stripe PaymentIntent
+		// ------------------------------------------------------------
+		const paymentMethodTypes = PAYPAL_CURRENCIES.includes(currencyCode)
+			? ['card', 'paypal']
+			: ['card'];
+
 		const paymentIntent = await stripe.paymentIntents.create({
 			amount: amountInMinorUnits,
-			currency: body.currencyCode.toLowerCase(),
+			currency: currencyCode,
 
 			metadata: {
-				orderId: order._id
+				orderId: order._id,
+				customerId: customerId ?? ''
 			},
 
-			payment_method_types: ['card', 'paypal'],
+			payment_method_types: paymentMethodTypes,
 
 			receipt_email: body.email.trim().toLowerCase()
 		});
 
 		console.log('Created Stripe PaymentIntent:', paymentIntent.id);
-		console.log('Order ID:', order._id);
 
 		return json({
 			clientSecret: paymentIntent.client_secret,

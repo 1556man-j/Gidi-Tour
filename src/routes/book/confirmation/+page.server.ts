@@ -1,29 +1,22 @@
 import { error } from '@sveltejs/kit';
-import { getOrderStatus } from '$lib/sanity/queries/storeOrder';
+import { getBookingStatus } from '$lib/sanity/queries/booking';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
-	const orderId = url.searchParams.get('orderId');
+	const bookingId = url.searchParams.get('bookingId');
 
-	if (!orderId) {
-		throw error(400, 'Missing order reference.');
+	if (!bookingId) {
+		throw error(400, 'Missing booking reference.');
 	}
 
-	const order = await getOrderStatus(orderId);
+	const booking = await getBookingStatus(bookingId);
 
-	if (!order) {
-		throw error(404, 'Order not found.');
+	if (!booking) {
+		throw error(404, 'Booking not found.');
 	}
 
 	return {
-		orderId,
-		order: {
-			name: order.name,
-			email: order.email,
-			items: order.items ?? [],
-			subtotal: order.subtotal,
-			paymentStatus: order.paymentStatus,
-			paymentMethod: order.paymentMethod
-		}
+		booking,
+		bookingId
 	};
 };
