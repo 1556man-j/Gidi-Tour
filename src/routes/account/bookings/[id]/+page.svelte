@@ -70,7 +70,7 @@
 				</div>
 				<div class="flex items-center gap-2 text-sm text-[#17200f]/70">
 					<CreditCard class="h-4 w-4 text-[#5C9B19]" aria-hidden="true" />
-					Paid via {storeOrder.paymentMethod}
+					{storeOrder.paymentMethod === 'free' ? 'Free download' : `Paid via ${storeOrder.paymentMethod}`}
 				</div>
 			</div>
 

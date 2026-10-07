@@ -50,11 +50,35 @@ export default defineType({
 			validation: (Rule) => Rule.required()
 		}),
 
+		// ---------- FREE OR PAID (magazines only) ----------
+		defineField({
+			name: 'isFree',
+			title: 'Free magazine',
+			description:
+				'Turn on to give this issue away for free. Buyers only enter their name and email and get the download link. Turn off to sell it at the price below.',
+			type: 'boolean',
+			initialValue: false,
+			hidden: ({ document }) => document?.category !== 'magazine'
+		}),
+
 		defineField({
 			name: 'price',
 			title: 'Price (GBP)',
 			type: 'number',
-			validation: (Rule) => Rule.required().positive()
+			hidden: ({ document }) => Boolean((document as { isFree?: boolean })?.isFree),
+			validation: (Rule) =>
+				Rule.custom((value, context) => {
+					const doc = context.document as { isFree?: boolean; category?: string } | undefined;
+
+					// Free magazines don't need a price.
+					if (doc?.category === 'magazine' && doc?.isFree) return true;
+
+					if (value === undefined || value === null) {
+						return 'A price is required unless this magazine is free.';
+					}
+					if (value <= 0) return 'Price must be greater than zero.';
+					return true;
+				})
 		}),
 
 		defineField({
@@ -136,12 +160,18 @@ export default defineType({
 		select: {
 			title: 'title',
 			category: 'category',
+			isFree: 'isFree',
 			media: 'image'
 		},
-		prepare({ title, category, media }) {
+		prepare({ title, category, isFree, media }) {
 			return {
 				title,
-				subtitle: category === 'magazine' ? 'Magazine issue' : 'Merchandise',
+				subtitle:
+					category === 'magazine'
+						? isFree
+							? 'Magazine issue · Free'
+							: 'Magazine issue · Paid'
+						: 'Merchandise',
 				media
 			};
 		}

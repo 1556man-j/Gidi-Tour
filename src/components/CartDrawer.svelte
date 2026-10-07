@@ -7,6 +7,7 @@
 
 	// Same currency type that Price expects, so the two can never drift apart.
 	type CurrencyInfo = ComponentProps<typeof Price>['currency'];
+
 	interface Props {
 		currency: CurrencyInfo;
 		rate: number | null;
@@ -36,7 +37,7 @@
 
 	let email = $state('');
 	let name = $state('');
-	// Shipping — only required if the cart has merchandise
+	// Shipping: only required if the cart has merchandise
 	let shippingAddress = $state('');
 	let shippingCity = $state('');
 	let shippingCountry = $state('');
@@ -45,8 +46,12 @@
 	let error = $state('');
 	let loading = $state(false);
 	let submitted = $state(false);
+	let claimedFree = $state(false);
 
 	const emailValid = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()));
+
+	// Everything in the cart is free, so there is nothing to pay for.
+	const allFree = $derived(storeCart.items.length > 0 && storeCart.subtotal === 0);
 
 	const detailsValid = $derived(() => {
 		if (!name.trim() || !emailValid) return false;
@@ -121,6 +126,46 @@
 	}
 
 	// =========================================================
+	// FREE ORDER (no payment)
+	// =========================================================
+
+	async function claimFree(): Promise<void> {
+		error = '';
+		if (!detailsValid()) {
+			error = 'Please enter a valid name and email.';
+			return;
+		}
+
+		loading = true;
+
+		try {
+			const res = await fetch('/api/store/checkout/free', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					name: name.trim(),
+					email: email.trim(),
+					items: storeCart.items.map((item) => ({ id: item.id }))
+				})
+			});
+			const result = await res.json();
+
+			if (!res.ok) {
+				error = result.error ?? 'Could not complete your order.';
+				return;
+			}
+
+			claimedFree = true;
+			submitted = true;
+			storeCart.clear();
+		} catch {
+			error = 'Network error. Please try again.';
+		} finally {
+			loading = false;
+		}
+	}
+
+	// =========================================================
 	// PAYMENT
 	// =========================================================
 
@@ -153,6 +198,12 @@
 
 	async function startPayment(): Promise<void> {
 		error = '';
+
+		if (allFree) {
+			await claimFree();
+			return;
+		}
+
 		if (!detailsValid()) {
 			error = 'Please complete your details first.';
 			checkoutStep = 'details';
@@ -215,6 +266,7 @@
 		closeCart();
 		setTimeout(() => {
 			submitted = false;
+			claimedFree = false;
 			checkingOut = false;
 			checkoutStep = 'details';
 			stripeClientSecret = null;
@@ -238,7 +290,11 @@
 	>
 		<ShoppingBag class="h-4 w-4" aria-hidden="true" />
 		{storeCart.count} item{storeCart.count > 1 ? 's' : ''}
-		<Price amountGBP={storeCart.subtotal} {currency} {rate} size="sm" />
+		{#if allFree}
+			Free
+		{:else}
+			<Price amountGBP={storeCart.subtotal} {currency} {rate} size="sm" />
+		{/if}
 	</button>
 {/if}
 
@@ -284,11 +340,18 @@
 							<Check class="h-7 w-7 text-[#5C9B19]" aria-hidden="true" />
 						</div>
 						<p class="text-xl font-medium text-[#17200f]">Thanks{name ? `, ${name}` : ''}!</p>
-						<p class="mt-2 max-w-xs text-sm leading-relaxed text-[#17200f]/60">
-							A receipt is on its way to {email}. Your permanent magazine downloads (if any) are
-							available from the link in that email, and any merchandise will ship with tracking
-							details sent separately.
-						</p>
+						{#if claimedFree}
+							<p class="mt-2 max-w-xs text-sm leading-relaxed text-[#17200f]/60">
+								Your free download link is on its way to {email}. It's yours to keep, and you can
+								open it again any time from that email.
+							</p>
+						{:else}
+							<p class="mt-2 max-w-xs text-sm leading-relaxed text-[#17200f]/60">
+								A receipt is on its way to {email}. Your permanent magazine downloads (if any) are
+								available from the link in that email, and any merchandise will ship with tracking
+								details sent separately.
+							</p>
+						{/if}
 						{#if customer}
 							<a
 								href="/account/bookings"
@@ -317,7 +380,11 @@
 											<p class="text-xs text-[#17200f]/50">{item.variant}</p>
 										{/if}
 										<p class="text-xs text-[#17200f]/50">
-											<Price amountGBP={item.price} {currency} {rate} size="sm" />
+											{#if item.price === 0}
+												<span class="font-bold text-[#5C9B19]">Free</span>
+											{:else}
+												<Price amountGBP={item.price} {currency} {rate} size="sm" />
+											{/if}
 										</p>
 									</div>
 
@@ -498,7 +565,11 @@
 						<div class="mb-4 flex items-center justify-between">
 							<span class="text-sm text-[#17200f]/60">Subtotal</span>
 							<span class="text-lg font-bold text-[#5C9B19]">
-								<Price amountGBP={storeCart.subtotal} {currency} {rate} size="sm" />
+								{#if allFree}
+									Free
+								{:else}
+									<Price amountGBP={storeCart.subtotal} {currency} {rate} size="sm" />
+								{/if}
 							</span>
 						</div>
 						<button
@@ -507,7 +578,7 @@
 							onclick={startCheckout}
 							class="flex w-full items-center justify-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#4c8316] disabled:cursor-not-allowed disabled:opacity-40"
 						>
-							Checkout
+							{allFree ? 'Get my free copy' : 'Checkout'}
 							<ArrowRight class="h-4 w-4" aria-hidden="true" />
 						</button>
 					{:else if checkoutStep === 'details'}
@@ -520,14 +591,25 @@
 								<ArrowLeft class="h-4 w-4" aria-hidden="true" />
 								Back
 							</button>
-							<button
-								type="button"
-								onclick={goToPayment}
-								class="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#4c8316]"
-							>
-								Continue to payment
-								<ArrowRight class="h-4 w-4" aria-hidden="true" />
-							</button>
+							{#if allFree}
+								<button
+									type="button"
+									onclick={claimFree}
+									disabled={loading}
+									class="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#4c8316] disabled:cursor-not-allowed disabled:opacity-40"
+								>
+									{loading ? 'Sending…' : 'Get my free copy'}
+								</button>
+							{:else}
+								<button
+									type="button"
+									onclick={goToPayment}
+									class="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#4c8316]"
+								>
+									Continue to payment
+									<ArrowRight class="h-4 w-4" aria-hidden="true" />
+								</button>
+							{/if}
 						</div>
 					{:else}
 						<div class="flex items-center justify-between gap-3">

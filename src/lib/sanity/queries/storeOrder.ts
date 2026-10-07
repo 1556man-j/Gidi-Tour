@@ -28,7 +28,7 @@ export interface StoreOrderInput {
 	countryCode?: string;
 	currencyCode?: string;
 
-	paymentMethod: 'stripe' | 'dlocal';
+		paymentMethod: 'stripe' | 'dlocal' | 'free';
 }
 
 export async function createPendingOrder(input: StoreOrderInput) {

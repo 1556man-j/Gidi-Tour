@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { storeCart } from '$lib/stores/storeCart.svelte';
 	import { urlFor } from '$lib/sanity/client';
+	import { isFreeProduct, effectivePrice } from '$lib/storePricing';
 	import SeoHead from '../../components/SeoHead.svelte';
 	import Price from '../../components/Price.svelte';
 	import type { PageData } from './$types';
@@ -27,8 +28,6 @@
 
 	let activeCategory = $state<'all' | 'magazine' | 'merchandise'>('all');
 
-	
-
 	const filtered = $derived(
 		activeCategory === 'all' ? products : products.filter((p) => p.category === activeCategory)
 	);
@@ -47,14 +46,14 @@
 				id: product.slug.current,
 				category: product.category,
 				title: product.title,
-				price: product.price,
+				// Free magazines go into the cart at £0
+				price: effectivePrice(product),
 				image: product.image ? urlFor(product.image).width(200).height(200).url() : '',
 				variant
 			},
 			1
 		);
 		// Pop the shared drawer open so they see what they just added.
-		// See wiring notes: this reaches the CartDrawer instance mounted in +layout.svelte.
 		window.dispatchEvent(new CustomEvent('gt-cart-open'));
 	}
 
@@ -152,6 +151,7 @@
 		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each visibleProducts as product (product.slug.current)}
 				{@const sold = outOfStock(product)}
+				{@const free = isFreeProduct(product)}
 				<div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
 					<div class="relative aspect-4/3 overflow-hidden bg-black/5">
 						{#if product.image}
@@ -167,6 +167,13 @@
 						>
 							{product.category === 'magazine' ? 'Digital issue' : 'Merchandise'}
 						</span>
+						{#if free}
+							<span
+								class="absolute bottom-4 left-4 rounded-full bg-[#5C9B19] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow"
+							>
+								Free
+							</span>
+						{/if}
 						{#if sold}
 							<span
 								class="absolute right-4 top-4 rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white"
@@ -188,14 +195,22 @@
 						</p>
 
 						<div class="mt-4 flex items-end justify-between border-t border-black/5 pt-4">
-							<Price amountGBP={product.price} {currency} {rate} size="md" />
+							{#if free}
+								<span class="text-xl font-bold text-[#5C9B19]">Free</span>
+							{:else}
+								<Price amountGBP={product.price} {currency} {rate} size="md" />
+							{/if}
 							<button
 								type="button"
 								disabled={sold}
 								onclick={() => addToCart(product)}
 								class="inline-flex items-center gap-1.5 rounded-full bg-[#5C9B19] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#4c8316] disabled:cursor-not-allowed disabled:opacity-40"
 							>
-								{storeCart.has(product.slug.current) ? 'Add another' : 'Add to cart'}
+								{#if storeCart.has(product.slug.current)}
+									{free ? 'In your cart' : 'Add another'}
+								{:else}
+									{free ? 'Get for free' : 'Add to cart'}
+								{/if}
 							</button>
 						</div>
 					</div>

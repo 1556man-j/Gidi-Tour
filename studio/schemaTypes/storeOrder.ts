@@ -59,7 +59,7 @@ export default defineType({
 			name: 'paymentMethod',
 			title: 'Payment method',
 			type: 'string',
-			options: { list: ['stripe', 'dlocal'] }
+			options: { list: ['stripe', 'dlocal', 'free'] }
 		}),
 		defineField({
 			name: 'paymentStatus',

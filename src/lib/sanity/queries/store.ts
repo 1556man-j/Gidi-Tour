@@ -15,6 +15,7 @@ export interface StoreProduct {
 	price: number;
 	popular?: boolean;
 	// magazine
+	isFree?: boolean;
 	issueNumber?: string;
 	publishDate?: string;
 	digitalFile?: { asset: { _ref: string } };
@@ -34,6 +35,7 @@ const STORE_PRODUCTS_QUERY = /* groq */ `
 		description,
 		price,
 		popular,
+		isFree,
 		issueNumber,
 		publishDate,
 		digitalFile,

@@ -1,86 +1,62 @@
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
-  name: 'storeOrder',
-  title: 'Store Order',
+  name: 'customer',
+  title: 'Customer',
   type: 'document',
   fields: [
+    defineField({name: 'name', title: 'Name', type: 'string'}),
+    defineField({name: 'email', title: 'Email', type: 'string', validation: (r) => r.required()}),
+    defineField({name: 'passwordHash', title: 'Password hash', type: 'string'}),
     defineField({
-      name: 'items',
-      title: 'Items',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          name: 'orderItem',
-          fields: [
-            {name: 'id', title: 'Product slug', type: 'string'},
-            {
-              name: 'category',
-              title: 'Category',
-              type: 'string',
-              options: {list: ['magazine', 'merchandise']},
-            },
-            {name: 'title', title: 'Title', type: 'string'},
-            {name: 'price', title: 'Price (GBP)', type: 'number'},
-            {name: 'quantity', title: 'Quantity', type: 'number'},
-            {name: 'variant', title: 'Variant', type: 'string'},
-          ],
-        },
-      ],
+      name: 'passwordResetToken',
+      title: 'Password Reset Token',
+      type: 'string',
     }),
 
-    defineField({name: 'subtotal', title: 'Subtotal (GBP)', type: 'number'}),
-
-    defineField({name: 'name', title: 'Customer name', type: 'string'}),
-    defineField({name: 'email', title: 'Customer email', type: 'string'}),
-    defineField({name: 'customerId', title: 'Customer account ID', type: 'string'}),
-
     defineField({
-      name: 'shipping',
-      title: 'Shipping address',
+      name: 'passwordResetExpires',
+      title: 'Password Reset Expires',
+      type: 'datetime',
+    }),
+    defineField({name: 'avatar', title: 'Profile photo', type: 'image'}),
+    defineField({name: 'dateOfBirth', title: 'Date of birth', type: 'date'}),
+    defineField({
+      name: 'address',
+      title: 'Address',
       type: 'object',
       fields: [
-        {name: 'address', type: 'string'},
-        {name: 'city', type: 'string'},
-        {name: 'country', type: 'string'},
-        {name: 'postcode', type: 'string'},
+        {name: 'line1', title: 'Address line 1', type: 'string'},
+        {name: 'line2', title: 'Address line 2', type: 'string'},
+        {name: 'city', title: 'City', type: 'string'},
+        {name: 'region', title: 'State / Region', type: 'string'},
+        {name: 'postalCode', title: 'Postal code', type: 'string'},
+        {name: 'country', title: 'Country', type: 'string'},
       ],
     }),
-
-    defineField({name: 'amountCharged', title: 'Amount charged (minor units)', type: 'number'}),
-    defineField({name: 'convertedAmount', title: 'Converted amount', type: 'number'}),
-    defineField({name: 'currency', title: 'Currency (charged)', type: 'string'}),
-    defineField({name: 'currencyCode', title: 'Currency code', type: 'string'}),
-    defineField({name: 'countryCode', title: 'Country code', type: 'string'}),
-
     defineField({
-      name: 'paymentMethod',
-      title: 'Payment method',
-      type: 'string',
-      options: {list: ['stripe', 'dlocal']},
+      name: 'emergencyContact',
+      title: 'Emergency contact',
+      type: 'object',
+      fields: [
+        {name: 'name', title: 'Name', type: 'string'},
+        {name: 'relationship', title: 'Relationship', type: 'string'},
+        {name: 'phone', title: 'Phone (with country code)', type: 'string'},
+      ],
     }),
+    defineField({name: 'travelNotes', title: 'Dietary / accessibility notes', type: 'text'}),
     defineField({
-      name: 'paymentStatus',
-      title: 'Payment status',
+      name: 'provider',
+      title: 'Sign-up method',
       type: 'string',
-      options: {list: ['pending', 'paid']},
-      initialValue: 'pending',
+      options: {list: ['credentials', 'google']},
     }),
-
-    defineField({name: 'confirmationEmailSent', title: 'Confirmation email sent', type: 'boolean'}),
-    defineField({name: 'confirmationEmailSentAt', title: 'Sent at', type: 'datetime'}),
-
-    defineField({name: 'stripePaymentIntentId', title: 'Stripe PaymentIntent ID', type: 'string'}),
-    defineField({name: 'dlocalPaymentId', title: 'dLocal payment ID', type: 'string'}),
-
-    defineField({name: 'createdAt', title: 'Created at', type: 'datetime'}),
+    defineField({name: 'createdAt', title: 'Joined', type: 'datetime'}),
+    defineField({name: 'nationality', title: 'Nationality (country)', type: 'string'}),
+    defineField({name: 'phoneDialCode', title: 'Phone dial code', type: 'string'}),
+    defineField({name: 'phoneNumber', title: 'Phone number (local part)', type: 'string'}),
   ],
-
   preview: {
-    select: {title: 'name', subtitle: 'email', status: 'paymentStatus'},
-    prepare({title, subtitle, status}) {
-      return {title: `${title} (${status})`, subtitle}
-    },
+    select: {title: 'name', subtitle: 'email'},
   },
 })

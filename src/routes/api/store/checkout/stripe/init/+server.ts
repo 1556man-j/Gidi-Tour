@@ -4,6 +4,7 @@ import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/querie
 import { getStoreProducts } from '$lib/sanity/queries/store';
 import { getVisitorCurrency } from '$lib/server/geoCurrency';
 import type { RequestHandler } from './$types';
+import { effectivePrice } from '$lib/storePricing';
 
 // PayPal on Stripe only works for some currencies. For any other currency
 // the customer still gets card, Apple Pay and Google Pay.
@@ -56,8 +57,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 				);
 			}
 
-			const quantity =
-				product.category === 'magazine' ? 1 : Math.floor(Number(raw.quantity));
+			const quantity = product.category === 'magazine' ? 1 : Math.floor(Number(raw.quantity));
 
 			if (!Number.isFinite(quantity) || quantity < 1 || quantity > 20) {
 				return json({ error: 'Invalid item quantity.' }, { status: 400 });
@@ -67,7 +67,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 				id: product.slug.current,
 				category: product.category,
 				title: product.title,
-				price: product.price,
+				price: effectivePrice(product),
 				quantity,
 				variant: typeof raw.variant === 'string' ? raw.variant : undefined
 			});
