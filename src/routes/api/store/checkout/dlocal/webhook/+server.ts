@@ -1,15 +1,37 @@
 import { json } from '@sveltejs/kit';
-import { markOrderPaid, getOrderStatus, markOrderEmailSent, getMagazineDownloadFiles } from '$lib/sanity/queries/storeOrder';
+import {
+	markOrderPaid,
+	getOrderStatus,
+	markOrderEmailSent,
+	getMagazineDownloadFiles
+} from '$lib/sanity/queries/storeOrder';
 import { sendStoreOrderConfirmationEmails } from '$lib/server/storeEmail';
 import { sanityFileUrl } from '$lib/sanity/fileUrl';
+import { fetchDlocalPayment } from '$lib/server/dlocalVerify';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const payload = await request.json();
+	let payload: { id?: string };
 
-	// dLocal sends payment status updates here — 'PAID' means success
-	if (payload.status === 'PAID') {
-		const orderId = payload.order_id;
+	try {
+		payload = await request.json();
+	} catch {
+		return json({ error: 'Invalid request body.' }, { status: 400 });
+	}
+
+	if (!payload.id) {
+		return json({ error: 'Missing payment id.' }, { status: 400 });
+	}
+
+	// Only act on what dLocal itself confirms, never on the request body alone.
+	const payment = await fetchDlocalPayment(payload.id);
+
+	if (!payment) {
+		return json({ error: 'Could not verify payment with dLocal.' }, { status: 502 });
+	}
+
+	if (payment.status === 'PAID') {
+		const orderId = payment.order_id;
 
 		const existingOrder = await getOrderStatus(orderId);
 
@@ -20,9 +42,9 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		if (existingOrder.paymentStatus !== 'paid') {
 			await markOrderPaid(orderId, {
-				amountCharged: Math.round(payload.amount * 100),
-				currency: payload.currency,
-				dlocalPaymentId: payload.id
+				amountCharged: Math.round(payment.amount * 100),
+				currency: payment.currency,
+				dlocalPaymentId: payment.id
 			});
 		}
 

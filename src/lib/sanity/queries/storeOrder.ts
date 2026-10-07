@@ -95,7 +95,7 @@ export async function markOrderEmailSent(orderId: string) {
 }
 
 export async function getOrderStatus(orderId: string) {
-	return sanityClient.fetch(
+	return sanityWriteClient.fetch(
 		`*[_type == "storeOrder" && _id == $orderId][0]{
 			_id,
 			name,

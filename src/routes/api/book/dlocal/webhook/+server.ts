@@ -1,13 +1,35 @@
 import { json } from '@sveltejs/kit';
-import { markBookingPaid, getBookingStatus, markBookingEmailSent } from '$lib/sanity/queries/booking';
+import {
+	markBookingPaid,
+	getBookingStatus,
+	markBookingEmailSent
+} from '$lib/sanity/queries/booking';
 import { sendBookingConfirmationEmails } from '$lib/server/bookingEmail';
+import { fetchDlocalPayment } from '$lib/server/dlocalVerify';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const payload = await request.json();
+	let payload: { id?: string; status?: string; order_id?: string };
 
-	if (payload.status === 'PAID') {
-		const bookingId = payload.order_id;
+	try {
+		payload = await request.json();
+	} catch {
+		return json({ error: 'Invalid request body.' }, { status: 400 });
+	}
+
+	if (!payload.id) {
+		return json({ error: 'Missing payment id.' }, { status: 400 });
+	}
+
+	// Only act on what dLocal itself confirms, never on the request body alone.
+	const payment = await fetchDlocalPayment(payload.id);
+
+	if (!payment) {
+		return json({ error: 'Could not verify payment with dLocal.' }, { status: 502 });
+	}
+
+	if (payment.status === 'PAID') {
+		const bookingId = payment.order_id;
 
 		try {
 			const existingBooking = await getBookingStatus(bookingId);
@@ -19,9 +41,9 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			if (existingBooking.paymentStatus !== 'paid') {
 				await markBookingPaid(bookingId, {
-					amountCharged: Math.round(payload.amount * 100),
-					currency: payload.currency,
-					dlocalPaymentId: payload.id
+					amountCharged: Math.round(payment.amount * 100),
+					currency: payment.currency,
+					dlocalPaymentId: payment.id
 				});
 			}
 
@@ -56,10 +78,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		} catch (error) {
 			console.error(`Failed processing dLocal payment for booking ${bookingId}:`, error);
 
-			return json(
-				{ error: 'Webhook processing failed.' },
-				{ status: 500 }
-			);
+			return json({ error: 'Webhook processing failed.' }, { status: 500 });
 		}
 	}
 

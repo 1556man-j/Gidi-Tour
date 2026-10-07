@@ -30,6 +30,7 @@ export interface BookingInput {
 	flexibleDates?: string;
 	travelers?: number;
 	addOns?: string[];
+	customAddOn?: string;
 
 	name: string;
 	email: string;
@@ -76,6 +77,7 @@ export async function createPendingBooking(input: BookingInput) {
 		flexibleDates: input.flexibleDates,
 		travelers: input.travelers,
 		addOns: input.addOns,
+		customAddOn: input.customAddOn,
 
 		name: input.name,
 		email: input.email,
@@ -129,8 +131,10 @@ export async function markBookingEmailSent(bookingId: string) {
 		.commit();
 }
 
+// Uses the write client (no CDN) so the confirmation page and the webhook
+// always see the latest payment status, never a cached "pending".
 export async function getBookingStatus(bookingId: string) {
-	return sanityClient.fetch(
+	return sanityWriteClient.fetch(
 		`*[_type == "booking" && _id == $bookingId][0]{
 			_id,
 			name,
@@ -158,6 +162,7 @@ export async function getBookingStatus(bookingId: string) {
 			flexibleDates,
 			travelers,
 			addOns,
+			customAddOn,
 
 			phone,
 			travelingFrom,

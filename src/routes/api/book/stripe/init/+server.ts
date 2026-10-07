@@ -1,57 +1,30 @@
 import { json } from '@sveltejs/kit';
 import { stripe } from '$lib/server/stripeClient';
 import { createPendingBooking } from '$lib/sanity/queries/booking';
+import {
+	buildVerifiedBooking,
+	BookingValidationError,
+	paymentMethodTypesFor
+} from '$lib/server/bookingPricing';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	try {
 		const body = await request.json();
 
 		const session = await locals.auth();
 		const customerId = session?.user?.id;
 
-		if (
-			!body.name ||
-			!body.email ||
-			!body.amountGBP ||
-			!body.convertedAmount ||
-			!body.currencyCode
-		) {
-			return json({ error: 'Missing required booking fields.' }, { status: 400 });
-		}
+		const countryCode = cookies.get('visitor_country') ?? 'GB';
+		const verified = await buildVerifiedBooking(body, countryCode);
 
-		if (typeof body.amountGBP !== 'number' || typeof body.convertedAmount !== 'number') {
-			return json({ error: 'Invalid booking amount.' }, { status: 400 });
-		}
+		const currencyCode = verified.currencyCode.toLowerCase();
 
-		if (body.convertedAmount <= 0) {
-			return json({ error: 'Booking amount must be greater than zero.' }, { status: 400 });
-		}
-
-		// Create the booking in Sanity as pending
+		// Create the booking in Sanity as pending, using the verified values
 		const booking = await createPendingBooking({
+			...verified,
+			currencyCode,
 			customerId,
-
-			tours: body.tours ?? [],
-			destination: body.destination,
-			tripType: body.tripType,
-			startDate: body.startDate,
-			endDate: body.endDate,
-			flexibleDates: body.flexibleDates,
-			travelers: body.travelers,
-			addOns: body.addOns,
-
-			name: body.name.trim(),
-			email: body.email.trim().toLowerCase(),
-			phone: body.phone,
-			travelingFrom: body.travelingFrom,
-			notes: body.notes,
-
-			amountGBP: body.amountGBP,
-			convertedAmount: body.convertedAmount,
-
-			currencyCode: body.currencyCode.toLowerCase(),
-
 			paymentMethod: 'stripe'
 		});
 
@@ -59,25 +32,24 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		console.log('Customer ID:', customerId);
 
 		// Stripe expects the smallest currency unit.
-		const amountInMinorUnits = Math.round(body.convertedAmount * 100);
+		const amountInMinorUnits = Math.round(verified.convertedAmount * 100);
 
 		if (amountInMinorUnits <= 0) {
 			return json({ error: 'Invalid Stripe payment amount.' }, { status: 400 });
 		}
 
-		// Create Stripe PaymentIntent
 		const paymentIntent = await stripe.paymentIntents.create({
 			amount: amountInMinorUnits,
-			currency: body.currencyCode.toLowerCase(),
+			currency: currencyCode,
 
 			metadata: {
 				bookingId: booking._id,
 				customerId: customerId ?? ''
 			},
 
-			payment_method_types: ['card', 'paypal'],
+			payment_method_types: paymentMethodTypesFor(currencyCode),
 
-			receipt_email: body.email.trim().toLowerCase()
+			receipt_email: verified.email
 		});
 
 		console.log('Created Stripe PaymentIntent:', paymentIntent.id);
@@ -89,13 +61,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			paymentIntentId: paymentIntent.id
 		});
 	} catch (error) {
+		if (error instanceof BookingValidationError) {
+			return json({ error: error.message }, { status: 400 });
+		}
+
 		console.error('Stripe booking initialization failed:', error);
 
-		return json(
-			{
-				error: 'Could not start your payment. Please try again.'
-			},
-			{ status: 500 }
-		);
+		return json({ error: 'Could not start your payment. Please try again.' }, { status: 500 });
 	}
 };
