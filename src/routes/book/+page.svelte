@@ -162,9 +162,7 @@
 
 	let name = $state(customer?.name ?? data.session?.user?.name ?? '');
 	let email = $state(customer?.email ?? data.session?.user?.email ?? '');
-	let phone = $state(
-		[customer?.phoneDialCode, customer?.phoneNumber].filter(Boolean).join(' ')
-	);
+	let phone = $state([customer?.phoneDialCode, customer?.phoneNumber].filter(Boolean).join(' '));
 	let travelingFrom = $state(
 		[customer?.address?.city, customer?.address?.country].filter(Boolean).join(', ')
 	);
@@ -428,6 +426,8 @@
 	];
 
 	let processVisible = $state<boolean[]>(process.map(() => false));
+
+	let visibleToursCount = $state(10);
 
 	// =========================================================
 	// SCROLL ANIMATIONS
@@ -694,13 +694,15 @@
 									<p class="text-sm font-semibold text-[#17200f]">
 										Available tours in {destination}
 									</p>
+
 									<p class="mt-1 text-xs text-[#17200f]/50">
 										Select the tours you like, or skip this and we'll shape a custom trip for you.
 									</p>
 
 									<div class="mt-4 flex flex-col gap-3">
-										{#each toursInCountry as tour (tour.slug.current)}
+										{#each toursInCountry.slice(0, visibleToursCount) as tour (tour.slug.current)}
 											{@const isPicked = tourStore.has(tour.slug.current)}
+
 											<div
 												class="flex items-center gap-3 rounded-2xl border p-3 transition {isPicked
 													? 'border-[#5C9B19] bg-[#5C9B19]/5'
@@ -716,25 +718,29 @@
 												{:else}
 													<div class="h-16 w-16 shrink-0 rounded-xl bg-black/5"></div>
 												{/if}
+
 												<div class="min-w-0 flex-1">
 													<p class="truncate text-sm font-semibold text-[#17200f]">
 														{tour.title}
 													</p>
+
 													<p class="mt-0.5 text-xs text-[#17200f]/50">
-														{#if tour.duration}{tour.duration} ·
-														{/if}From
+														{#if tour.duration}
+															{tour.duration} ·
+														{/if}
+														From
 														<Price amountGBP={tour.price} {currency} {rate} size="sm" /> per person
 													</p>
+
 													<a
 														href={`/tours/${tour.slug.current}`}
-														// target="_blank"
-														// rel="noopener noreferrer"
 														class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#5C9B19] hover:underline"
 													>
 														View details
 														<ExternalLink class="h-3 w-3" aria-hidden="true" />
 													</a>
 												</div>
+
 												<button
 													type="button"
 													onclick={() => toggleTourInStore(tour)}
@@ -753,6 +759,36 @@
 											</div>
 										{/each}
 									</div>
+
+									<!-- Show more / Show less -->
+									{#if toursInCountry.length > 10}
+										<div class="mt-5 flex justify-center">
+											{#if visibleToursCount < toursInCountry.length}
+												<button
+													type="button"
+													onclick={() => {
+														visibleToursCount = Math.min(
+															visibleToursCount + 5,
+															toursInCountry.length
+														);
+													}}
+													class="rounded-full border border-[#5C9B19] px-5 py-2.5 text-sm font-semibold text-[#5C9B19] transition hover:bg-[#5C9B19] hover:text-white"
+												>
+													Show more
+												</button>
+											{:else}
+												<button
+													type="button"
+													onclick={() => {
+														visibleToursCount = 10;
+													}}
+													class="rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-[#17200f]/70 transition hover:border-[#5C9B19] hover:text-[#5C9B19]"
+												>
+													Show less
+												</button>
+											{/if}
+										</div>
+									{/if}
 								</div>
 							{/if}
 

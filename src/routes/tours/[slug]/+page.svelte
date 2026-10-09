@@ -19,14 +19,17 @@
 	import SeoHead from '../../../components/SeoHead.svelte';
 	import { tourStore, type TourListItem } from '$lib/stores/tourStore.svelte';
 	import { urlFor } from '$lib/sanity/client';
-	import type { PageData } from './$types';
 	import Price from '../../../components/Price.svelte';
+	import TourReviews from '../../../components/TourReviews.svelte';
+	import type { PageData, ActionData } from './$types';
 
 	interface Props {
 		data: PageData;
+		form: ActionData
 	}
 
-	let { data }: Props = $props();
+	let { data, form }: Props = $props();
+	const reviews = $derived(data.reviews ?? []);
 
 	const tour = $derived(data.tour);
 	const related = $derived(data.related ?? []);
@@ -246,6 +249,7 @@
 					are confirmed in writing before you pay anything.
 				</p>
 			</div>
+			<TourReviews {reviews} {form} />
 		</div>
 
 		<!-- RIGHT: sticky booking panel -->

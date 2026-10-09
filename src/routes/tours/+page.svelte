@@ -403,7 +403,7 @@
 	</div>
 </section>
 
-<TestimonialBand />
+<TestimonialBand tourReviews={data.tourReviews} />
 
 <Article articles={data.sanityArticles ?? []} />
 

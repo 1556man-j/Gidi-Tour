@@ -26,7 +26,7 @@
 		heroHeadline = 'Travel that feels like',
 		heroHeadlineAccent = 'coming home.',
 		heroSubcopy = 'Go beyond the guidebook. We plan trips around the culture, food and people that make a place unforgettable.',
-		heroSocialProof = '12,000+ travelers explored with Gidi'
+		heroSocialProof = '3500+ travelers explored with Gidi'
 	}: Props = $props();
 
 	// Falls back to the site-wide default (from +layout.server.ts / siteSettings)
@@ -127,13 +127,13 @@
 >
 	<!-- Glow -->
 	<div
-		class="pointer-events-none absolute inset-x-0 -top-[10%] h-[60%]"
+		class="pointer-events-none absolute inset-x-0 top-[-10%] h-[60%]"
 		style="background: radial-gradient(60% 60% at 30% 0%, rgba(92,155,25,0.12), transparent 70%);"
 		aria-hidden="true"
 	></div>
 
 	<div
-		class="relative mx-auto grid max-w-[1440px] grid-cols-2 items-center gap-10 px-5 max-md:grid-cols-1 max-md:gap-12 sm:px-8 lg:px-12"
+		class="relative mx-auto grid max-w-360 grid-cols-2 items-center gap-10 px-5 max-md:grid-cols-1 max-md:gap-12 sm:px-8 lg:px-12"
 	>
 		<!-- LEFT: content -->
 		<div class="max-md:text-center">
@@ -144,19 +144,19 @@
 			</span>
 
 			<h1
-				class="font-bold mb-3 text-5xl leading-[.95] tracking-[-.03em] font-bold text-[#17200f] sm:text-6xl"
+				class="font-bold mb-3 text-5xl leading-[.95] tracking-[-.03em] text-[#17200f] sm:text-6xl"
 			>
 				<span class="block">{heroHeadline}</span>
 				<span class="block text-[#F98315]">{heroHeadlineAccent}</span>
 				<div class="flex w-full items-center justify-center md:justify-start">
 					<div
-						class="relative -top-1 mb-3 h-1.5 w-[70%] rounded-full bg-gradient-to-r from-[#F98315] to-[#5C9B19] md:w-100"
+						class="relative -top-1 mb-3 h-1.5 w-[70%] rounded-full bg-linear-to-r from-[#F98315] to-[#5C9B19] md:w-100"
 						aria-hidden="true"
 					></div>
 				</div>
 			</h1>
 
-			<p class="mb-6 max-w-[440px] text-[18px] leading-[1.55] text-[#17200f]/70 max-md:mx-auto">
+			<p class="mb-6 max-w-110 text-[18px] leading-[1.55] text-[#17200f]/70 max-md:mx-auto">
 				{heroSubcopy}
 			</p>
 
@@ -184,27 +184,27 @@
 				>
 					<div class="flex items-center" aria-hidden="true">
 						<div
-							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white first:ml-0"
+							class="-ml-2.5 h-8.5 w-8.5 shrink-0 overflow-hidden rounded-full border-2 border-white first:ml-0"
 						>
 							<img src="/images/people/avatar-1.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
-							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
+							class="-ml-2.5 h-8.5 w-8.5 shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
 							<img src="/images/people/avatar-2.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
-							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
+							class="-ml-2.5 h-8.5 w-8.5 shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
 							<img src="/images/people/avatar-3.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
-							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
+							class="-ml-2.5 h-8.5 w-8.5 shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
 							<img src="/images/people/avatar-4.webp" alt="" class="h-full w-full object-cover" />
 						</div>
 						<div
-							class="-ml-2.5 h-[34px] w-[34px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white"
+							class="-ml-2.5 h-8.5 w-8.5 shrink-0 overflow-hidden rounded-full border-2 border-white"
 						>
 							<img src="/images/people/avatar-5.webp" alt="" class="h-full w-full object-cover" />
 						</div>
@@ -270,7 +270,7 @@
 					class="absolute left-[2%] top-[25%] flex items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-[0_16px_40px_-12px_rgba(23,32,15,0.25)] max-md:gap-2 max-md:px-3 max-md:py-2.5"
 				>
 					<span
-						class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-[10px] bg-[#5C9B19]/12 text-[#5C9B19] max-md:h-[30px] max-md:w-[30px]"
+						class="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#5C9B19]/12 text-[#5C9B19] max-md:h-[30px] max-md:w-[30px]"
 					>
 						<MapPin class="h-5 w-5" aria-hidden="true" />
 					</span>
@@ -285,7 +285,7 @@
 					class="absolute right-0 top-[44.6%] flex items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-[0_16px_40px_-12px_rgba(23,32,15,0.25)] max-md:gap-2 max-md:px-3 max-md:py-2.5"
 				>
 					<span
-						class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-[10px] bg-[#F98315]/14 text-[#F98315] max-md:h-[30px] max-md:w-[30px]"
+						class="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#F98315]/14 text-[#F98315] max-md:h-[30px] max-md:w-[30px]"
 					>
 						<Star class="h-5 w-5 fill-current" aria-hidden="true" />
 					</span>
@@ -300,7 +300,7 @@
 					class="absolute left-[8%] top-[59%] flex items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-[0_16px_40px_-12px_rgba(23,32,15,0.25)] max-md:gap-2 max-md:px-3 max-md:py-2.5"
 				>
 					<span
-						class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-[10px] bg-[#5C9B19]/12 text-[#5C9B19] max-md:h-[30px] max-md:w-[30px]"
+						class="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#5C9B19]/12 text-[#5C9B19] max-md:h-[30px] max-md:w-[30px]"
 					>
 						<Compass class="h-5 w-5" aria-hidden="true" />
 					</span>
@@ -463,7 +463,7 @@
 </section>
 
 <!-- testimonials -->
-<TestimonialBand trustpilotReviews={data.trustpilotReviews} />
+<TestimonialBand trustpilotReviews={data.trustpilotReviews} tourReviews={data.tourReviews} />
 
 <!-- EXPERIENCE -->
 <GidiExperience />
@@ -565,7 +565,7 @@
 			{#each featuredCountries as country (country.slug.current)}
 				<a
 					href={`/destinations/${country.slug.current}`}
-					class="group relative min-h-[380px] min-w-[280px] flex-shrink-0 overflow-hidden rounded-[22px] sm:min-w-[320px]"
+					class="group relative min-h-[380px] min-w-[280px] shrink-0 overflow-hidden rounded-[22px] sm:min-w-[320px]"
 				>
 					{#if country.heroImage}
 						<img
@@ -585,7 +585,7 @@
 						<div class="flex items-end justify-between gap-3">
 							<h3 class="font-bold text-2xl">{country.name}</h3>
 							<span
-								class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
+								class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#5C9B19] text-white transition group-hover:bg-[#F98315]"
 							>
 								↗
 							</span>

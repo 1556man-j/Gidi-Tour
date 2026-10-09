@@ -3,15 +3,18 @@
 	import Testimonial from './Testimonial.svelte';
 	import TrustpilotCarousel from './TrustpilotCarousel.svelte';
 	import type { SanityTrustpilotReview } from '$lib/sanity/queries/trustpilotReviews';
+	import type { SanityReview } from '$lib/sanity/queries/reviews';
 
 	let {
 		badgeText = 'Travelers Love Gidi',
 		headline = 'Real travelers. Real stories.',
-		trustpilotReviews = []
+		trustpilotReviews = [],
+		tourReviews = []
 	}: {
 		badgeText?: string;
 		headline?: string;
 		trustpilotReviews?: SanityTrustpilotReview[];
+		tourReviews?: SanityReview[];
 	} = $props();
 </script>
 
@@ -27,7 +30,7 @@
 		</p>
 	</div>
 
-	<Testimonial />
+	<Testimonial reviews={tourReviews} />
 
 	<div class="mt-14">
 		<TrustpilotCarousel reviews={trustpilotReviews} />
