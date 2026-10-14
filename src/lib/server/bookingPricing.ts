@@ -1,5 +1,5 @@
 import { sanityClient } from '$lib/sanity/client';
-import { getVisitorCurrency } from '$lib/server/geoCurrency';
+import { getChargeAmount } from '$lib/server/chargeAmount';
 
 // If your Sanity tour document type is not called "tour", change it in the query below.
 
@@ -117,8 +117,7 @@ export async function buildVerifiedBooking(body: any, countryCode: string) {
 		Math.round(tours.reduce((sum, t) => sum + t.price * t.travelers, 0) * 100) / 100;
 
 	// Same conversion and rounding as the page the customer saw.
-	const { currency, rate } = await getVisitorCurrency(countryCode);
-	const convertedAmount = rate !== null ? Math.round(totalGBP * rate) : totalGBP;
+	const { currencyCode, convertedAmount } = await getChargeAmount(totalGBP, countryCode);
 
 	if (convertedAmount <= 0) {
 		throw new BookingValidationError('Booking amount must be greater than zero.');
@@ -155,6 +154,6 @@ export async function buildVerifiedBooking(body: any, countryCode: string) {
 		convertedAmount,
 
 		countryCode,
-		currencyCode: currency.code.toUpperCase()
+		currencyCode
 	};
 }

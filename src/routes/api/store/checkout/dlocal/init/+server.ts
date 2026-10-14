@@ -2,11 +2,16 @@ import { json } from '@sveltejs/kit';
 import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
 import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/queries/storeOrder';
 import { getStoreProducts } from '$lib/sanity/queries/store';
-import { getVisitorCurrency } from '$lib/server/geoCurrency';
+import { getChargeAmount } from '$lib/server/chargeAmount';
+import { setDlocalPaymentId } from '$lib/server/paymentRecords';
 import { effectivePrice } from '$lib/storePricing';
 import type { RequestHandler } from './$types';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
+import { safeCountry, isDlocalCountry } from '$lib/server/paymentRouter';
 
-export const POST: RequestHandler = async ({ request, url, locals, cookies }) => {
+export const POST: RequestHandler = async ({ request, url, locals, cookies, getClientAddress }) => {
+	if (await isRateLimited(`store-init:${ipOf(getClientAddress)}`, 20, 3600)) return tooManyRequests();
+
 	try {
 		const body = await request.json();
 		const session = await locals.auth();
@@ -94,11 +99,12 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies }) =>
 		// Currency and converted amount, worked out on the server
 		// (same source and same rounding as the page the customer saw)
 		// ------------------------------------------------------------
-		const countryCode = cookies.get('visitor_country') ?? 'GB';
-		const { currency, rate } = await getVisitorCurrency(countryCode);
+		const countryCode = safeCountry(cookies.get('visitor_country'));
 
-		const currencyCode = currency.code.toUpperCase();
-		const convertedAmount = rate !== null ? Math.round(subtotal * rate) : subtotal;
+		if (!isDlocalCountry(countryCode)) {
+			return json({ error: 'This payment method is not available in your country.' }, { status: 400 });
+		}
+		const { currencyCode, convertedAmount } = await getChargeAmount(subtotal, countryCode);
 
 		if (convertedAmount <= 0) {
 			return json({ error: 'Invalid payment amount.' }, { status: 400 });
@@ -152,6 +158,8 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies }) =>
 			console.error('dLocal store payment creation failed:', data);
 			return json({ error: 'Could not start payment.' }, { status: 502 });
 		}
+
+		if (data.id) await setDlocalPaymentId('store_orders', order._id, data.id);
 
 		return json({ redirectUrl: data.redirect_url, orderId: order._id });
 	} catch (error) {

@@ -125,7 +125,7 @@
 	class="mx-auto bg-[#f7f3ea] px-5 py-12 sm:px-8 md:py-14 lg:px-12"
 	use:reveal
 >
-	<div class="mx-auto grid max-w-[1440px] items-center gap-12 lg:grid-cols-2 lg:gap-20">
+	<div class="mx-auto grid max-w-360 items-center gap-12 lg:grid-cols-2 lg:gap-20">
 		<div class="relative order-1 flex items-center justify-center lg:order-2">
 			<img src="/images/hero/impact.png" alt="Traveler exploring with Gidi" class="md:w-full" loading="lazy" />
 		</div>
@@ -137,7 +137,7 @@
 			</span>
 
 			<h2 class="font-display mt-4 text-3xl leading-[1.1] font-bold  text-[#17200f] md:text-5xl">
-				What <span class="text-[#F98315]">12,000+ travelers</span> <br /> have discovered together.
+				What <span class="text-[#F98315]">3500+ travelers</span> <br /> have discovered together.
 			</h2>
 
 			<p class="my-6 max-w-lg text-center text-[20px] leading-[1.55] text-black md:text-left max-md:mx-auto">
@@ -147,7 +147,7 @@
 
 			<div class="mt-6 flex flex-wrap items-center gap-6 max-md:justify-center">
 				<a
-					href="/files/impact-report-2025.pdf"
+					href="/files/impact-report-2026.pdf" download
 					class="inline-flex items-center gap-2 rounded-full bg-[#5C9B19] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:scale-105"
 				>
 					<Download class="h-4 w-4" aria-hidden="true" />

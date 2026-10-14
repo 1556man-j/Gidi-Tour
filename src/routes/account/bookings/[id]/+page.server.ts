@@ -1,10 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import { getBookingByIdForCustomer } from '$lib/sanity/queries/booking';
-import {
-	getStoreOrderByIdForCustomer,
-	getMagazineDownloadFiles
-} from '$lib/sanity/queries/storeOrder';
-import { sanityFileUrl } from '$lib/sanity/fileUrl';
+import { getStoreOrderByIdForCustomer } from '$lib/sanity/queries/storeOrder';
+import { buildDownloadLinks } from '$lib/server/magazineDownload';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
@@ -28,18 +25,7 @@ export const load: PageServerLoad = async (event) => {
 		throw error(404, 'Booking not found');
 	}
 
-	const magazineSlugs = (storeOrder.items ?? [])
-		.filter((item: { category: string }) => item.category === 'magazine')
-		.map((item: { id: string }) => item.id);
-
-	const magazineFiles = await getMagazineDownloadFiles(magazineSlugs);
-
-	const downloadLinks = magazineFiles
-		.filter((p: { digitalFile?: { asset?: { _ref: string } } }) => p.digitalFile?.asset?._ref)
-		.map((p: { title: string; digitalFile: { asset: { _ref: string } } }) => ({
-			title: p.title,
-			url: sanityFileUrl(p.digitalFile.asset._ref)
-		}));
+	const downloadLinks = await buildDownloadLinks(event.url.origin, storeOrder);
 
 	return { booking: null, storeOrder, downloadLinks };
 };

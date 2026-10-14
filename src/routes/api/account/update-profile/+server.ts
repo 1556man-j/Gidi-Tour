@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { sanityWriteClient } from '$lib/sanity/serverClient';
+import { updateCustomerProfile } from '$lib/sanity/queries/customer';
 import type { RequestHandler } from './$types';
 
 const str = (v: unknown, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -31,30 +31,27 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: 'Please fix the highlighted fields.', fieldErrors }, { status: 400 });
 	}
 
-	await sanityWriteClient
-		.patch(session.user.id)
-		.set({
-			name,
-			nationality: str(body.nationality, 80),
-			dateOfBirth: dateOfBirth || undefined,
-			phoneDialCode: str(body.phoneDialCode, 6),
-			phoneNumber,
-			address: {
-				line1: str(body.address?.line1),
-				line2: str(body.address?.line2),
-				city: str(body.address?.city, 100),
-				region: str(body.address?.region, 100),
-				postalCode: str(body.address?.postalCode, 20),
-				country: str(body.address?.country, 100)
-			},
-			emergencyContact: {
-				name: str(body.emergencyContact?.name, 100),
-				relationship: str(body.emergencyContact?.relationship, 60),
-				phone: str(body.emergencyContact?.phone, 25)
-			},
-			travelNotes: str(body.travelNotes, 1000)
-		})
-		.commit();
+	await updateCustomerProfile(session.user.id, {
+		name,
+		nationality: str(body.nationality, 80),
+		dateOfBirth: dateOfBirth || undefined,
+		phoneDialCode: str(body.phoneDialCode, 6),
+		phoneNumber,
+		address: {
+			line1: str(body.address?.line1),
+			line2: str(body.address?.line2),
+			city: str(body.address?.city, 100),
+			region: str(body.address?.region, 100),
+			postalCode: str(body.address?.postalCode, 20),
+			country: str(body.address?.country, 100)
+		},
+		emergencyContact: {
+			name: str(body.emergencyContact?.name, 100),
+			relationship: str(body.emergencyContact?.relationship, 60),
+			phone: str(body.emergencyContact?.phone, 25)
+		},
+		travelNotes: str(body.travelNotes, 1000)
+	});
 
 	return json({ success: true });
 };

@@ -6,8 +6,11 @@ import {
 	updateCustomerPassword
 } from '$lib/sanity/queries/customer';
 import type { RequestHandler } from './$types';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	if (await isRateLimited(`reset:${ipOf(getClientAddress)}`, 10, 3600)) return tooManyRequests();
+
 	try {
 		const { token, password } = await request.json();
 
@@ -30,27 +33,18 @@ export const POST: RequestHandler = async ({ request }) => {
 			.update(token)
 			.digest('hex');
 
-		console.log('Reset password token received.');
-		console.log('Token hash:', tokenHash);
-
 		const customer = await getCustomerByResetToken(tokenHash);
 
 		if (!customer) {
-			console.log('No customer found for reset token.');
-
 			return json(
 				{ error: 'This password reset link is invalid or has expired.' },
 				{ status: 400 }
 			);
 		}
 
-		console.log('Resetting password for:', customer.email);
-
 		const passwordHash = await bcrypt.hash(password, 12);
 
 		await updateCustomerPassword(customer._id, passwordHash);
-
-		console.log('Password successfully updated for:', customer.email);
 
 		return json({
 			success: true

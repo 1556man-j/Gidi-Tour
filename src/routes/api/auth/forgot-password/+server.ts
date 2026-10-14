@@ -3,8 +3,12 @@ import crypto from 'node:crypto';
 import { getCustomerByEmail, setPasswordResetToken } from '$lib/sanity/queries/customer';
 import { sendPasswordResetEmail } from '$lib/server/passwordResetEmail';
 import type { RequestHandler } from './$types';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
+import { SITE_URL } from '$lib/server/siteUrl';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	if (await isRateLimited(`forgot:${ipOf(getClientAddress)}`, 5, 3600)) return tooManyRequests();
+
 	try {
 		const { email } = await request.json();
 
@@ -13,6 +17,15 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const normalizedEmail = email.trim().toLowerCase();
+
+		// At most 3 reset emails per address per hour. The reply looks the same as a
+		// normal one, so this can't be used to find out which emails have accounts.
+		if (await isRateLimited(`forgot-email:${normalizedEmail}`, 3, 3600)) {
+			return json({
+				success: true,
+				message: 'If an account exists, a password reset link has been sent.'
+			});
+		}
 
 		const customer = await getCustomerByEmail(normalizedEmail);
 
@@ -46,7 +59,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// This is the actual link the customer should receive.
 		const resetUrl =
-			`https://giditour.com/reset-password?token=${encodeURIComponent(token)}`;
+			`${SITE_URL}/reset-password?token=${encodeURIComponent(token)}`;
 
 		// IMPORTANT: send resetUrl, NOT token.
 		await sendPasswordResetEmail(
@@ -54,9 +67,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			customer.name,
 			resetUrl
 		);
-
-		console.log(`Password reset email sent to ${customer.email}`);
-		console.log(`Reset URL: ${resetUrl}`);
 
 		return json({
 			success: true,

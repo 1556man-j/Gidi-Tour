@@ -7,17 +7,57 @@
 	let error = $state('');
 	let loading = $state(false);
 	let showPassword = $state(false);
+	let unverified = $state(false);
+	let resendMessage = $state('');
 
 	async function handleLogin() {
 		error = '';
+		unverified = false;
+		resendMessage = '';
 		loading = true;
 		const res = await signIn('credentials', { email, password, redirect: false });
 		loading = false;
 
 		if (res?.error) {
 			error = 'Invalid email or password.';
+
+			// If the password was right but the email isn't confirmed yet, say so.
+			try {
+				const check = await fetch('/api/auth/verification', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email, password, action: 'check' })
+				});
+				const result = await check.json();
+
+				if (result.unverified) {
+					unverified = true;
+					error = 'Please confirm your email address first. Check your inbox for our link.';
+				}
+			} catch {
+				// Keep the general message.
+			}
 		} else {
 			window.location.href = '/book';
+		}
+	}
+
+	async function resendConfirmation() {
+		resendMessage = '';
+
+		try {
+			const res = await fetch('/api/auth/verification', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, password, action: 'resend' })
+			});
+			const result = await res.json();
+
+			resendMessage = result.sent
+				? 'A new confirmation email is on its way.'
+				: (result.error ?? 'Could not send the email. Please try again.');
+		} catch {
+			resendMessage = 'Network error. Please try again.';
 		}
 	}
 </script>
@@ -76,6 +116,18 @@
 		</div>
 		{#if error}
 			<p class="text-sm text-red-500">{error}</p>
+		{/if}
+		{#if unverified}
+			<button
+				type="button"
+				onclick={resendConfirmation}
+				class="self-start text-sm font-semibold text-[#5C9B19] hover:underline"
+			>
+				Send me a new confirmation email
+			</button>
+			{#if resendMessage}
+				<p class="text-sm text-[#17200f]/70">{resendMessage}</p>
+			{/if}
 		{/if}
 		<a
 			href="/forgot-password"

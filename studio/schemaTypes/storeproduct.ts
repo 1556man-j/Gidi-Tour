@@ -104,17 +104,17 @@ export default defineType({
 		}),
 
 		defineField({
-			name: 'digitalFile',
-			title: 'Digital file (PDF)',
-			description: 'The file a buyer gets permanent access to after purchase.',
-			type: 'file',
-			options: { accept: '.pdf' },
+			name: 'storagePath',
+			title: 'File name in private storage',
+			description:
+				'The exact file name of the PDF you uploaded to the private "magazines" bucket in Supabase Storage, for example issue-01.pdf. Buyers get access after purchase.',
+			type: 'string',
 			hidden: ({ document }) => document?.category !== 'magazine',
 			validation: (Rule) =>
 				Rule.custom((value, context) => {
-					const doc = context.document as { category?: string } | undefined;
+					const doc = context.document as { category?: string; isFree?: boolean } | undefined;
 					if (doc?.category === 'magazine' && !value) {
-						return 'A digital file is required for magazine issues.';
+						return 'A file name is required for magazine issues.';
 					}
 					return true;
 				})

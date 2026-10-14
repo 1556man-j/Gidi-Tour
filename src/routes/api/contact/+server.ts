@@ -1,11 +1,14 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { RESEND_API_KEY } from '$env/static/private';
-import { sanityWriteClient } from '$lib/sanity/serverClient';
+import { db } from '$lib/server/supabase';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
 
 const COMPANY_EMAIL = 'support@giditour.com';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	if (await isRateLimited(`contact:${ipOf(getClientAddress)}`, 5, 3600)) return tooManyRequests();
+
 	const body = await request.json().catch(() => null);
 
 	if (!body) {
@@ -71,19 +74,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	// ---------- 2. Save a copy into Sanity ----------
 	let savedToSanity = false;
 	try {
-		await sanityWriteClient.create({
-			_type: 'contactSubmission',
+		const { error } = await db.from('contact_submissions').insert({
 			name,
 			email,
-			phone: phone || undefined,
-			interest: interest || undefined,
+			phone: phone || null,
+			interest: interest || null,
 			message,
-			submittedAt: new Date().toISOString(),
 			status: 'new'
 		});
+
+		if (error) throw error;
 		savedToSanity = true;
 	} catch (err) {
-		console.error('Failed to save contact submission to Sanity:', err);
+		console.error('Failed to save contact submission:', err);
 	}
 
 	// ---------- 3. Decide the response ----------

@@ -1,7 +1,10 @@
 import crypto from 'node:crypto';
 import { DLOCAL_X_LOGIN, DLOCAL_X_TRANS_KEY, DLOCAL_SECRET_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
-const DLOCAL_API_BASE = 'https://sandbox.dlocal.com'; // switch to https://api.dlocal.com when going live
+// Defaults to the sandbox so a missing setting can never hit live payments.
+// For live, set DLOCAL_API_BASE=https://api.dlocal.com in your host's env vars.
+const DLOCAL_API_BASE = env.DLOCAL_API_BASE || 'https://sandbox.dlocal.com';
 
 export function dlocalHeaders(bodyString: string) {
 	const date = new Date().toISOString();

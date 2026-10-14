@@ -2,7 +2,8 @@ import { error, fail } from '@sveltejs/kit';
 import { getTourBySlug, getRelatedTours } from '$lib/sanity/queries/tours';
 import { getReviewsForTour } from '$lib/sanity/queries/reviews';
 import { sanityClient as client } from '$lib/sanity/client';
-import { writeClient } from '$lib/sanity/writeClient';
+import { sanityWriteClient } from '$lib/sanity/serverClient';
+import { isRateLimited, ipOf } from '$lib/server/rateLimit';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -21,7 +22,11 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-	submitReview: async ({ request, params }) => {
+	submitReview: async ({ request, params, getClientAddress }) => {
+		if (await isRateLimited(`review:${ipOf(getClientAddress)}`, 5, 3600)) {
+			return fail(429, { error: 'Too many reviews from your connection. Please try again later.' });
+		}
+
 		const fd = await request.formData();
 
 		// honeypot: bots fill this in, humans never see it
@@ -49,7 +54,7 @@ export const actions: Actions = {
 		);
 		if (!tourId) return fail(404, { error: 'Tour not found.', ...values });
 
-		await writeClient.create({
+		await sanityWriteClient.create({
 			_type: 'review',
 			tour: { _type: 'reference', _ref: tourId },
 			name,

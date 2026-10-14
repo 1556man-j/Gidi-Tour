@@ -18,7 +18,6 @@ export interface StoreProduct {
 	isFree?: boolean;
 	issueNumber?: string;
 	publishDate?: string;
-	digitalFile?: { asset: { _ref: string } };
 	// merchandise
 	sku?: string;
 	variants?: StoreProductVariant[];
@@ -38,7 +37,6 @@ const STORE_PRODUCTS_QUERY = /* groq */ `
 		isFree,
 		issueNumber,
 		publishDate,
-		digitalFile,
 		sku,
 		variants,
 		stock

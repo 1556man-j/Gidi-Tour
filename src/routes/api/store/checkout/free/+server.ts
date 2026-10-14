@@ -3,16 +3,17 @@ import {
 	createPendingOrder,
 	markOrderPaid,
 	markOrderEmailSent,
-	getMagazineDownloadFiles,
 	type StoreOrderItemInput
 } from '$lib/sanity/queries/storeOrder';
 import { getStoreProducts } from '$lib/sanity/queries/store';
 import { sendStoreOrderConfirmationEmails } from '$lib/server/storeEmail';
-import { sanityFileUrl } from '$lib/sanity/fileUrl';
+import { buildDownloadLinks } from '$lib/server/magazineDownload';
 import { isFreeProduct } from '$lib/storePricing';
 import type { RequestHandler } from './$types';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
+import { safeCountry } from '$lib/server/paymentRouter';
 
-export const POST: RequestHandler = async ({ request, locals, cookies }) => {
+export const POST: RequestHandler = async ({ request, locals, cookies, url, getClientAddress }) => {
 	try {
 		const body = await request.json();
 		const session = await locals.auth();
@@ -22,6 +23,15 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 
 		if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
 			return json({ error: 'Please enter a valid name and email.' }, { status: 400 });
+		}
+
+		// This route sends an email to whatever address is entered, so it is limited
+		// per visitor and per address to stop it being used to spam someone.
+		if (
+			(await isRateLimited(`free:${ipOf(getClientAddress)}`, 10, 3600)) ||
+			(await isRateLimited(`free-email:${email}`, 3, 3600))
+		) {
+			return tooManyRequests();
 		}
 
 		if (!Array.isArray(body.items) || body.items.length === 0 || body.items.length > 20) {
@@ -55,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			});
 		}
 
-		const countryCode = cookies.get('visitor_country') ?? 'GB';
+		const countryCode = safeCountry(cookies.get('visitor_country'));
 
 		const order = await createPendingOrder({
 			items,
@@ -71,18 +81,8 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 
 		await markOrderPaid(order._id, { amountCharged: 0, currency: 'GBP' });
 
-		// Build the permanent download links, same as a paid order.
-		const magazineFiles = await getMagazineDownloadFiles(items.map((item) => item.id));
-
-		const downloadLinks = magazineFiles
-			.filter(
-				(product: { digitalFile?: { asset?: { _ref: string } } }) =>
-					product.digitalFile?.asset?._ref
-			)
-			.map((product: { title: string; digitalFile: { asset: { _ref: string } } }) => ({
-				title: product.title,
-				url: sanityFileUrl(product.digitalFile.asset._ref)
-			}));
+		// Signed download links, same as a paid order.
+		const downloadLinks = await buildDownloadLinks(url.origin, { _id: order._id, items });
 
 		try {
 			await sendStoreOrderConfirmationEmails({

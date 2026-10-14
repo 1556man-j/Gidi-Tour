@@ -1,5 +1,4 @@
-import { sanityClient } from '../client';
-import { sanityWriteClient } from '../serverClient';
+import { db, unwrap, fromRow } from '$lib/server/supabase';
 
 export interface StoreOrderItemInput {
 	id: string; // product slug
@@ -28,7 +27,7 @@ export interface StoreOrderInput {
 	countryCode?: string;
 	currencyCode?: string;
 
-		paymentMethod: 'stripe' | 'dlocal' | 'free';
+	paymentMethod: 'stripe' | 'dlocal' | 'free';
 }
 
 export async function createPendingOrder(input: StoreOrderInput) {
@@ -42,28 +41,28 @@ export async function createPendingOrder(input: StoreOrderInput) {
 		variant: item.variant
 	}));
 
-	return sanityWriteClient.create({
-		_type: 'storeOrder',
+	const row = unwrap(
+		await db
+			.from('store_orders')
+			.insert({
+				items,
+				subtotal: input.subtotal,
+				name: input.name,
+				email: input.email.trim().toLowerCase(),
+				customer_id: input.customerId ?? null,
+				shipping: input.shipping ?? null,
+				converted_amount: input.convertedAmount ?? null,
+				country_code: input.countryCode ?? null,
+				currency_code: input.currencyCode ?? null,
+				payment_method: input.paymentMethod,
+				payment_status: 'pending',
+				confirmation_email_sent: false
+			})
+			.select('id')
+			.single()
+	);
 
-		items,
-		subtotal: input.subtotal,
-
-		name: input.name,
-		email: input.email.trim().toLowerCase(),
-		customerId: input.customerId ?? null,
-		shipping: input.shipping ?? null,
-
-		convertedAmount: input.convertedAmount,
-		countryCode: input.countryCode,
-		currencyCode: input.currencyCode,
-
-		paymentMethod: input.paymentMethod,
-
-		paymentStatus: 'pending',
-		confirmationEmailSent: false,
-
-		createdAt: new Date().toISOString()
-	});
+	return { _id: row.id as string };
 }
 
 export async function markOrderPaid(
@@ -75,115 +74,67 @@ export async function markOrderPaid(
 		dlocalPaymentId?: string;
 	}
 ) {
-	return sanityWriteClient
-		.patch(orderId)
-		.set({
-			paymentStatus: 'paid',
-			...details
-		})
-		.commit();
+	unwrap(
+		await db
+			.from('store_orders')
+			.update({
+				payment_status: 'paid',
+				amount_charged: details.amountCharged,
+				currency: details.currency,
+				stripe_payment_intent_id: details.stripePaymentIntentId ?? null,
+				dlocal_payment_id: details.dlocalPaymentId ?? null
+			})
+			.eq('id', orderId)
+	);
 }
 
 export async function markOrderEmailSent(orderId: string) {
-	return sanityWriteClient
-		.patch(orderId)
-		.set({
-			confirmationEmailSent: true,
-			confirmationEmailSentAt: new Date().toISOString()
-		})
-		.commit();
+	unwrap(
+		await db
+			.from('store_orders')
+			.update({
+				confirmation_email_sent: true,
+				confirmation_email_sent_at: new Date().toISOString()
+			})
+			.eq('id', orderId)
+	);
 }
 
 export async function getOrderStatus(orderId: string) {
-	return sanityWriteClient.fetch(
-		`*[_type == "storeOrder" && _id == $orderId][0]{
-			_id,
-			name,
-			email,
-
-			items,
-			subtotal,
-
-			amountCharged,
-			convertedAmount,
-			currency,
-			currencyCode,
-			countryCode,
-
-			shipping,
-
-			paymentMethod,
-			paymentStatus,
-
-			confirmationEmailSent,
-			confirmationEmailSentAt,
-
-			stripePaymentIntentId,
-			dlocalPaymentId,
-
-			createdAt
-		}`,
-		{ orderId }
-	);
+	const row = unwrap(await db.from('store_orders').select('*').eq('id', orderId).maybeSingle());
+	return fromRow(row);
 }
 
-// Used when building the confirmation email: looks up the real digital file
-// for each magazine item in a paid order, by product slug.
-export async function getMagazineDownloadFiles(slugs: string[]) {
-	if (slugs.length === 0) return [];
-
-	return sanityClient.fetch(
-		`*[_type == "storeProduct" && category == "magazine" && slug.current in $slugs]{
-			"slug": slug.current,
-			title,
-			digitalFile
-		}`,
-		{ slugs }
+// Paid store orders for the logged-in user. Matched by account ID only: an
+// email alone is not proof of ownership because signup doesn't verify emails.
+export async function getStoreOrdersForCustomer(customerId: string, _email?: string | null) {
+	const rows = unwrap(
+		await db
+			.from('store_orders')
+			.select('*')
+			.eq('customer_id', customerId)
+			.eq('payment_status', 'paid')
+			.order('created_at', { ascending: false })
 	);
-}
 
-// Paid store orders for the logged-in user, matched by account id or by email.
-export async function getStoreOrdersForCustomer(customerId: string, email?: string | null) {
-	return sanityWriteClient.fetch(
-		`*[
-			_type == "storeOrder" &&
-			paymentStatus == "paid" &&
-			(customerId == $customerId || (defined($email) && lower(email) == $email))
-		] | order(createdAt desc){
-			_id,
-			items,
-			subtotal,
-			paymentStatus,
-			shipping,
-			createdAt
-		}`,
-		{ customerId, email: email?.trim().toLowerCase() ?? null }
-	);
+	return (rows ?? []).map((row) => fromRow(row));
 }
 
 // One paid store order, only if it belongs to this user.
 export async function getStoreOrderByIdForCustomer(
 	orderId: string,
 	customerId: string,
-	email?: string | null
+	_email?: string | null
 ) {
-	return sanityWriteClient.fetch(
-		`*[
-			_type == "storeOrder" &&
-			_id == $orderId &&
-			paymentStatus == "paid" &&
-			(customerId == $customerId || (defined($email) && lower(email) == $email))
-		][0]{
-			_id,
-			name,
-			email,
-			items,
-			subtotal,
-			shipping,
-			paymentMethod,
-			paymentStatus,
-			createdAt
-		}`,
-		{ orderId, customerId, email: email?.trim().toLowerCase() ?? null }
+	const row = unwrap(
+		await db
+			.from('store_orders')
+			.select('*')
+			.eq('id', orderId)
+			.eq('customer_id', customerId)
+			.eq('payment_status', 'paid')
+			.maybeSingle()
 	);
+
+	return fromRow(row);
 }

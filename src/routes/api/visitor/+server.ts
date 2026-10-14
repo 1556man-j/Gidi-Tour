@@ -2,8 +2,19 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { SLACK_VISITOR_WEBHOOK_URL } from '$env/static/private';
+import { isRateLimited, ipOf } from '$lib/server/rateLimit';
 
-export const POST: RequestHandler = async ({ request }) => {
+// Slack treats & < > as special (links, @channel mentions), and anyone can call
+// this route, so everything is shortened and neutralised first.
+const clean = (value: string, max = 300) =>
+	value.slice(0, max).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	// Over the limit: pretend it worked, so the page doesn't show an error.
+	if (await isRateLimited(`visitor:${ipOf(getClientAddress)}`, 30, 3600)) {
+		return json({ success: true });
+	}
+
 	try {
 		const webhookUrl = SLACK_VISITOR_WEBHOOK_URL;
 
@@ -14,12 +25,12 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const body = await request.json();
 
-		const page = typeof body.page === 'string' ? body.page : 'Unknown page';
-		const title = typeof body.title === 'string' ? body.title : 'Gidi Tour';
-		const referrer = typeof body.referrer === 'string' ? body.referrer : 'Direct';
-		const userAgent = typeof body.userAgent === 'string' ? body.userAgent : 'Unknown';
-		const screen = typeof body.screen === 'string' ? body.screen : 'Unknown';
-		const timezone = typeof body.timezone === 'string' ? body.timezone : 'Unknown';
+		const page = typeof body.page === 'string' ? clean(body.page) : 'Unknown page';
+		const title = typeof body.title === 'string' ? clean(body.title) : 'Gidi Tour';
+		const referrer = typeof body.referrer === 'string' ? clean(body.referrer) : 'Direct';
+		const userAgent = typeof body.userAgent === 'string' ? clean(body.userAgent) : 'Unknown';
+		const screen = typeof body.screen === 'string' ? clean(body.screen) : 'Unknown';
+		const timezone = typeof body.timezone === 'string' ? clean(body.timezone) : 'Unknown';
 
 		const visitedAt = new Date().toLocaleString('en-GB', {
 			timeZone: 'Africa/Lagos',

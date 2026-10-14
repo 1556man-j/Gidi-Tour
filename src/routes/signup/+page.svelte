@@ -65,9 +65,9 @@
 				return;
 			}
 
-			await signIn('credentials', { email, password, redirect: false });
+			// The account needs its email confirmed before logging in.
 			loading = false;
-			window.location.href = '/book';
+			window.location.href = `/verify-email/sent?email=${encodeURIComponent(email.trim())}`;
 		} catch {
 			formError = 'Network error. Please try again.';
 			loading = false;

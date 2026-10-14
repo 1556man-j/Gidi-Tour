@@ -2,9 +2,11 @@ import { json } from '@sveltejs/kit';
 import { stripe } from '$lib/server/stripeClient';
 import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/queries/storeOrder';
 import { getStoreProducts } from '$lib/sanity/queries/store';
-import { getVisitorCurrency } from '$lib/server/geoCurrency';
+import { getChargeAmount } from '$lib/server/chargeAmount';
 import type { RequestHandler } from './$types';
 import { effectivePrice } from '$lib/storePricing';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
+import { safeCountry } from '$lib/server/paymentRouter';
 
 // PayPal on Stripe only works for some currencies. For any other currency
 // the customer still gets card, Apple Pay and Google Pay.
@@ -24,7 +26,9 @@ const PAYPAL_CURRENCIES = [
 	'usd'
 ];
 
-export const POST: RequestHandler = async ({ request, locals, cookies }) => {
+export const POST: RequestHandler = async ({ request, locals, cookies, getClientAddress }) => {
+	if (await isRateLimited(`store-init:${ipOf(getClientAddress)}`, 20, 3600)) return tooManyRequests();
+
 	try {
 		const body = await request.json();
 		const session = await locals.auth();
@@ -105,11 +109,11 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 		// Currency and converted amount, worked out on the server
 		// (same source and same rounding as the page the customer saw)
 		// ------------------------------------------------------------
-		const countryCode = cookies.get('visitor_country') ?? 'GB';
-		const { currency, rate } = await getVisitorCurrency(countryCode);
+		const countryCode = safeCountry(cookies.get('visitor_country'));
+		const charge = await getChargeAmount(subtotal, countryCode);
 
-		const currencyCode = currency.code.toLowerCase();
-		const convertedAmount = rate !== null ? Math.round(subtotal * rate) : subtotal;
+		const currencyCode = charge.currencyCode.toLowerCase();
+		const convertedAmount = charge.convertedAmount;
 
 		const amountInMinorUnits = Math.round(convertedAmount * 100);
 

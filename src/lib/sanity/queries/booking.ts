@@ -1,5 +1,4 @@
-import { sanityClient } from '../client';
-import { sanityWriteClient } from '../serverClient';
+import { db, unwrap, fromRow } from '$lib/server/supabase';
 
 export interface BookingTour {
 	id: string;
@@ -58,47 +57,40 @@ export async function createPendingBooking(input: BookingInput) {
 		image: tour.image
 	}));
 
-	return sanityWriteClient.create({
-		_type: 'booking',
-		customer: input.customerId
-			? {
-					_type: 'reference',
-					_ref: input.customerId
-				}
-			: undefined,
+	const row = unwrap(
+		await db
+			.from('bookings')
+			.insert({
+				customer_id: input.customerId ?? null,
+				tours,
+				tour_ids: input.tourIds ?? [],
+				destination: input.destination ?? null,
+				trip_type: input.tripType ?? null,
+				start_date: input.startDate ?? null,
+				end_date: input.endDate ?? null,
+				flexible_dates: input.flexibleDates ?? null,
+				travelers: input.travelers ?? null,
+				add_ons: input.addOns ?? [],
+				custom_add_on: input.customAddOn ?? null,
+				name: input.name,
+				email: input.email,
+				phone: input.phone ?? null,
+				traveling_from: input.travelingFrom ?? null,
+				notes: input.notes ?? null,
+				amount_gbp: input.amountGBP,
+				converted_amount: input.convertedAmount ?? null,
+				estimated_total: input.estimatedTotal ?? null,
+				country_code: input.countryCode ?? null,
+				currency_code: input.currencyCode ?? null,
+				payment_method: input.paymentMethod,
+				payment_status: 'pending',
+				confirmation_email_sent: false
+			})
+			.select('id')
+			.single()
+	);
 
-		tours,
-		tourIds: input.tourIds,
-
-		destination: input.destination,
-		tripType: input.tripType,
-		startDate: input.startDate,
-		endDate: input.endDate,
-		flexibleDates: input.flexibleDates,
-		travelers: input.travelers,
-		addOns: input.addOns,
-		customAddOn: input.customAddOn,
-
-		name: input.name,
-		email: input.email,
-		phone: input.phone,
-		travelingFrom: input.travelingFrom,
-		notes: input.notes,
-
-		amountGBP: input.amountGBP,
-		convertedAmount: input.convertedAmount,
-		estimatedTotal: input.estimatedTotal,
-
-		countryCode: input.countryCode,
-		currencyCode: input.currencyCode,
-
-		paymentMethod: input.paymentMethod,
-
-		paymentStatus: 'pending',
-		confirmationEmailSent: false,
-
-		createdAt: new Date().toISOString()
-	});
+	return { _id: row.id as string };
 }
 
 export async function markBookingPaid(
@@ -112,85 +104,61 @@ export async function markBookingPaid(
 		dlocalTransactionId?: string;
 	}
 ) {
-	return sanityWriteClient
-		.patch(bookingId)
-		.set({
-			paymentStatus: 'paid',
-			...details
-		})
-		.commit();
+	unwrap(
+		await db
+			.from('bookings')
+			.update({
+				payment_status: 'paid',
+				amount_charged: details.amountCharged,
+				currency: details.currency,
+				stripe_payment_intent_id: details.stripePaymentIntentId ?? null,
+				dlocal_payment_id: details.dlocalPaymentId ?? null
+			})
+			.eq('id', bookingId)
+	);
 }
 
 export async function markBookingEmailSent(bookingId: string) {
-	return sanityWriteClient
-		.patch(bookingId)
-		.set({
-			confirmationEmailSent: true,
-			confirmationEmailSentAt: new Date().toISOString()
-		})
-		.commit();
+	unwrap(
+		await db
+			.from('bookings')
+			.update({
+				confirmation_email_sent: true,
+				confirmation_email_sent_at: new Date().toISOString()
+			})
+			.eq('id', bookingId)
+	);
 }
 
-// Uses the write client (no CDN) so the confirmation page and the webhook
-// always see the latest payment status, never a cached "pending".
+// Always reads straight from the database, so the confirmation page and the
+// webhooks never see a cached "pending".
 export async function getBookingStatus(bookingId: string) {
-	return sanityWriteClient.fetch(
-		`*[_type == "booking" && _id == $bookingId][0]{
-			_id,
-			name,
-			email,
-
-			amountGBP,
-			amountCharged,
-			convertedAmount,
-			estimatedTotal,
-
-			currency,
-			currencyCode,
-			countryCode,
-
-			paymentMethod,
-			paymentStatus,
-
-			confirmationEmailSent,
-			confirmationEmailSentAt,
-
-			destination,
-			tripType,
-			startDate,
-			endDate,
-			flexibleDates,
-			travelers,
-			addOns,
-			customAddOn,
-
-			phone,
-			travelingFrom,
-			notes,
-
-			tourIds,
-			tours,
-
-			stripePaymentIntentId,
-			dlocalPaymentId,
-
-			createdAt
-		}`,
-		{ bookingId }
-	);
+	const row = unwrap(await db.from('bookings').select('*').eq('id', bookingId).maybeSingle());
+	return fromRow(row);
 }
 
 export async function getBookingsForCustomer(customerId: string) {
-	return sanityClient.fetch(
-		`*[_type == "booking" && customer._ref == $customerId] | order(createdAt desc)`,
-		{ customerId }
+	const rows = unwrap(
+		await db
+			.from('bookings')
+			.select('*')
+			.eq('customer_id', customerId)
+			.order('created_at', { ascending: false })
 	);
+
+	return (rows ?? []).map((row) => fromRow(row));
 }
 
 export async function getBookingByIdForCustomer(bookingId: string, customerId: string) {
-	// customer._ref check ensures nobody can view another person's booking by guessing an ID
-	return sanityClient.fetch(
-		`*[_type == "booking" && _id == $bookingId && customer._ref == $customerId][0]`,
-		{ bookingId, customerId }
+	// The customer_id check means nobody can view another person's booking by guessing an ID.
+	const row = unwrap(
+		await db
+			.from('bookings')
+			.select('*')
+			.eq('id', bookingId)
+			.eq('customer_id', customerId)
+			.maybeSingle()
 	);
+
+	return fromRow(row);
 }

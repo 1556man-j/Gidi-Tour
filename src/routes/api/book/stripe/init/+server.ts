@@ -7,15 +7,24 @@ import {
 	paymentMethodTypesFor
 } from '$lib/server/bookingPricing';
 import type { RequestHandler } from './$types';
+import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
+import { safeCountry } from '$lib/server/paymentRouter';
 
-export const POST: RequestHandler = async ({ request, locals, cookies }) => {
+export const POST: RequestHandler = async ({ request, locals, cookies, getClientAddress }) => {
+	if (await isRateLimited(`book-init:${ipOf(getClientAddress)}`, 20, 3600)) return tooManyRequests();
+
 	try {
 		const body = await request.json();
 
 		const session = await locals.auth();
 		const customerId = session?.user?.id;
 
-		const countryCode = cookies.get('visitor_country') ?? 'GB';
+		// Booking needs an account (the /book page already requires login).
+		if (!customerId) {
+			return json({ error: 'Please log in to complete your booking.' }, { status: 401 });
+		}
+
+		const countryCode = safeCountry(cookies.get('visitor_country'));
 		const verified = await buildVerifiedBooking(body, countryCode);
 
 		const currencyCode = verified.currencyCode.toLowerCase();
