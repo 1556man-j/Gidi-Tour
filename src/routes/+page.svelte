@@ -365,7 +365,7 @@
 				class="relative aspect-square rounded-ft-full overflow-hidden ft-bg-dots-gradient ft-bg-dots--gradient flex items-center justify-center"
 			>
 				<img
-					src="images/people/device.png"
+					src="/images/people/device.png"
 					alt="FinTribe member"
 					class="w-full h-100 object-contain py-6 md:p-0"
 					loading="lazy"

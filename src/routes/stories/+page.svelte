@@ -537,7 +537,7 @@
 			<div class="lg:col-span-4 w-full">
 				<div class="h-75 sm:h-100 md:h-112.5 lg:h-full lg:min-h-125">
 					<img
-						src="images/hero/travel-tip.jpg"
+						src="/images/hero/travel-tip.jpg"
 						alt="Travel Tips"
 						class="block w-full h-full rounded-2xl object-cover object-center"
 					/>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { Check, ArrowRight, Mail, Clock3, ShieldCheck, ShoppingBag } from 'lucide-svelte';
 	import { storeCart } from '$lib/stores/storeCart.svelte';
@@ -43,8 +43,10 @@
 		return () => clearInterval(timer);
 	});
 
+	// clear() reads and rewrites the cart's own state. Without untrack, this effect
+	// would depend on the cart, change it, and run again forever.
 	$effect(() => {
-		if (isPaid) storeCart.clear();
+		if (isPaid) untrack(() => storeCart.clear());
 	});
 </script>
 

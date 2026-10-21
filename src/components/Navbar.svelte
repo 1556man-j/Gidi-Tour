@@ -56,7 +56,7 @@
 			</span>
 
 			<span class="text-[11px] font-bold tracking-[0.25em] text-[#f98315] lg:text-xs"> TOUR </span> -->
-			<img src="images/assets/LOGO-3.png" alt="logo" class="w-full" />
+			<img src="/images/assets/LOGO-3.png" alt="logo" class="w-full" />
 		</a>
 
 		<!-- NAV LINKS -->

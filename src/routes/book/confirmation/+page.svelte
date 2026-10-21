@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		Check,
@@ -63,8 +63,10 @@
 	});
 
 	// Clear the list as soon as the status flips to paid while polling.
+	// untrack: clear() rewrites the list's own state, which would otherwise make this
+	// effect run again and again.
 	$effect(() => {
-		if (isPaid) tourStore.clear();
+		if (isPaid) untrack(() => tourStore.clear());
 	});
 
 	function formatDate(date: string) {

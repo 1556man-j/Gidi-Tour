@@ -7,8 +7,7 @@
 	import Footer from '../components/Footer.svelte';
 	import TourSidebar from '../components/TourSidebar.svelte';
 	import CookieConsent from '../components/CookieConsent.svelte';
-	import CartDrawer from '../components/CartDrawer.svelte'; 
-	
+	import CartDrawer from '../components/CartDrawer.svelte';
 
 	let { data, children } = $props();
 
@@ -29,7 +28,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					page: window.location.href,
+					page: window.location.origin + window.location.pathname,
 					title: document.title,
 					referrer: document.referrer || 'Direct',
 					userAgent: navigator.userAgent,
@@ -62,6 +61,17 @@
 
 		notifyVisitor();
 
+		const win = window as unknown as { Tawk_API?: object; Tawk_LoadStart?: Date };
+		win.Tawk_API = win.Tawk_API || {};
+		win.Tawk_LoadStart = new Date();
+
+		const chat = document.createElement('script');
+		chat.async = true;
+		chat.src = 'https://embed.tawk.to/6ab4f928b4e31a3443e06993/1k39eqmo4';
+		chat.charset = 'UTF-8';
+		chat.setAttribute('crossorigin', '*');
+		document.head.appendChild(chat);
+
 		return () => observer.disconnect();
 	});
 </script>
@@ -87,8 +97,8 @@
 	{#if data.siteSettings?.defaultSeo?.metaDescription}
 		<meta name="description" content={data.siteSettings.defaultSeo.metaDescription} />
 	{/if}
-	
-	<script>
+
+	<!-- <script>
 		var Tawk_API = Tawk_API || {};
 		var Tawk_LoadStart = new Date();
 
@@ -103,7 +113,7 @@
 
 			s0.parentNode.insertBefore(s1, s0);
 		})();
-	</script>
+	</script> -->
 </svelte:head>
 
 {@render children()}
