@@ -11,9 +11,21 @@ export const load: LayoutServerLoad = async (event) => {
 	const siteSettings = await getSiteSettings();
 	const session = await event.locals.auth();
 
-	let countryCode = cookies.get('visitor_country');
+	const COOKIE_OPTIONS = { path: '/', maxAge: 60 * 60 * 24 * 30 } as const;
 
-	if (countryCode && !/^[A-Z]{2}$/.test(countryCode)) countryCode = undefined;
+	// Version marker. Country cookies saved before this existed (for example from old
+	// ?country= tests) have no marker, so they are ignored once and the country is
+	// worked out again from the visitor's IP. Change the number to force that again.
+	const COOKIE_VERSION = '2';
+
+	let countryCode: string | undefined = cookies.get('visitor_country');
+
+	if (
+		cookies.get('visitor_country_v') !== COOKIE_VERSION ||
+		(countryCode && !/^[A-Z]{2}$/.test(countryCode))
+	) {
+		countryCode = undefined;
+	}
 
 	// Test override: development only. In production the country always comes
 	// from the visitor's IP, so nobody can pick their own currency or provider.
@@ -21,13 +33,21 @@ export const load: LayoutServerLoad = async (event) => {
 
 	if (testCountry && /^[a-zA-Z]{2}$/.test(testCountry)) {
 		countryCode = testCountry.toUpperCase();
-		cookies.set('visitor_country', countryCode, { path: '/', maxAge: 60 * 60 * 24 * 30 });
+		cookies.set('visitor_country', countryCode, COOKIE_OPTIONS);
+		cookies.set('visitor_country_v', COOKIE_VERSION, COOKIE_OPTIONS);
 	}
 
 	if (!countryCode) {
-		const ip = getClientAddress();
-		countryCode = (await detectCountryFromIp(ip)) ?? 'GB';
-		cookies.set('visitor_country', countryCode, { path: '/', maxAge: 60 * 60 * 24 * 30 });
+		const detected = await detectCountryFromIp(getClientAddress());
+
+		countryCode = detected ?? 'GB';
+
+		// Only remember a real detection. If the lookup failed, GB is used for this
+		// page only and the lookup is tried again next time.
+		if (detected) {
+			cookies.set('visitor_country', countryCode, COOKIE_OPTIONS);
+			cookies.set('visitor_country_v', COOKIE_VERSION, COOKIE_OPTIONS);
+		}
 	}
 
 	const { currency, rate } = await getVisitorCurrency(countryCode);
