@@ -1,9 +1,6 @@
 <script lang="ts">
-	import { storeCart } from '$lib/stores/storeCart.svelte';
-	import { urlFor } from '$lib/sanity/client';
-	import { isFreeProduct, effectivePrice } from '$lib/storePricing';
 	import SeoHead from '../../components/SeoHead.svelte';
-	import Price from '../../components/Price.svelte';
+	import StoreProductCard from '../../components/StoreProductCard.svelte';
 	import type { PageData } from './$types';
 	import type { StoreProduct } from '$lib/sanity/queries/store';
 
@@ -31,31 +28,6 @@
 	const filtered = $derived(
 		activeCategory === 'all' ? products : products.filter((p) => p.category === activeCategory)
 	);
-
-	function outOfStock(product: StoreProduct): boolean {
-		if (product.category !== 'merchandise') return false;
-		if (product.variants?.length) {
-			return product.variants.every((v) => (v.stock ?? 0) <= 0);
-		}
-		return (product.stock ?? 0) <= 0;
-	}
-
-	function addToCart(product: StoreProduct, variant?: string) {
-		storeCart.add(
-			{
-				id: product.slug.current,
-				category: product.category,
-				title: product.title,
-				// Free magazines go into the cart at £0
-				price: effectivePrice(product),
-				image: product.image ? urlFor(product.image).width(200).height(200).url() : '',
-				variant
-			},
-			1
-		);
-		// Pop the shared drawer open so they see what they just added.
-		window.dispatchEvent(new CustomEvent('gt-cart-open'));
-	}
 
 	const PRODUCTS_PER_PAGE = 12;
 
@@ -148,73 +120,16 @@
 <!-- PRODUCT GRID -->
 <section class="bg-[#f7f3ea] px-5 pb-24 sm:px-8 lg:px-12">
 	<div class="mx-auto max-w-360">
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		{#if filtered.length > 0}
+			<p class="mb-6 text-sm text-[#17200f]/50">
+				{filtered.length}
+				{filtered.length === 1 ? 'product' : 'products'}
+			</p>
+		{/if}
+
+		<div class="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 xl:grid-cols-4">
 			{#each visibleProducts as product (product.slug.current)}
-				{@const sold = outOfStock(product)}
-				{@const free = isFreeProduct(product)}
-				<div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-					<div class="relative aspect-4/3 overflow-hidden bg-black/5">
-						{#if product.image}
-							<img
-								src={urlFor(product.image).width(600).height(450).url()}
-								alt={product.title}
-								class="absolute inset-0 h-full w-full object-cover"
-								loading="lazy"
-							/>
-						{/if}
-						<span
-							class="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#17200f]/70 shadow"
-						>
-							{product.category === 'magazine' ? 'Digital issue' : 'Merchandise'}
-						</span>
-						{#if free}
-							<span
-								class="absolute bottom-4 left-4 rounded-full bg-[#5C9B19] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white shadow"
-							>
-								Free
-							</span>
-						{/if}
-						{#if sold}
-							<span
-								class="absolute right-4 top-4 rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white"
-							>
-								Sold out
-							</span>
-						{/if}
-					</div>
-
-					<div class="flex flex-1 flex-col p-5">
-						{#if product.category === 'magazine' && product.issueNumber}
-							<p class="mb-1 text-xs font-bold uppercase tracking-widest text-[#5C9B19]">
-								Issue {product.issueNumber}
-							</p>
-						{/if}
-						<h3 class="text-xl font-bold text-[#17200f]">{product.title}</h3>
-						<p class="mt-2 flex-1 text-sm leading-relaxed text-[#17200f]/60">
-							{product.description}
-						</p>
-
-						<div class="mt-4 flex items-end justify-between border-t border-black/5 pt-4">
-							{#if free}
-								<span class="text-xl font-bold text-[#5C9B19]">Free</span>
-							{:else}
-								<Price amountGBP={product.price} {currency} {rate} size="md" />
-							{/if}
-							<button
-								type="button"
-								disabled={sold}
-								onclick={() => addToCart(product)}
-								class="inline-flex items-center gap-1.5 rounded-full bg-[#5C9B19] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#4c8316] disabled:cursor-not-allowed disabled:opacity-40"
-							>
-								{#if storeCart.has(product.slug.current)}
-									{free ? 'In your cart' : 'Add another'}
-								{:else}
-									{free ? 'Get for free' : 'Add to cart'}
-								{/if}
-							</button>
-						</div>
-					</div>
-				</div>
+				<StoreProductCard {product} {currency} {rate} />
 			{/each}
 		</div>
 		{#if filtered.length > PRODUCTS_PER_PAGE}

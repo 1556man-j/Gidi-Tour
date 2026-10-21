@@ -50,6 +50,71 @@ export default defineType({
 			validation: (Rule) => Rule.required()
 		}),
 
+		defineField({
+			name: 'gallery',
+			title: 'Extra photos (gallery)',
+			description:
+				'Optional. Add more photos of the product, or inside pages for a magazine. Shown under the main image on the product page.',
+			type: 'array',
+			of: [
+				{
+					type: 'image',
+					options: { hotspot: true },
+					fields: [{ name: 'alt', title: 'Short description of the photo', type: 'string' }]
+				}
+			]
+		}),
+
+		defineField({
+			name: 'highlights',
+			title: 'Highlights',
+			description: 'Optional short bullet points, for example "100% cotton" or "48 pages of city guides".',
+			type: 'array',
+			of: [{ type: 'string' }]
+		}),
+
+		defineField({
+			name: 'details',
+			title: 'Full product details',
+			description: 'Optional longer write-up shown on the product page.',
+			type: 'array',
+			of: [
+				{
+					type: 'block',
+					styles: [
+						{ title: 'Normal', value: 'normal' },
+						{ title: 'Subheading', value: 'h3' },
+						{ title: 'Quote', value: 'blockquote' }
+					],
+					lists: [],
+					marks: {
+						decorators: [
+							{ title: 'Bold', value: 'strong' },
+							{ title: 'Italic', value: 'em' }
+						]
+					}
+				}
+			]
+		}),
+
+		defineField({
+			name: 'specs',
+			title: 'Specifications',
+			description: 'Optional facts shown as a table, for example Size: A4, Pages: 48, Material: Canvas.',
+			type: 'array',
+			of: [
+				{
+					type: 'object',
+					name: 'spec',
+					fields: [
+						{ name: 'label', title: 'Label', type: 'string' },
+						{ name: 'value', title: 'Value', type: 'string' }
+					],
+					preview: { select: { title: 'label', subtitle: 'value' } }
+				}
+			]
+		}),
+
 		// ---------- FREE OR PAID (magazines only) ----------
 		defineField({
 			name: 'isFree',

@@ -16,14 +16,21 @@ export async function getChargeAmount(totalGBP: number, countryCode: string | un
 	if (!rateIsUsable) {
 		return {
 			currencyCode: BASE_CURRENCY.code, // 'GBP'
-			convertedAmount: Math.round(totalGBP),
+			convertedAmount: Math.round(totalGBP * 100) / 100,
 			usedFallback: currency.code !== BASE_CURRENCY.code
 		};
 	}
 
+	const currencyCode = currency.code.toUpperCase();
+
 	return {
-		currencyCode: currency.code.toUpperCase(),
-		convertedAmount: Math.round(totalGBP * rate),
+		currencyCode,
+		// GBP is charged to the penny, exactly what the page showed (£149.50 stays £149.50).
+		// Other currencies are whole units, matching how Price.svelte shows them.
+		convertedAmount:
+			currencyCode === BASE_CURRENCY.code
+				? Math.round(totalGBP * 100) / 100
+				: Math.round(totalGBP * rate),
 		usedFallback: false
 	};
 }

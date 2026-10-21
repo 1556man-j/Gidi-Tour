@@ -22,7 +22,7 @@
 
 	const fallbackSocials: SocialLinks = {
 		instagram: 'https://www.instagram.com/gidi_tour?stkn=dHpkbGhoMDB1eWpi',
-		twitter: 'https://x.com/gidi_tour?s=11',
+		facebook: 'https://www.facebook.com/Giditour/',
 		tiktok: 'https://www.tiktok.com/@gidi_tour?_r=1&_t=ZS-99dwaBlufVV',
 		youtube: 'https://youtube.com/@gidi_tour?si=CSeBJcpEIIVmEHb3'
 	};
@@ -78,17 +78,17 @@
 						</a>
 					{/if}
 
-					{#if socialLinks.twitter}
+					{#if socialLinks.facebook}
 						<a
-							href={socialLinks.twitter}
+							href={socialLinks.facebook}
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label="X / Twitter"
+							aria-label="Facebook"
 							class="grid h-9 w-9 place-items-center rounded-full border border-black/15 text-black/70 transition hover:border-[#F98315] hover:bg-[#F98315] hover:text-black"
 						>
 							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
 								<path
-									d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25h8.04l4.71 6.231L18.244 2.25Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"
+									d="M13.5 21v-8.2h2.76l.41-3.2H13.5V7.56c0-.93.26-1.56 1.6-1.56h1.7V3.14C16.5 3.05 15.4 3 14.1 3c-2.7 0-4.6 1.66-4.6 4.7v1.9H6.75v3.2H9.5V21h4Z"
 								/>
 							</svg>
 						</a>
