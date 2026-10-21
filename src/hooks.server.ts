@@ -69,6 +69,18 @@ const csrfHandle: Handle = async ({ event, resolve }) => {
 	const path = normalizePath(event.url.pathname);
 	const isExempt = CSRF_EXEMPT_PATHS.has(path);
 
+	// Diagnostic: shows in your host's runtime logs every time a payment provider
+	// calls us. If the customer sees "Cross-site POST form submissions are forbidden"
+	// and this line is MISSING from the logs, the request was stopped by SvelteKit's
+	// built-in check before it reached this file.
+	if (isExempt && event.request.method !== 'GET' && event.request.method !== 'HEAD') {
+		console.log(
+			`Payment callback reached the app: ${event.request.method} ${event.url.pathname} ` +
+				`(origin: ${event.request.headers.get('origin') ?? 'none'}, ` +
+				`content-type: ${event.request.headers.get('content-type') ?? 'none'})`
+		);
+	}
+
 	if (!isExempt && event.request.method !== 'GET' && event.request.method !== 'HEAD') {
 		const origin = event.request.headers.get('origin');
 		const contentType = event.request.headers.get('content-type') ?? '';
@@ -121,4 +133,4 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(devCors, securityHeaders, csrfHandle, mobileBridge, authHandle, );
+export const handle = sequence(devCors, securityHeaders, csrfHandle, mobileBridge, authHandle);
