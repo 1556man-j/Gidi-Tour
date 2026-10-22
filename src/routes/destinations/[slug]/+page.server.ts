@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { getDestinationBySlug } from '$lib/sanity/queries/destinations';
+import { getToursForDestination } from '$lib/sanity/queries/tours';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -9,5 +10,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(404, 'Destination not found');
 	}
 
-	return { destination };
+	// Tours are matched automatically by country slug. Nothing is linked by hand in Sanity.
+	const tours = await getToursForDestination(destination.slug.current);
+
+	return { destination, tours };
 };

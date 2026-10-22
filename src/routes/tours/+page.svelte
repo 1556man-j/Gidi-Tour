@@ -80,10 +80,12 @@
 	const avgPrice = $derived(
 		tours.length > 0 ? Math.round(tours.reduce((sum, t) => sum + t.price, 0) / tours.length) : 0
 	);
+	// Only tours that actually have ratings count, so unrated tours don't drag the average to zero.
+	const ratedTours = $derived(tours.filter((t) => t.rating && t.reviewCount));
 	const avgRating = $derived(
-		tours.length > 0
-			? (tours.reduce((sum, t) => sum + (t.rating ?? 0), 0) / tours.length).toFixed(1)
-			: '0.0'
+		ratedTours.length > 0
+			? (ratedTours.reduce((sum, t) => sum + (t.rating ?? 0), 0) / ratedTours.length).toFixed(1)
+			: ''
 	);
 	const countryCount = $derived(new Set(tours.map((t) => t.countrySlug)).size);
 
@@ -168,13 +170,15 @@
 					<Price amountGBP={avgPrice} currency={data.currency} rate={data.rate} size="md" />
 					<p class="mt-1 text-[14px] text-black/75">avg. price / person</p>
 				</div>
-				<div class="rounded-2xl bg-black/6 p-4">
-					<p class="flex items-center gap-1 font-bold text-lg text-black sm:text-3xl">
-						{avgRating}
-						<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
-					</p>
-					<p class="mt-1 text-[14px] text-black/75">average rating</p>
-				</div>
+				{#if avgRating}
+					<div class="rounded-2xl bg-black/6 p-4">
+						<p class="flex items-center gap-1 font-bold text-lg text-black sm:text-3xl">
+							{avgRating}
+							<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
+						</p>
+						<p class="mt-1 text-[14px] text-black/75">average rating</p>
+					</div>
+				{/if}
 				<div class="rounded-2xl bg-black/6 p-4">
 					<p class="font-bold text-lg text-black sm:text-3xl">{countryCount}</p>
 					<p class="mt-1 text-[14px] text-black/75">countries covered</p>
@@ -308,12 +312,14 @@
 							</span>
 						{/if}
 
-						<span
-							class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow"
-						>
-							<Star class="h-3 w-3 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
-							{tour.rating}
-						</span>
+						{#if tour.rating && tour.reviewCount}
+							<span
+								class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow"
+							>
+								<Star class="h-3 w-3 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
+								{tour.rating}
+							</span>
+						{/if}
 					</div>
 
 					<div class="p-5">

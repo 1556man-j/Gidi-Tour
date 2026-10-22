@@ -46,7 +46,10 @@ export default defineType({
 		defineField({ name: 'thingsToDo', title: 'Things to do', type: 'array', of: [{ type: 'string' }] }),
 		defineField({
 			name: 'experiences',
-			title: 'Featured experiences',
+			title: 'Featured experiences (no longer used)',
+			description:
+				'Not used anymore. Tours now appear on the destination page automatically, based on each tour\'s Country slug.',
+			hidden: true,
 			type: 'array',
 			of: [
 				{

@@ -23,14 +23,14 @@ export default defineConfig({
 				trustedOrigins: ['*']
 			},
 
-			// Content Security Policy, in REPORT-ONLY mode: nothing is blocked yet.
-			// Browsers log "[Report Only] Refused to ..." in the console for anything that
-			// would be blocked, and each violation is also logged by /api/csp-report.
-			// Once those are clean on every important page, move everything inside
-			// `reportOnly` into `directives` (and delete `reportOnly`) to enforce it.
+			// Content Security Policy, now ENFORCED: browsers block anything not listed here.
+			// If a new outside service is added to the site (analytics, video, a payment
+			// method), add its address to the matching list below. Violations are logged
+			// by /api/csp-report. To go back to warn-only mode, rename `directives` to
+			// `reportOnly`.
 			csp: {
 				mode: 'auto',
-				reportOnly: {
+				directives: {
 					'default-src': ['self'],
 					'script-src': [
 						'self',

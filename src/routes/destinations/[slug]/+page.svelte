@@ -10,6 +10,7 @@
 	import {
 		ArrowLeft,
 		ArrowUpRight,
+		Star,
 		MapPin,
 		Clock3,
 		Wallet,
@@ -27,10 +28,9 @@
 
 	const country = $derived(data.destination);
 
-	type Experience = NonNullable<(typeof country.experiences)>[number];
-	type SanityTour = NonNullable<Experience['tour']>;
+	type DestinationTour = PageData['tours'][number];
 
-	function buildTourListItem(tour: SanityTour): TourListItem {
+	function buildTourListItem(tour: DestinationTour): TourListItem {
 		return {
 			id: tour.slug.current,
 			slug: tour.slug.current,
@@ -43,19 +43,21 @@
 		};
 	}
 
-	function handleAddExperience(exp: Experience): void {
-		if (!exp.tour) return;
-		tourStore.toggle(buildTourListItem(exp.tour));
+	function handleAddTour(tour: DestinationTour): void {
+		tourStore.toggle(buildTourListItem(tour));
 	}
 
-	function handleBookExperience(exp: Experience): void {
-		if (!exp.tour) return;
-		const item = buildTourListItem(exp.tour);
+	function handleBookTour(tour: DestinationTour): void {
+		const item = buildTourListItem(tour);
 		if (!tourStore.has(item.slug)) {
 			tourStore.add(item);
 		}
 		goto('/book');
 	}
+
+	// Countries can have many tours, so they are shown 12 at a time.
+	let visibleCount = $state(12);
+	const visibleTours = $derived(data.tours.slice(0, visibleCount));
 
 	const seoTitle = $derived(
 		country.seo?.metaTitle ??
@@ -202,86 +204,108 @@
 	</section>
 {/if}
 
-<!-- FEATURED EXPERIENCES -->
-{#if (country.experiences?.length ?? 0) > 0}
+<!-- TOURS IN THIS COUNTRY (added automatically from each tour's country slug) -->
+{#if data.tours.length > 0}
 	<section class="bg-[#f7f3ea] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
 		<div class="mx-auto max-w-[1440px]">
 			<h2 class="font-bold text-3xl tracking-[-.02em] text-[#17200f] sm:text-4xl md:text-5xl">
-				Featured Gidi Tour experiences
+				Tours in {country.name}
 			</h2>
+			<p class="mt-3 text-sm text-[#17200f]/60">
+				{data.tours.length}
+				{data.tours.length === 1 ? 'experience' : 'experiences'} available
+			</p>
+
 			<div class="mt-8 grid gap-6 sm:grid-cols-2">
-				{#each country.experiences as exp (exp.title)}
-					{@const tour = exp.tour}
-					{@const isAdded = tour ? tourStore.has(tour.slug.current) : false}
+				{#each visibleTours as tour (tour._id)}
+					{@const isAdded = tourStore.has(tour.slug.current)}
 
 					<div class="group relative overflow-hidden rounded-[26px] bg-white shadow-sm">
-						<a href={tour ? `/tours/${tour.slug.current}` : (exp.href ?? '/tours')} class="block">
-							<div class="relative aspect-[16/10] overflow-hidden">
-								{#if exp.image}
+						<a href={`/tours/${tour.slug.current}`} class="block">
+							<div class="relative aspect-[16/10] overflow-hidden bg-[#ece6d6]">
+								{#if tour.image}
 									<img
-										src={urlFor(exp.image).width(900).height(560).url()}
-										alt={exp.title}
+										src={urlFor(tour.image).width(900).height(560).url()}
+										alt={tour.title}
 										class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
 										loading="lazy"
 									/>
 								{/if}
-								<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"></div>
+								<div
+									class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"
+								></div>
+
+								{#if tour.rating && tour.reviewCount}
+									<span
+										class="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[13px] font-bold text-[#17200f] shadow"
+									>
+										<Star class="h-3 w-3 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
+										{tour.rating}
+									</span>
+								{/if}
+
 								<div class="absolute inset-x-0 bottom-0 p-6 text-white">
-									<h3 class="font-bold text-2xl">{exp.title}</h3>
-									<p class="mt-2 max-w-sm text-sm leading-relaxed text-white/70">{exp.blurb}</p>
-									{#if tour}
-										<p class="mt-2 text-sm font-bold text-[#F98315]">From £{tour.price}/person</p>
+									<h3 class="font-bold text-2xl">{tour.title}</h3>
+									{#if tour.summary}
+										<p class="mt-2 line-clamp-2 max-w-sm text-sm leading-relaxed text-white/70">
+											{tour.summary}
+										</p>
 									{/if}
+									<p class="mt-2 text-sm font-bold text-[#F98315]">
+										From £{tour.price}/person{tour.duration ? ` · ${tour.duration}` : ''}
+									</p>
 								</div>
 							</div>
 						</a>
 
-						{#if tour}
-							<div class="flex items-center gap-2 p-4">
-								<a
-									href={`/tours/${tour.slug.current}`}
-									class="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold text-[#17200f] transition hover:border-black/20"
-								>
-									View tour
-									<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
-								</a>
-								<button
-									type="button"
-									aria-label={isAdded ? `Remove ${tour.title} from tour list` : `Add ${tour.title} to tour list`}
-									onclick={() => handleAddExperience(exp)}
-									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition {isAdded
-										? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#5C9B19]'
-										: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
-								>
-									{#if isAdded}
-										<Check class="h-4.5 w-4.5" aria-hidden="true" />
-									{:else}
-										<span class="text-lg leading-none">+</span>
-									{/if}
-								</button>
-								<button
-									type="button"
-									onclick={() => handleBookExperience(exp)}
-									class="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C9B19] px-4 py-2.5 text-sm font-bold text-white transition hover:scale-[1.02]"
-								>
-									Book
-									<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
-								</button>
-							</div>
-						{:else}
-							<div class="p-4">
-								<a
-									href={exp.href ?? '/tours'}
-									class="flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold text-[#17200f]"
-								>
-									Learn more
-									<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
-								</a>
-							</div>
-						{/if}
+						<div class="flex items-center gap-2 p-4">
+							<a
+								href={`/tours/${tour.slug.current}`}
+								class="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold text-[#17200f] transition hover:border-black/20"
+							>
+								View tour
+								<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+							</a>
+							<button
+								type="button"
+								aria-label={isAdded
+									? `Remove ${tour.title} from tour list`
+									: `Add ${tour.title} to tour list`}
+								onclick={() => handleAddTour(tour)}
+								class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition {isAdded
+									? 'border-[#5C9B19] bg-[#5C9B19]/10 text-[#5C9B19]'
+									: 'border-black/10 text-[#17200f]/60 hover:border-black/20'}"
+							>
+								{#if isAdded}
+									<Check class="h-4.5 w-4.5" aria-hidden="true" />
+								{:else}
+									<span class="text-lg leading-none">+</span>
+								{/if}
+							</button>
+							<button
+								type="button"
+								onclick={() => handleBookTour(tour)}
+								class="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#5C9B19] px-4 py-2.5 text-sm font-bold text-white transition hover:scale-[1.02]"
+							>
+								Book
+								<ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+							</button>
+						</div>
 					</div>
 				{/each}
 			</div>
+
+			{#if visibleCount < data.tours.length}
+				<div class="mt-10 text-center">
+					<button
+						type="button"
+						onclick={() => (visibleCount += 12)}
+						class="rounded-full border border-black/15 bg-white px-8 py-3 text-sm font-bold text-[#17200f] transition hover:border-black/30"
+					>
+						Show more tours ({data.tours.length - visibleCount} left)
+					</button>
+				</div>
+			{/if}
 		</div>
 	</section>
 {/if}

@@ -142,12 +142,15 @@
 		</a>
 
 		<div class="flex flex-wrap items-center gap-3">
-			<span
-				class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-[#17200f] shadow"
-			>
-				<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
-				{tour.rating} ({tour.reviewCount} reviews)
-			</span>
+			{#if tour.rating && tour.reviewCount}
+				<span
+					class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-[#17200f] shadow"
+				>
+					<Star class="h-4 w-4 fill-[#F98315] text-[#F98315]" aria-hidden="true" />
+					{tour.rating} ({tour.reviewCount}
+					{tour.reviewCount === 1 ? 'review' : 'reviews'})
+				</span>
+			{/if}
 			{#if tour.popular}
 				<span class="rounded-full bg-[#F98315] px-3 py-1 text-sm font-bold text-white shadow"
 					>Popular</span
@@ -268,12 +271,14 @@
 						/>
 					</div>
 
-					<span
-						class="flex items-center gap-1 rounded-full bg-[#F98315]/20 px-2.5 py-1 text-sm font-bold text-[#F98315]"
-					>
-						<Star class="h-4 w-4 fill-current" aria-hidden="true" />
-						{tour.rating}
-					</span>
+					{#if tour.rating && tour.reviewCount}
+						<span
+							class="flex items-center gap-1 rounded-full bg-[#F98315]/20 px-2.5 py-1 text-sm font-bold text-[#F98315]"
+						>
+							<Star class="h-4 w-4 fill-current" aria-hidden="true" />
+							{tour.rating}
+						</span>
+					{/if}
 				</div>
 
 				<div class="mt-6 flex flex-col gap-1.5">
