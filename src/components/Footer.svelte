@@ -142,6 +142,9 @@
 					<a href="/stories" class="block text-sm text-black/70 transition hover:text-black"
 						>Travel Journal</a
 					>
+					<a href="/gidicare" class="block text-sm text-black/70 transition hover:text-black"
+						>Gidicare</a
+					>
 					<a href="/about" class="block text-sm text-black/70 transition hover:text-black"
 						>About Us</a
 					>

@@ -1,7 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { stripe } from '$lib/server/stripeClient';
 import { STRIPE_WEBHOOK_SECRET } from '$env/static/private';
-import { settleBooking, settleOrder, type VerifiedPayment } from '$lib/server/paymentSettlement';
+import {
+	settleBooking,
+	settleOrder,
+	settleDonation,
+	type VerifiedPayment
+} from '$lib/server/paymentSettlement';
 import { markByStripeIntent } from '$lib/server/paymentRecords';
 import type { RequestHandler } from './$types';
 
@@ -44,18 +49,25 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 			const bookingId = intent.metadata?.bookingId;
 			const orderId = intent.metadata?.orderId;
+			const donationId = intent.metadata?.donationId;
 
-			if (!bookingId && !orderId) {
-				console.error('Stripe event has no bookingId or orderId in the PaymentIntent metadata.');
-				return json({ received: true, warning: 'No bookingId or orderId in metadata.' });
+			if (!bookingId && !orderId && !donationId) {
+				console.error(
+					'Stripe event has no bookingId, orderId or donationId in the PaymentIntent metadata.'
+				);
+				return json({ received: true, warning: 'No known record id in metadata.' });
 			}
 
 			const result = bookingId
 				? await settleBooking(bookingId, payment)
-				: await settleOrder(orderId as string, payment, url.origin);
+				: orderId
+					? await settleOrder(orderId, payment, url.origin)
+					: await settleDonation(donationId as string, payment);
 
 			if (result === 'not_found') {
-				console.error(`Stripe payment ${intent.id}: record ${bookingId ?? orderId} not found.`);
+				console.error(
+					`Stripe payment ${intent.id}: record ${bookingId ?? orderId ?? donationId} not found.`
+				);
 				// 500 makes Stripe retry, in case the record just hasn't appeared yet.
 				return json({ error: 'Record not found.' }, { status: 500 });
 			}

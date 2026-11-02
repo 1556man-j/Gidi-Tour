@@ -13,7 +13,9 @@ const CSRF_EXEMPT_PATHS = new Set([
 	'/api/book/dlocal/webhook',
 	'/api/book/stripe/webhook',
 	'/api/store/checkout/dlocal/return',
-	'/api/store/checkout/dlocal/webhook'
+	'/api/store/checkout/dlocal/webhook',
+	'/api/gidicare/dlocal/return',
+	'/api/gidicare/dlocal/webhook'
 ]);
 
 // "/API/Book/dlocal/return/" and "/api/book/dlocal/return" are the same route.
@@ -33,7 +35,10 @@ const mobileBridge: Handle = async ({ event, resolve }) => {
 		if (auth?.startsWith('Bearer ')) {
 			const headers = new Headers(event.request.headers);
 			const existing = headers.get('cookie');
-			headers.set('cookie', `${existing ? existing + '; ' : ''}${sessionCookieName(event.url)}=${auth.slice(7)}`);
+			headers.set(
+				'cookie',
+				`${existing ? existing + '; ' : ''}${sessionCookieName(event.url)}=${auth.slice(7)}`
+			);
 			event.request = new Request(event.request, { headers });
 		}
 		if (!/^[A-Z]{2}$/.test(event.cookies.get('visitor_country') ?? '')) {
@@ -63,7 +68,6 @@ const devCors: Handle = async ({ event, resolve }) => {
 	}
 	return response;
 };
-
 
 const csrfHandle: Handle = async ({ event, resolve }) => {
 	const path = normalizePath(event.url.pathname);

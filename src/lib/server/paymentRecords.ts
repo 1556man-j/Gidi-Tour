@@ -1,6 +1,6 @@
 import { db, unwrap } from '$lib/server/supabase';
 
-export type PaymentTable = 'bookings' | 'store_orders';
+export type PaymentTable = 'bookings' | 'store_orders' | 'donations';
 
 /**
  * Moves a record to "paid". Only the first caller gets `true`; a repeated
@@ -84,7 +84,7 @@ export async function markByStripeIntent(
 	paymentIntentId: string,
 	status: 'refunded' | 'disputed'
 ) {
-	for (const table of ['bookings', 'store_orders'] as const) {
+	for (const table of ['bookings', 'store_orders', 'donations'] as const) {
 		unwrap(
 			await db
 				.from(table)

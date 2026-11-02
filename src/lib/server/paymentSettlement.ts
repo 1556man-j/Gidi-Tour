@@ -3,6 +3,9 @@ import { getOrderStatus } from '$lib/sanity/queries/storeOrder';
 import { sendBookingConfirmationEmails } from '$lib/server/bookingEmail';
 import { sendStoreOrderConfirmationEmails } from '$lib/server/storeEmail';
 import { buildDownloadLinks } from '$lib/server/magazineDownload';
+import { getDonationStatus } from '$lib/server/donations';
+import { sendGidiCareDonationEmails } from '$lib/server/gidicareEmail';
+import { getGidiCareCaseTitle } from '$lib/sanity/queries/gidicare';
 import { fetchDlocalPayment } from '$lib/server/dlocalVerify';
 import {
 	claimPaid,
@@ -135,6 +138,28 @@ export function settleOrder(orderId: string, payment: VerifiedPayment, origin: s
 	});
 }
 
+export function settleDonation(donationId: string, payment: VerifiedPayment) {
+	return settle('donations', donationId, payment, getDonationStatus, async (donation) => {
+		const caseTitle = donation.caseSlug
+			? await getGidiCareCaseTitle(donation.caseSlug)
+			: undefined;
+
+		await sendGidiCareDonationEmails({
+			donationId: donation._id,
+			name: donation.donorName,
+			email: donation.email,
+			message: donation.message,
+			anonymous: Boolean(donation.anonymous),
+			amountGBP: Number(donation.amountGbp ?? donation.amountGBP),
+			amountCharged: donation.amountCharged,
+			currency: donation.currency,
+			paymentMethod: payment.provider,
+			caseSlug: donation.caseSlug,
+			caseTitle
+		});
+	});
+}
+
 // ---------------------------------------------------------------------------
 // dLocal helpers
 // ---------------------------------------------------------------------------
@@ -190,4 +215,19 @@ export async function reconcileDlocalOrder(order: any, origin: string) {
 	}
 
 	return (await getOrderStatus(order._id)) ?? order;
+}
+
+export async function reconcileDlocalDonation(donation: any) {
+	if (!donation || donation.paymentMethod !== 'dlocal') return donation;
+	if (donation.paymentStatus !== 'pending' || !donation.dlocalPaymentId) return donation;
+
+	try {
+		const payment = await fetchDlocalPayment(donation.dlocalPaymentId);
+
+		if (payment) await settleDonation(donation._id, toVerifiedDlocalPayment(payment));
+	} catch (error) {
+		console.error('dLocal donation reconcile failed:', error);
+	}
+
+	return (await getDonationStatus(donation._id)) ?? donation;
 }

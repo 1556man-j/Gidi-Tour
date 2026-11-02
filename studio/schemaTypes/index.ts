@@ -15,5 +15,8 @@ import customer from './customer';
 import storeproduct from './storeproduct';
 import storeOrder from './storeOrder';
 import review from './review';
+import gidicareCase from './gidicareCase';
+import gidicareSettings from './gidicareSettings';
 
-export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview, booking, customer, storeproduct, storeOrder, review];
+
+export const schemaTypes = [seo, siteSettings, pageSeo, tour, destination, article, faq, contactSubmission, jobPosition, postcard, teamQuote, trustpilotReview, booking, customer, storeproduct, storeOrder, review, gidicareCase, gidicareSettings];
