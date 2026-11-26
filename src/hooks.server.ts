@@ -29,16 +29,21 @@ function normalizePath(pathname: string) {
  *    session cookie expected by the existing authentication flow.
  * 2. Detect the visitor's country server-side, as on the website.
  */
+const SESSION_COOKIE = /^(__Secure-)?authjs\.session-token/;
+
 const mobileBridge: Handle = async ({ event, resolve }) => {
-	if (event.request.headers.get('x-gidi-client') === 'mobile') {
+	const isMobile = event.request.headers.get('x-gidi-client') === 'mobile';
+	if (isMobile) {
 		const auth = event.request.headers.get('authorization');
 		if (auth?.startsWith('Bearer ')) {
 			const headers = new Headers(event.request.headers);
-			const existing = headers.get('cookie');
-			headers.set(
-				'cookie',
-				`${existing ? existing + '; ' : ''}${sessionCookieName(event.url)}=${auth.slice(7)}`
-			);
+			// Drop any session cookie the phone's cookie jar may have kept, so the Bearer token is the ONLY identity used.
+			const others = (headers.get('cookie') ?? '')
+				.split(';')
+				.map((c) => c.trim())
+				.filter((c) => c && !SESSION_COOKIE.test(c))
+				.join('; ');
+			headers.set('cookie', `${others ? others + '; ' : ''}${sessionCookieName(event.url)}=${auth.slice(7)}`);
 			event.request = new Request(event.request, { headers });
 		}
 		if (!/^[A-Z]{2}$/.test(event.cookies.get('visitor_country') ?? '')) {
@@ -46,7 +51,16 @@ const mobileBridge: Handle = async ({ event, resolve }) => {
 			event.cookies.set('visitor_country', country, { path: '/', maxAge: 60 * 60 * 24 * 30 });
 		}
 	}
-	return resolve(event);
+	const response = await resolve(event);
+	if (isMobile) {
+		// Personal data must never be cached and handed to someone else.
+		try {
+			response.headers.set('Cache-Control', 'private, no-store');
+		} catch {
+			// Some responses have locked headers.
+		}
+	}
+	return response;
 };
 
 const devCors: Handle = async ({ event, resolve }) => {
