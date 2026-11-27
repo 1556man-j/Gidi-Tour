@@ -2,7 +2,7 @@
 	import { reveal } from '$lib/utils/reveal';
 	import { ShieldCheck, Database, Mail, ChevronRight } from 'lucide-svelte';
 
-	const lastUpdated = '21 September 2026';
+	const lastUpdated = '27 November 2026';
 </script>
 
 /* eslint-disable svelte/no-navigation-without-resolve */
@@ -80,6 +80,9 @@
 						>
 						<a href="#rights" class="block text-base text-[#17200f]/65 hover:text-[#5C9B19]"
 							>Your rights</a
+						>
+						<a href="#app" class="block text-base text-[#17200f]/65 hover:text-[#5C9B19]"
+							>Our mobile app</a
 						>
 						<a href="#contact" class="block text-base text-[#17200f]/65 hover:text-[#5C9B19]"
 							>Contact us</a
@@ -192,8 +195,39 @@
 					</p>
 				</section>
 
+				<section id="app">
+					<h2 class="text-2xl font-bold">7. Our mobile app</h2>
+					<p class="mt-4 leading-7 text-[#17200f]/65">
+						If you use the Gidi Tour mobile app, the same account, bookings and store orders you
+						have on our website appear in the app. You can sign in with your email and password,
+						with Google, or with Apple. When you do, we receive your name and email address from
+						that provider, and we do not receive your Google or Apple password.
+					</p>
+					<p class="mt-4 leading-7 text-[#17200f]/65">
+						The app also handles: messages between you and your guide, which we keep so we can
+						support your trip and keep everyone safe (messages are checked for attempts to take
+						payment outside Gidi Tour); the tours you save, which we store against your account so
+						they follow you to a new phone; reviews you choose to write; cancellation requests you
+						send; and, if you apply to become a guide, your guide application details and profile
+						photo.
+					</p>
+					<p class="mt-4 leading-7 text-[#17200f]/65">
+						If the app stops working unexpectedly, it may send us a short technical error report,
+						which includes the app version, your phone's operating system, the screen you were on
+						and the error message. We use these only to fix bugs. We do not use advertising
+						trackers in the app.
+					</p>
+					<p class="mt-4 leading-7 text-[#17200f]/65">
+						You can delete your account and the personal information linked to it at any time from
+						the app (Account, then Delete account) or on our website at
+						<a href="/delete-account" class="font-bold text-[#5C9B19] hover:text-[#F98315]"
+							>giditour.com/delete-account</a
+						>. We may keep some records, such as payment records, where the law requires it.
+					</p>
+				</section>
+
 				<section>
-					<h2 class="text-2xl font-bold">7. Children</h2>
+					<h2 class="text-2xl font-bold">8. Children</h2>
 					<p class="mt-4 leading-7 text-[#17200f]/65">
 						Our website and services are not intended to knowingly collect personal information from
 						children without appropriate involvement or permission from a parent or guardian where
@@ -202,7 +236,7 @@
 				</section>
 
 				<section>
-					<h2 class="text-2xl font-bold">8. Changes to this policy</h2>
+					<h2 class="text-2xl font-bold">9. Changes to this policy</h2>
 					<p class="mt-4 leading-7 text-[#17200f]/65">
 						We may update this Privacy Policy from time to time to reflect changes to our services,
 						technology or legal requirements. The updated version will be posted on this page with a
@@ -218,7 +252,7 @@
 							<Mail class="h-5 w-5" />
 						</div>
 						<div>
-							<h2 class="text-2xl font-bold">9. Contact us</h2>
+							<h2 class="text-2xl font-bold">10. Contact us</h2>
 							<p class="mt-3 leading-7 text-[#17200f]/65">
 								If you have a question about this Privacy Policy or how we handle your information,
 								please contact Gidi Tour Ltd.

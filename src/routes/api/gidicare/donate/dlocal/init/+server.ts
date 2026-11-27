@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
+import { dlocalHeaders, DLOCAL_API_BASE, logDlocalFailure } from '$lib/server/dlocalClient';
 import { createPendingDonation } from '$lib/server/donations';
 import { parseDonation, DonationRequestError } from '$lib/server/donationRequest';
 import { setDlocalPaymentId } from '$lib/server/paymentRecords';
@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies, getC
 		const data = await res.json();
 
 		if (!res.ok) {
-			console.error('dLocal GidiCare payment creation failed:', data);
+			logDlocalFailure('dLocal GidiCare payment creation failed', data);
 			return json({ error: 'Could not start payment.' }, { status: 502 });
 		}
 

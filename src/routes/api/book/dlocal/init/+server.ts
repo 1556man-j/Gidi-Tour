@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
+import { dlocalHeaders, DLOCAL_API_BASE, logDlocalFailure } from '$lib/server/dlocalClient';
 import { createPendingBooking } from '$lib/sanity/queries/booking';
 import { setDlocalPaymentId } from '$lib/server/paymentRecords';
 import { buildVerifiedBooking, BookingValidationError } from '$lib/server/bookingPricing';
@@ -65,7 +65,7 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies, getC
 		const data = await res.json();
 
 		if (!res.ok) {
-			console.error('dLocal payment creation failed:', data);
+			logDlocalFailure('dLocal payment creation failed', data);
 
 			return json({ error: 'Could not start payment.' }, { status: 502 });
 		}

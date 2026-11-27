@@ -1,11 +1,12 @@
 import { json } from '@sveltejs/kit';
-import { dlocalHeaders, DLOCAL_API_BASE } from '$lib/server/dlocalClient';
+import { dlocalHeaders, DLOCAL_API_BASE, logDlocalFailure } from '$lib/server/dlocalClient';
 import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/queries/storeOrder';
 import { getStoreProducts } from '$lib/sanity/queries/store';
 import { getChargeAmount } from '$lib/server/chargeAmount';
 import { setDlocalPaymentId } from '$lib/server/paymentRecords';
 import { effectivePrice } from '$lib/storePricing';
 import type { RequestHandler } from './$types';
+import { stockProblem } from '$lib/server/stockCheck';
 import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
 import { safeCountry, isDlocalCountry } from '$lib/server/paymentRouter';
 
@@ -53,6 +54,9 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies, getC
 			if (!Number.isFinite(quantity) || quantity < 1 || quantity > 20) {
 				return json({ error: 'Invalid item quantity.' }, { status: 400 });
 			}
+
+			const stockMessage = stockProblem(product, typeof raw.variant === 'string' ? raw.variant : undefined, quantity);
+			if (stockMessage) return json({ error: stockMessage }, { status: 409 });
 
 			items.push({
 				id: product.slug.current,
@@ -155,7 +159,7 @@ export const POST: RequestHandler = async ({ request, url, locals, cookies, getC
 		const data = await res.json();
 
 		if (!res.ok) {
-			console.error('dLocal store payment creation failed:', data);
+			logDlocalFailure('dLocal store payment creation failed', data);
 			return json({ error: 'Could not start payment.' }, { status: 502 });
 		}
 

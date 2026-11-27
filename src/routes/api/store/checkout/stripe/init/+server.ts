@@ -4,6 +4,7 @@ import { createPendingOrder, type StoreOrderItemInput } from '$lib/sanity/querie
 import { getStoreProducts } from '$lib/sanity/queries/store';
 import { getChargeAmount } from '$lib/server/chargeAmount';
 import type { RequestHandler } from './$types';
+import { stockProblem } from '$lib/server/stockCheck';
 import { effectivePrice } from '$lib/storePricing';
 import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
 import { safeCountry } from '$lib/server/paymentRouter';
@@ -66,6 +67,9 @@ export const POST: RequestHandler = async ({ request, locals, cookies, getClient
 			if (!Number.isFinite(quantity) || quantity < 1 || quantity > 20) {
 				return json({ error: 'Invalid item quantity.' }, { status: 400 });
 			}
+
+			const stockMessage = stockProblem(product, typeof raw.variant === 'string' ? raw.variant : undefined, quantity);
+			if (stockMessage) return json({ error: stockMessage }, { status: 409 });
 
 			items.push({
 				id: product.slug.current,
