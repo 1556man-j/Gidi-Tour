@@ -4,7 +4,8 @@ import { env } from '$env/dynamic/private';
 
 // Defaults to the sandbox so a missing setting can never hit live payments.
 // For live, set DLOCAL_API_BASE=https://api.dlocal.com in your host's env vars.
-const DLOCAL_API_BASE = env.DLOCAL_API_BASE || 'https://api.dlocal.com';
+const DLOCAL_API_BASE = (env.DLOCAL_API_BASE || 'https://sandbox.dlocal.com').replace(/\/+$/, '');
+if (!env.DLOCAL_API_BASE) console.warn('DLOCAL_API_BASE is not set, so dLocal is using the SANDBOX. Set it to https://api.dlocal.com for live payments.');
 
 export function dlocalHeaders(bodyString: string) {
 	const date = new Date().toISOString();

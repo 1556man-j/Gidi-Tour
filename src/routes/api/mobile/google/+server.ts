@@ -4,7 +4,10 @@ import { GOOGLE_CLIENT_ID } from '$env/static/private';
 import { getCustomerByEmail, createCustomer, convertToGoogleAccount } from '$lib/sanity/queries/customer';
 import { isRateLimited, ipOf, tooManyRequests } from '$lib/server/rateLimit';
 import { issueMobileToken } from '$lib/server/mobileSession';
+import { OAuth2Client } from 'google-auth-library';
 import type { RequestHandler } from './$types';
+
+const googleClient = new OAuth2Client();
 
 // Set MOBILE_GOOGLE_CLIENT_IDS="iosId,androidId" if you use native iOS/Android client IDs.
 const allowedAudiences = () =>
@@ -16,14 +19,15 @@ export const POST: RequestHandler = async ({ request, getClientAddress, url }) =
 	const { idToken } = await request.json().catch(() => ({}));
 	if (typeof idToken !== 'string' || !idToken) return json({ error: 'Missing Google token.' }, { status: 400 });
 
-	// Google checks the signature and expiry for us.
-	const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-	if (!res.ok) return json({ error: 'Google sign-in failed.' }, { status: 401 });
-	const info = await res.json();
-
-	if (!allowedAudiences().has(info.aud) || String(info.email_verified) !== 'true' || !info.email) {
+	// Verify the signature, issuer, expiry and audience with Google's own library.
+	let info: { email?: string; email_verified?: boolean; name?: string } | undefined;
+	try {
+		const ticket = await googleClient.verifyIdToken({ idToken, audience: [...allowedAudiences()] });
+		info = ticket.getPayload();
+	} catch {
 		return json({ error: 'Google sign-in failed.' }, { status: 401 });
 	}
+	if (!info?.email || info.email_verified !== true) return json({ error: 'Google sign-in failed.' }, { status: 401 });
 
 	const existing = await getCustomerByEmail(info.email);
 	let id: string;

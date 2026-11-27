@@ -1,6 +1,7 @@
 import { db, unwrap } from '$lib/server/supabase';
 import { getGuideByEmail, getGuidesForTours } from '$lib/sanity/queries/guides';
 import { checkMessage } from '$lib/server/chatFilter';
+import { notifyNewMessage } from '$lib/server/chatNotify';
 
 const CLOSE_AFTER_DAYS = 7; // chats stay open this long after the tour ends
 const MAX_BODY = 1000;
@@ -273,6 +274,13 @@ export async function sendMessage(conv: ConversationRow, role: Role, senderId: s
 		.from('conversations')
 		.update({ last_message_at: row.created_at, last_message_preview: body.slice(0, 80) })
 		.eq('id', conv.id);
+
+	// A failed email must never stop the message from being sent.
+	try {
+		await notifyNewMessage(conv, role);
+	} catch (error) {
+		console.error('Could not send the new-message email:', error);
+	}
 
 	return { ok: true, message: { id: row.id, mine: true, body, createdAt: row.created_at, read: false } };
 }

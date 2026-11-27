@@ -45,6 +45,8 @@
 		"embla-carousel": "^8.6.0",
 		"embla-carousel-autoplay": "^8.6.0",
 		"embla-carousel-svelte": "^8.6.0",
+		"google-auth-library": "^11.3.4",
+		"jose": "^6.2.18",
 		"lucide-svelte": "^1.0.1",
 		"resend": "^6.28.1",
 		"stripe": "^22.6.2",

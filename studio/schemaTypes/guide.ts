@@ -46,6 +46,8 @@ export default defineType({
 		defineField({ name: 'city', title: 'Based in (city)', type: 'string' }),
 		defineField({ name: 'experienceYears', title: 'Years of guiding experience', type: 'number' }),
 		defineField({ name: 'phone', title: 'Phone (for the team only)', type: 'string', description: 'Never shown to travellers.' }),
+		defineField({ name: 'approvalEmailSentAt', type: 'datetime', readOnly: true, hidden: true }),
+		defineField({ name: 'rejectionEmailSentAt', type: 'datetime', readOnly: true, hidden: true }),
 		defineField({ name: 'appliedAt', title: 'Applied on', type: 'datetime', readOnly: true }),
 		defineField({
 			name: 'tours',
